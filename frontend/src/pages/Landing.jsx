@@ -3,6 +3,8 @@ import {
   Link
 } from 'react-router-dom';
 
+const path = 'http://localhost:5005';
+
 const contentContainer = {
   height: 'auto',
   padding: '150px 70px',
@@ -135,16 +137,16 @@ function makeListing (props) {
   }
 
   return (
-    <div key={props.title} style={item} onClick={function (e) {
+    <div key={props.id} style={item} onClick={function (e) {
       alert('change screen');
     }}>
-      <Link to='landing' key={props.title} style={{ textDecoration: 'none', color: 'black' }}>
+      <Link to='landing' key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
         <div style={flex}>
           <img style={img} src={props.thumbnail} />
           <div style={grid}>
             <span style={{ gridArea: 'Name' }}>{props.title}</span>
-            <span style={{ gridArea: 'Address1' }}>{props.address.string1}</span>
-            <span style={{ gridArea: 'Address2' }}>{props.address.string1}</span>
+            <span style={{ gridArea: 'Address1' }}>{props.address.street}</span>
+            <span style={{ gridArea: 'Address2' }}>{props.address.suburb}</span>
             <span style={{ gridArea: 'Price' }}>${props.price}</span>
             <span style={{ gridArea: 'Rating' }}>{props.reviews.length}</span>
           </div>
@@ -162,7 +164,7 @@ function Landing () {
   const [filterValue, setFilterValue] = React.useState([]);
 
   React.useEffect(async () => {
-    const response = await fetch('http://localhost:5005/listings', {
+    const response = await fetch(path + '/listings', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -181,20 +183,32 @@ function Landing () {
   }, [])
 
   React.useEffect(async () => {
-    const response = await fetch('http://localhost:5005/listings', {
+    const response = await fetch(path + '/listings', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
       }
     });
     const data = await response.json();
+    const moreData = [];
+    for (const place of data.listings) {
+      const response = await fetch(path + '/listings/' + place.id, {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+        }
+      });
+      const received = await response.json();
+      moreData.push(received.listing);
+    }
+    console.log(moreData);
     if (data.error) {
       alert(data.error);
     } else {
       if (filter === 'title') {
-        data.listings = data.listings.filter(e => {
+        data.listings = await data.listings.filter(e => {
           if (!e.title.toLowerCase().includes(filterValue[0].toLowerCase())) {
-            if (e.address.string1.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.string2.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.string3.toLowerCase().includes(filterValue[0].toLowerCase())) {
+            if (e.address.city.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.city.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.city.toLowerCase().includes(filterValue[0].toLowerCase())) {
               return true;
             } else {
               return false;
@@ -203,6 +217,32 @@ function Landing () {
             return true;
           }
         });
+        setListings(data.listings);
+      } else if (filter === 'bed') {
+        const filtered = moreData.filter(e => {
+          if (e.metadata.bed >= filterValue[0] && e.metadata.bed <= filterValue[1]) {
+            return true;
+          }
+          return false;
+        })
+        setListings(filtered);
+      } else if (filter === 'bedroom') {
+        const filtered = moreData.filter(e => {
+          if (e.metadata.bedroom >= filterValue[0] && e.metadata.bedroom <= filterValue[1]) {
+            return true;
+          }
+          return false;
+        })
+        setListings(filtered);
+      } else if (filter === 'price') {
+        const filtered = moreData.filter(e => {
+          if (e.price >= filterValue[0] && e.price <= filterValue[1]) {
+            return true;
+          }
+          return false;
+        });
+        setListings(filtered);
+      } else {
         setListings(data.listings);
       }
     }
