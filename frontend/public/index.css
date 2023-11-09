@@ -1,0 +1,40 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+#logo {
+    height: 40px;
+}
+
+#nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: content-box;
+    height: 80px;
+    padding: 10px 80px;
+    border-bottom: 1px solid rgb(233, 233, 233);
+}
+
+.login-box {
+    border-radius: 10px;
+    padding: 0px;
+    margin-top: 80px;
+    border: 1px solid rgb(149, 149, 149);    
+}
+
+hr {
+    opacity: 30%;
+    margin: 0px;
+}
+
+.login-title {
+    display: flex;
+    justify-content: center;
+}
+
+.login-box h2 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
