@@ -1,21 +1,19 @@
 import React from 'react'
 import Landing from './Landing.jsx'
+import Listing from './Listing.jsx'
 import {
   Routes,
   Route,
-  useNavigate,
 } from 'react-router-dom'
 
-function Pages () {
-  const nav = useNavigate();
-  React.useEffect(() => {
-    nav('/landing')
-  }, []);
+export const path = 'http://localhost:5005';
 
+function Pages () {
   return (
     <>
       <Routes>
-        <Route path="landing" element={<Landing />} />
+        <Route path='/' element={<Landing />} />
+        <Route path='/listing/:listid/:checkin?/:checkout?' element={<Listing />} />
       </Routes>
     </>
   )

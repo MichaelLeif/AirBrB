@@ -1,9 +1,10 @@
 import React from 'react';
 import {
-  Link
+  Link,
 } from 'react-router-dom';
-
-const path = 'http://localhost:5005';
+import {
+  path
+} from './Pages.jsx';
 
 const contentContainer = {
   height: 'auto',
@@ -25,7 +26,7 @@ const searchContainer = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'white'
+  backgroundColor: 'white',
 }
 
 const container = {
@@ -57,6 +58,7 @@ const inputContainer = {
   justifyContent: 'flex-start',
   border: '1px solid',
   borderRadius: '50px',
+  boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px'
 }
 
 const dest = {
@@ -103,7 +105,7 @@ const line = {
   height: '60%'
 }
 
-function makeListing (props) {
+function makeListing (props, dateValue) {
   const item = {
     height: '380px',
     cursor: 'pointer',
@@ -136,21 +138,35 @@ function makeListing (props) {
       `,
   }
 
-  return (
-    <div key={props.id} style={item} onClick={function (e) {
-      alert('change screen');
-    }}>
-      <Link to='landing' key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
-        <div style={flex}>
-          <img style={img} src={props.thumbnail} />
-          <div style={grid}>
-            <span style={{ gridArea: 'Name' }}>{props.title}</span>
-            <span style={{ gridArea: 'Address1' }}>{props.address.street}</span>
-            <span style={{ gridArea: 'Address2' }}>{props.address.suburb}</span>
-            <span style={{ gridArea: 'Price' }}>${props.price}</span>
-            <span style={{ gridArea: 'Rating' }}>{props.reviews.length}</span>
-          </div>
+  const ListInfo = () => {
+    return (
+      <div style={flex}>
+        <img style={img} src={props.thumbnail} />
+        <div style={grid}>
+          <span style={{ gridArea: 'Name' }}>{props.title}</span>
+          <span style={{ gridArea: 'Address1' }}>{props.address.street}</span>
+          <span style={{ gridArea: 'Address2' }}>{props.address.suburb}</span>
+          <span style={{ gridArea: 'Price' }}>${props.price}</span>
+          <span style={{ gridArea: 'Rating' }}>{props.reviews.length}</span>
         </div>
+      </div>
+    )
+  }
+
+  if (dateValue !== undefined) {
+    return (
+      <div key={props.id} style={item}>
+        <Link to={`/listing/${props.id}/${dateValue[0]}/${dateValue[1]}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
+          <ListInfo />
+        </Link>
+      </div>
+    )
+  }
+
+  return (
+    <div key={props.id} style={item}>
+      <Link to={`/listing/${props.id}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
+        <ListInfo />
       </Link>
     </div>
   )
@@ -201,7 +217,6 @@ function Landing () {
       const received = await response.json();
       moreData.push(received.listing);
     }
-    console.log(moreData);
     if (data.error) {
       alert(data.error);
     } else {
@@ -250,9 +265,11 @@ function Landing () {
 
   if (loading) {
     return (
-      <div style={contentContainer}>
-        LOADING
-      </div>
+      <>
+        <div style={contentContainer}>
+          LOADING
+        </div>
+      </>
     )
   }
 
@@ -384,7 +401,7 @@ function Landing () {
       <div style={contentContainer}>
         {
           listing.map((e) => {
-            return makeListing(e);
+            return makeListing(e, filter === 'date' ? filterValue : undefined);
           })
         }
       </div>
