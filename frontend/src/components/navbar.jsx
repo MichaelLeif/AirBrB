@@ -38,15 +38,28 @@ const AccountMenu = () => {
 
   const registerOrLogin = () => {
     return (
-      <>
+      <div>
         <MenuItem component={Link} to='/register'>
           Sign up
         </MenuItem>
         <MenuItem component={Link} to='/login'>
           Login
         </MenuItem>
+      </div>
+    );
+  }
+
+  const showListings = () => {
+    return (
+      <div>
+        <MenuItem onClick={handleClose}>
+          All listings
+        </MenuItem>
+        <MenuItem component={Link} to='/listings-my'>
+          Your listings
+        </MenuItem>
         <Divider />
-      </>
+      </div>
     );
   }
 
@@ -102,12 +115,7 @@ const AccountMenu = () => {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         {!userValid ? registerOrLogin() : null}
-        <MenuItem onClick={handleClose}>
-          Help center
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          Airbnb your home
-        </MenuItem>
+        {userValid ? showListings() : null}
         {userValid ? logoutButton() : null}
       </Menu>
     </React.Fragment>

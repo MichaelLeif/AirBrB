@@ -5,6 +5,10 @@ import { Login } from './components/login'
 import { Register } from './components/register'
 import { apiCall, getToken } from './helpers/apicalls';
 import { NavBar } from './components/navbar'
+import { MyListings } from './components/my-listings'
+import { NewListing } from './components/new-listing'
+import { EditListing } from './components/edit-listing  '
+
 const Home = () => {
   return <div>
     Home
@@ -31,10 +35,6 @@ const Dashboard = () => {
   </div>
 }
 
-const ListingOwn = () => {
-  <div> own listing </div>
-}
-
 function App () {
   return (
     <>
@@ -45,9 +45,10 @@ function App () {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/hosting" element={<Register />}>
-            <Route path="listing" element={<ListingOwn />} />
-          </Route>
+          <Route path="/hosting" element={<Register />}/>
+          <Route path="/listings-my" element={<MyListings />}/>
+          <Route path="/listings-new" element={<NewListing />}/>
+          <Route path="/listings/:name" element={<EditListing />} />
         </Routes>
       </BrowserRouter>
     </>

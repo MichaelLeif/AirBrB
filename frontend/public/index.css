@@ -38,3 +38,67 @@ hr {
     margin-top: 40px;
     margin-bottom: 10px;
 }
+
+#my-listings {
+    padding: 30px 80px;
+}
+
+#houseIcon {
+    height: 40px;
+}
+
+#newListingCard h2, p {
+    margin: 10px 0px;
+}
+
+#newListingCard svg {
+    margin-top: 30px;
+}
+
+#newListingCard button {
+    margin-bottom: 10px;
+}
+
+svg {
+    height: 30px;
+}
+
+button span.MuiButton-startDecorator {
+    margin: 0;
+}
+
+#my-listings h3 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.modifyFeature {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 0px
+}
+
+.basicFeature {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#listing-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rating {
+    display: flex;
+}
+
+/* #starRating {
+    height: 10px;
+} */
+
+svg {
+    height: 20px;
+}

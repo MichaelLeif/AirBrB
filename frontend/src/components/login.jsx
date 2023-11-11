@@ -39,10 +39,15 @@ export const Login = () => {
     localStorage.setItem('token', token);
   }
 
+  const setUser = (user) => {
+    localStorage.setItem('user', user);
+  }
+
   const login = async () => {
     try {
       const data = await apiCall('POST', '/user/auth/login', { email, password }, true);
       setToken(data.token);
+      setUser(email);
       return true;
     } catch (err) {
       console.log('Bad request');

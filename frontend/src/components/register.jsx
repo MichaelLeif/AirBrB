@@ -40,6 +40,10 @@ export const Register = () => {
     localStorage.setItem('token', token);
   }
 
+  const setUser = (user) => {
+    localStorage.setItem('user', user);
+  }
+
   const register = () => {
     if (!passwordsMatch(password, confirmPassword)) {
       return;
@@ -47,6 +51,7 @@ export const Register = () => {
     apiCall('POST', '/user/auth/register', { name, email, password }, true)
       .then((data) => {
         setToken(data.token);
+        setUser(email);
       })
       .catch((err) => {
         console.log('Bad request');
