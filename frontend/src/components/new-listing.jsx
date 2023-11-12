@@ -200,8 +200,6 @@ export const NewListing = () => {
           return x.i !== sleepArr.i && x.i !== undefined
         });
         sleepingArrangement.push(sleepArr);
-        console.log('sa', sleepingArrangement);
-        console.log(single);
       }
       , [sleepArr])
 
@@ -289,9 +287,9 @@ export const NewListing = () => {
   }
 
   const createListing = () => {
-    // const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
-    //   accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
-    // 0);
+    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
+      accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
+    0);
     fetchThumbnail()
       .then((data) => {
         apiCall('POST', '/listings/new', {
@@ -301,8 +299,8 @@ export const NewListing = () => {
           thumbnail: data,
           metadata: {
             type,
-            // beds,
-            // sleepingArrangement,
+            beds,
+            sleepingArrangement,
             bedrooms,
             baths,
             active: false,

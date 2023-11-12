@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import { star } from '../helpers/svg'
-// import { fileToDataUrl } from '../helpers/image'
+import { GoLiveDialog } from './go-live'
 
 const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
@@ -65,7 +65,11 @@ const Rating = ({ reviews }) => {
   )
 }
 
-const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, price, navigate }) => {
+const deleteListing = (id) => {
+  apiCall('DELETE', '/listings/' + id, {}, true);
+}
+
+const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, price, navigate, published }) => {
   return (
     <JoyCard
     orientation="horizontal"
@@ -129,10 +133,12 @@ const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, pri
             <JoyButton sx={{ flex: 1 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
               Edit
             </JoyButton>
-            <JoyButton sx={{ flex: 0.25 }} variant="solid" color="success">
-              Go live
-            </JoyButton>
-            <JoyButton sx={{ flex: 0.25 }} variant="solid" color="danger">
+            { !published ? <GoLiveDialog sx={{ flex: 0.25 }} listing={id}/> : <JoyButton color='warning'> Unpublish </JoyButton> }
+            <JoyButton sx={{ flex: 0.25 }} variant="solid" color="danger" onClick={(e) => {
+              deleteListing(id);
+              navigate('/listings/my');
+            }
+              }>
               Delete
             </JoyButton>
       </Box>
@@ -217,7 +223,12 @@ export const MyListings = () => {
           console.log(listingDets);
           return (
             // Change listing.type and reviews
-            <ListingCard key={i} id={listing.id} title={listingDets.title} type={'Apartment'} beds={listingDets.metadata.beds} bathrooms={listingDets.metadata.baths} address={listingDets.address} thumbnail={listingDets.thumbnail} price={listingDets.price} reviews={listingDets.reviews} navigate={navigate} />
+            <ListingCard key={i} id={listing.id} title={listingDets.title}
+            type={'Apartment'} beds={listingDets.metadata.beds}
+            bathrooms={listingDets.metadata.baths} address={listingDets.address}
+            thumbnail={listingDets.thumbnail} price={listingDets.price}
+            reviews={listingDets.reviews} navigate={navigate}
+            published={listingDets.published}/>
           )
         })
       )
