@@ -41,7 +41,6 @@ export default function InteractiveCard () {
       sx={{
         width: 320,
         '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-        '&:active': { backgroundColor: '#ffffff' },
       }}
     >
       <CardContent>
@@ -153,7 +152,7 @@ export const NewListing = () => {
   const [bedrooms, setBedrooms] = React.useState('1');
   const [baths, setBaths] = React.useState('1');
   const [photo, setPhoto] = React.useState([]);
-  const errors = [];
+  const [amenities, setAmenities] = React.useState([]);
 
   const LoadPhoto = () => {
     const [pic, loadPic] = React.useState('');
@@ -238,28 +237,59 @@ export const NewListing = () => {
 
   const priceCheck = (price) => {
     const check = price.match(/^[0-9]+\.[0-9]{2}$/) != null || price.match(/^[0-9]+$/) != null || price.length === 0;
-    if (check) {
-      errors.push(price);
-    }
     return check;
   }
 
   const PlaceTypeCard = ({ svg, title }) => {
+    const selectColor = (title.localeCompare(type) === 0 ? '#ededed' : null)
     return (
       <Grid xs={4}>
         <SelectCard
-        value={type}
-        sx={{
-          '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-        }}
-        onClick={() => {
-          setType(title);
-        }}
+          // color={shade}
+          sx={{ backgroundColor: selectColor }}
         >
           {svg}
           <Link
             overlay
             underline="none"
+            onClick={() => {
+              setType(title);
+              console.log('clicked on', title);
+            }}
+            sx={{ color: 'text.tertiary' }}
+          >
+            {title}
+          </Link>
+        </SelectCard>
+      </Grid>
+    )
+  }
+
+  const AmenitiesCard = ({ svg, title }) => {
+    const selectColor = amenities.includes(title) ? '#ededed' : null;
+    return (
+      <Grid xs={4}>
+        <SelectCard
+          sx={{ backgroundColor: selectColor }}
+        >
+          {svg}
+          <Link
+            overlay
+            underline="none"
+            onClick={() => {
+              console.log('clicked on', title);
+              if (amenities.includes(title)) {
+                setAmenities(old => {
+                  old = old.filter(x => x.localeCompare(title) !== 0)
+                  console.log('remove', title);
+                  return old;
+                })
+              } else {
+                setAmenities(old => {
+                  return [...old, title];
+                })
+              }
+            }}
             sx={{ color: 'text.tertiary' }}
           >
             {title}
@@ -344,7 +374,7 @@ export const NewListing = () => {
 
         <h3> Which of these best describes your place? </h3>
         <Grid container spacing={2}>
-          <PlaceTypeCard svg={houseSVG} title='House' />
+          <PlaceTypeCard svg={houseSVG} title='House'/>
           <PlaceTypeCard svg={apartmentSVG} title='Apartment' />
           <PlaceTypeCard svg={bnbSVG} title='Bed & Breakfast' />
           <PlaceTypeCard svg={hotelSVG} title='Hotel' />
@@ -365,15 +395,15 @@ export const NewListing = () => {
 
         <h3> Select all the amenities at your listing </h3>
         <Grid container spacing={2}>
-          <PlaceTypeCard svg={wifiSVG} title='Wifi'/>
-          <PlaceTypeCard svg={airconSVG} title='Air Conditioner'/>
-          <PlaceTypeCard svg={fireplaceSVG} title='Fireplace'/>
-          <PlaceTypeCard svg={parkingSVG} title='Parking'/>
-          <PlaceTypeCard svg={tvSVG} title='TV'/>
-          <PlaceTypeCard svg={kitchenSVG} title='Kitchen Essentials'/>
-          <PlaceTypeCard svg={washingSVG} title='Washing Machine'/>
-          <PlaceTypeCard svg={alarmSVG} title='Smoke Alarm'/>
-          <PlaceTypeCard svg={safeSVG} title='Safe'/>
+          <AmenitiesCard svg={wifiSVG} title='Wifi'/>
+          <AmenitiesCard svg={airconSVG} title='Air Conditioner'/>
+          <AmenitiesCard svg={fireplaceSVG} title='Fireplace'/>
+          <AmenitiesCard svg={parkingSVG} title='Parking'/>
+          <AmenitiesCard svg={tvSVG} title='TV'/>
+          <AmenitiesCard svg={kitchenSVG} title='Kitchen Essentials'/>
+          <AmenitiesCard svg={washingSVG} title='Washing Machine'/>
+          <AmenitiesCard svg={alarmSVG} title='Smoke Alarm'/>
+          <AmenitiesCard svg={safeSVG} title='Safe'/>
         </Grid>
 
         <br/>

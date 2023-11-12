@@ -130,17 +130,17 @@ const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, pri
         </div>
       </Sheet>
       <Box sx={{ display: 'flex', gap: 1.5 }} >
-            <JoyButton sx={{ flex: 1 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
+            <JoyButton sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
               Edit
             </JoyButton>
-            { !published ? <GoLiveDialog sx={{ flex: 0.25 }} listing={id}/> : <JoyButton color='warning'> Unpublish </JoyButton> }
-            <JoyButton sx={{ flex: 0.25 }} variant="solid" color="danger" onClick={(e) => {
+            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={(e) => {
               deleteListing(id);
               navigate('/listings/my');
             }
               }>
               Delete
             </JoyButton>
+            { !published ? <GoLiveDialog listing={id}/> : <JoyButton sx ={{ flex: 0.5 }} color='warning'> Unpublish </JoyButton> }
       </Box>
     </JoyCardContent>
     </JoyCard>

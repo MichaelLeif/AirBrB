@@ -119,6 +119,7 @@ export function GoLiveDialog ({ listing }) {
   return (
     <React.Fragment>
       <Button
+        sx ={{ flex: 0.5 }}
         color="success"
         onClick={() => setOpen(true)}
       >
