@@ -35,7 +35,7 @@ const container = {
   flexDirection: 'column',
   justifyContent: 'center',
   padding: '10px 20px',
-  boxSizing: 'border-box',
+  boxSizing: 'border-box'
 }
 
 const opacityContainer = {
@@ -63,26 +63,32 @@ const inputContainer = {
 
 const dest = {
   width: '15%',
+  cursor: 'pointer'
 }
 
 const bed = {
   width: '7%',
+  cursor: 'pointer'
 }
 
 const bedRoom = {
-  width: '10%'
+  width: '10%',
+  cursor: 'pointer'
 }
 
 const date = {
   width: '11%',
+  cursor: 'pointer'
 }
 
 const price = {
-  width: '12%'
+  width: '12%',
+  cursor: 'pointer'
 }
 
 const rating = {
-  width: '9%'
+  width: '9%',
+  cursor: 'pointer'
 }
 
 const input = {
@@ -90,7 +96,8 @@ const input = {
   outline: 'none',
   fontWeight: 'bold',
   fontSize: '13px',
-  color: 'black'
+  color: 'black',
+  cursor: 'pointer'
 }
 
 const label = {
@@ -147,7 +154,11 @@ function makeListing (props, dateValue) {
           <span style={{ gridArea: 'Address1' }}>{props.address.street}</span>
           <span style={{ gridArea: 'Address2' }}>{props.address.suburb}</span>
           <span style={{ gridArea: 'Price' }}>${props.price}</span>
-          <span style={{ gridArea: 'Rating' }}>{props.reviews.length}</span>
+          <span style={{ gridArea: 'Rating' }}>{
+            props.reviews.reduce((r, a) => {
+              return r + a.number
+            }, 0) / props.reviews.length
+          }</span>
         </div>
       </div>
     )
@@ -257,6 +268,27 @@ function Landing () {
           return false;
         });
         setListings(filtered);
+      } else if (filter === 'ratings') {
+        console.log(filterValue);
+        if (filterValue[0] === 'Highest') {
+          const filtered = moreData.sort((a, b) => {
+            if (a.reviews.reduce((r, a) => { return r + a.number }, 0) > b.reviews.reduce((r, a) => { return r + b.number }, 0)) {
+              return 1;
+            } else {
+              return -1;
+            }
+          });
+          setListings(filtered);
+        } else if (filterValue[0] === 'Lowest') {
+          const filtered = moreData.sort((a, b) => {
+            if (a.reviews.reduce((r, a) => { return r + a.number }, 0) < b.reviews.reduce((r, a) => { return r + b.number }, 0)) {
+              return -1;
+            } else {
+              return 1;
+            }
+          });
+          setListings(filtered);
+        }
       } else {
         setListings(data.listings);
       }
@@ -390,7 +422,7 @@ function Landing () {
             <select id='ratings' name='ratings' style={{ border: 'none' }}>
               <option defaultValue=''>No filter</option>
               <option defaultValue='low'>Lowest</option>
-              <option defaultValue='high'>Hightest</option>
+              <option defaultValue='high'>Highest</option>
             </select>
           </div>
           <div style={container}>
@@ -401,6 +433,7 @@ function Landing () {
       <div style={contentContainer}>
         {
           listing.map((e) => {
+            console.log(e);
             return makeListing(e, filter === 'date' ? filterValue : undefined);
           })
         }

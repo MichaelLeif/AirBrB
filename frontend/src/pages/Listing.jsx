@@ -5,6 +5,7 @@ import {
 import {
   path
 } from './Pages.jsx';
+import Rating from '@mui/material/Rating';
 
 function Listing () {
   const [isLoading, setLoading] = React.useState(true);
@@ -13,10 +14,13 @@ function Listing () {
   const [checkInState, setCheckin] = React.useState(checkin || '');
   const [checkOutState, setCheckout] = React.useState(checkout || '');
   const [booked, setBooked] = React.useState();
+  const [review, setReview] = React.useState(false);
   let nights = 0;
+  let rating = 0;
 
   const wrapper = {
-    padding: '50px 200px'
+    padding: '50px 200px',
+    opacity: review ? '0.2' : '1'
   }
 
   const firstContainer = {
@@ -126,15 +130,49 @@ function Listing () {
   }
 
   const reviewContainer = {
+    width: '100%',
     height: 'auto',
     display: 'flex',
     flexWrap: 'wrap',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    rowGap: '30px',
     marginTop: '20px',
   }
 
   const reviewBox = {
-    width: '50%',
-    height: 'auto'
+    width: '40%',
+    height: 'auto',
+    display: 'flex',
+    flexDirection: 'column'
+  }
+
+  const reviewPopupWrapper = {
+    position: 'fixed',
+    top: '0',
+    width: '100%',
+    height: '750px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+
+  const reviewPopUpContainer = {
+    width: '40%',
+    height: '50%',
+    border: '1px solid',
+    borderRadius: '20px',
+    padding: '10px 10px',
+    display: 'flex',
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    boxSizing: 'border-box'
+  }
+
+  const reviewPopUp = {
+    width: '100%',
+    display: 'flex',
+    flexDirection: 'column',
   }
 
   React.useEffect(async () => {
@@ -199,80 +237,158 @@ function Listing () {
     }
   }
 
-  return (
-    <div style={wrapper}>
-      <div style={firstContainer}>
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-          <span style={title}>{listing.title}, {listing.metadata.type}</span>
-          <span style={subheader}>{listing.address.street}, {listing.address.suburb}, {listing.address.city}</span>
+  const handleReview = async (e) => {
+    e.preventDefault();
+    setReview(false);
+  }
+
+  const createReviewBox = (prop) => {
+    return (
+      <div style={reviewBox}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span style={subheader}>{prop.user}</span>
+          <Rating
+            name="read-only"
+            defaultValue={prop.number}
+            precision={0.5}
+            size="small"
+            readOnly
+          />
         </div>
-        <div style={firstContainerFlex}>
-          <img style={thumbnail} src={listing.thumbnail} />
-          <div style={bookDiv}>
-            {
-              nights > 0
-                ? <span style={title}>${listing.price * nights} <span style={subheader}>per stay</span></span>
-                : <span style={title}>${listing.price} <span style={subheader}>per night</span></span>
-            }
-            <div style={dateBook}>
-              <form style={checkDate} onSubmit={(e) => {
-                handleBooking(e);
-              }}>
-                <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
-                  <div style ={checkIn}>
-                    <label htmlFor='check-in'>CHECK-IN</label>
-                    <input id='check-in' type='date' style={dateInput} defaultValue={checkin} onChange={(e) => {
-                      setCheckin(e.target.value);
-                    }}/>
-                  </div>
-                  <div style={checkOut}>
-                    <label htmlFor='check-out'>CHECK-OUT</label>
-                    <input id='check-out' type='date' style={dateInput} defaultValue={checkout} onChange={(e) => {
-                      setCheckout(e.target.value);
-                    }} />
-                  </div>
-                </div>
-                <div>
-                  <button style={reserveButton}>
-                    RESERVE
-                  </button>
-                </div>
-              </form>
-            </div>
-            <div style={listingInfo}>
-              <span style={title}>Rooms</span>
-              <span style={subheader}>Bed: {listing.metadata.bed !== undefined ? listing.metadata.bed : 0}</span>
-              <span style={subheader}>Bedrooms: {listing.metadata.bedroom !== undefined ? listing.metadata.bedroom : 0}</span>
-              <span style={subheader}>Bathrooms: {listing.metadata.bathroom !== undefined ? listing.metadata.bathroom : 0}</span>
-              <span style={title}>Amenities</span>
+        <span>{prop.text}</span>
+      </div>
+    )
+  }
+  console.log(listing);
+  return (
+    <>
+      <div style={wrapper}>
+        <div style={firstContainer}>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+            <span style={title}>{listing.title}, {listing.metadata.type}</span>
+            <span style={subheader}>{listing.address.street}, {listing.address.suburb}, {listing.address.city}</span>
+          </div>
+          <div style={firstContainerFlex}>
+            <img style={thumbnail} src={listing.thumbnail} />
+            <div style={bookDiv}>
               {
-                listing.metadata.amenities
-                  ? listing.metadata.amenities.map((k) => {
-                    return (
-                      <span key='amenity' style={subheader}>{k}</span>
-                    )
-                  })
-                  : <span style={subheader}>No amenities are available at this stay</span>
+                nights > 0
+                  ? <span style={title}>${listing.price * nights} <span style={subheader}>per stay</span></span>
+                  : <span style={title}>${listing.price} <span style={subheader}>per night</span></span>
               }
-              <span style={title}>Ratings</span>
+              <div style={dateBook}>
+                <form style={checkDate} onSubmit={(e) => {
+                  handleBooking(e);
+                }}>
+                  <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
+                    <div style ={checkIn}>
+                      <label htmlFor='check-in'>CHECK-IN</label>
+                      <input id='check-in' type='date' style={dateInput} defaultValue={checkin} onChange={(e) => {
+                        setCheckin(e.target.value);
+                      }}/>
+                    </div>
+                    <div style={checkOut}>
+                      <label htmlFor='check-out'>CHECK-OUT</label>
+                      <input id='check-out' type='date' style={dateInput} defaultValue={checkout} onChange={(e) => {
+                        setCheckout(e.target.value);
+                      }} />
+                    </div>
+                  </div>
+                  <div>
+                    <button style={reserveButton}>
+                      RESERVE
+                    </button>
+                  </div>
+                </form>
+              </div>
+              <div style={listingInfo}>
+                <span style={title}>Rooms</span>
+                <span style={subheader}>Bed: {listing.metadata.bed !== undefined ? listing.metadata.bed : 0}</span>
+                <span style={subheader}>Bedrooms: {listing.metadata.bedroom !== undefined ? listing.metadata.bedroom : 0}</span>
+                <span style={subheader}>Bathrooms: {listing.metadata.bathroom !== undefined ? listing.metadata.bathroom : 0}</span>
+                <span style={title}>Amenities</span>
+                {
+                  listing.metadata.amenities
+                    ? listing.metadata.amenities.map((k) => {
+                      return (
+                        <span key='amenity' style={subheader}>{k}</span>
+                      )
+                    })
+                    : <span style={subheader}>No amenities are available at this stay</span>
+                }
+                <span style={title}>Ratings</span>
+                <div style={{ display: 'flex', flexDirection: 'row', columnGap: '10px' }}>
+                  <Rating
+                    name="read-only"
+                    defaultValue={
+                      listing.reviews.reduce((r, a) => {
+                        return r + a.number
+                      }, 0) / listing.reviews.length
+                    }
+                    precision={0.1}
+                    size="medium"
+                    readOnly
+                  />
+                  <span style={subheader}>{
+                      listing.reviews.reduce((r, a) => {
+                        return r + a.number
+                      }, 0) / listing.reviews.length
+                  }/5</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <div style={secondContainer}>
-          <div style={reviewWrapper}>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={title}>Reviews</span>
-              <button>Create a review</button>
-            </div>
-            <div style={reviewContainer}>
-              <div style={reviewBox}>
-                HI
+          <div style={secondContainer}>
+            <div style={reviewWrapper}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={title}>Reviews</span>
+                <button onClick={(e) => {
+                  setReview(true);
+                }}>Create a review</button>
+              </div>
+              <div style={reviewContainer}>
+                {
+                  listing.reviews.map((prop) => {
+                    return createReviewBox(prop);
+                  })
+                }
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      {
+        review &&
+          <div style={reviewPopupWrapper}>
+            <div style={reviewPopUpContainer}>
+              <div style={reviewPopUp}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ ...title, marginLeft: '20px', marginTop: '10px' }}>Write a review</span>
+                  <button style={{ alignSelf: 'flex-start', width: 'auto', height: 'auto', border: 'none', outline: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '20px' }} onClick={(e) => {
+                    setReview(false);
+                  }}>🆇</button>
+                </div>
+                <form style={{ width: '100%', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', rowGap: '20px', boxSizing: 'border-box' }} onSubmit={(e) => {
+                  handleReview(e);
+                }}>
+                  <Rating
+                    name="half-rating"
+                    defaultValue={0}
+                    precision={0.5}
+                    size="large"
+                    onChange={(e) => {
+                      rating = e.target.value;
+                      console.log(rating);
+                    }}
+                  />
+                  <textarea style={{ height: '100%' }}></textarea>
+                  <button type='submit' style={{ cursor: 'pointer' }}>Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+      }
+    </>
   )
 }
 
