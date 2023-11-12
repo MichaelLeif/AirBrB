@@ -46,7 +46,7 @@ function App () {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/hosting" element={<Register />}/>
-          <Route path="/listings/:name" element={<EditListing />} />
+          <Route path="/listings/:id" element={<EditListing />} />
           <Route path="/listings/my" element={<MyListings />}/>
           <Route path="/listings/new" element={<NewListing />}/>
         </Routes>

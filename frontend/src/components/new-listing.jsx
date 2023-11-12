@@ -286,7 +286,7 @@ export const NewListing = () => {
                 })
               } else {
                 setAmenities(old => {
-                  return [...old, title];
+                  return [title, ...old];
                 })
               }
             }}
@@ -333,7 +333,6 @@ export const NewListing = () => {
             sleepingArrangement,
             bedrooms,
             baths,
-            active: false,
           }
         }, true)
           .then(() => navigate('/listings/my'))
@@ -344,7 +343,7 @@ export const NewListing = () => {
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
-        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Go back to your listings </Link>
+        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Back to your listings </Link>
         <h3> Give your listing a title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 

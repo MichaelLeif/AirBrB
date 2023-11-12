@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
-  SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
+  SvgIcon, Input, Button, ButtonGroup, FormHelperText, FormControl, Card, Grid,
   AccordionGroup, AccordionSummary, AccordionDetails, Accordion
 } from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
@@ -41,7 +41,6 @@ export default function InteractiveCard () {
       sx={{
         width: 320,
         '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-        '&:active': { backgroundColor: '#ffffff' },
       }}
     >
       <CardContent>
@@ -144,19 +143,20 @@ const loadPhotos = (photos) => {
 let sleepingArrangement = [];
 
 export const EditListing = () => {
-  const listing = useParams().name;
-  console.log(listing);
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = React.useState('');
-  const [title, setTitle] = React.useState('');
-  const [address, setAddress] = React.useState('');
-  const [price, setPrice] = React.useState('');
-  const [type, setType] = React.useState('');
-  const [beds, setBeds] = React.useState('1');
-  const [bedrooms, setBedrooms] = React.useState('1');
-  const [baths, setBaths] = React.useState('1');
-  const [photo, setPhoto] = React.useState([]);
-  const errors = [];
+  const [details, setDetails] = React.useState({
+    title: '',
+    type: '',
+    price: '',
+    address: '',
+    bedrooms: '',
+    bathrooms: '',
+    amenities: [],
+    sleepingArrangement: [],
+    thumbnail: '',
+    images: '',
+  });
 
   const LoadPhoto = () => {
     const [pic, loadPic] = React.useState('');
@@ -180,23 +180,15 @@ export const EditListing = () => {
 
   const SleepingArrangements = () => {
     const [sleepArr, setSleepArr] = React.useState([]);
-    useEffect(() => {
-      console.log(sleepingArrangement);
-      sleepingArrangement = sleepingArrangement.filter(x => {
-        console.log(x.i, sleepArr.i);
-        return x.i !== sleepArr.i && x.i !== undefined
-      });
-      sleepingArrangement.push(sleepArr);
-    }
-    , [sleepArr])
-
     const bedroomArray = Array.from({ length: bedrooms }, (_, i) => i + 1)
     return bedroomArray.map((i) => {
-      const [single, setSingle] = React.useState(0);
-      const [double, setDouble] = React.useState(0);
-      const [queen, setQueen] = React.useState(0);
-      const [king, setKing] = React.useState(0);
-      const [sofaBed, setSofaBed] = React.useState(0);
+      let bedroomSleepingDetails = sleepingArrangement.filter(x => x.i === i);
+      bedroomSleepingDetails = bedroomSleepingDetails.length === 0 ? [] : bedroomSleepingDetails[0];
+      const [single, setSingle] = React.useState(bedroomSleepingDetails.single == null ? 0 : bedroomSleepingDetails.single);
+      const [double, setDouble] = React.useState(bedroomSleepingDetails.double == null ? 0 : bedroomSleepingDetails.double);
+      const [queen, setQueen] = React.useState(bedroomSleepingDetails.queen == null ? 0 : bedroomSleepingDetails.queen);
+      const [king, setKing] = React.useState(bedroomSleepingDetails.king == null ? 0 : bedroomSleepingDetails.king);
+      const [sofaBed, setSofaBed] = React.useState(bedroomSleepingDetails.sofaBed == null ? 0 : bedroomSleepingDetails.sofaBed);
       const bed = {
         i,
         single,
@@ -207,8 +199,14 @@ export const EditListing = () => {
       }
 
       useEffect(() => {
-        setSleepArr(bed);
-      }, [single, double, queen, king, sofaBed])
+        sleepingArrangement = sleepingArrangement.filter(x => {
+          return x.i !== sleepArr.i && x.i !== undefined
+        });
+        sleepingArrangement.push(sleepArr);
+      }
+      , [sleepArr])
+
+      useEffect(() => setSleepArr(bed), [single, double, queen, king, sofaBed]);
 
       return (
         <div key={i}>
@@ -243,28 +241,59 @@ export const EditListing = () => {
 
   const priceCheck = (price) => {
     const check = price.match(/^[0-9]+\.[0-9]{2}$/) != null || price.match(/^[0-9]+$/) != null || price.length === 0;
-    if (check) {
-      errors.push(price);
-    }
     return check;
   }
 
   const PlaceTypeCard = ({ svg, title }) => {
+    const selectColor = (title.localeCompare(type) === 0 ? '#ededed' : null)
     return (
       <Grid xs={4}>
         <SelectCard
-        value={type}
-        sx={{
-          '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-        }}
-        onClick={() => {
-          setType(title);
-        }}
+          // color={shade}
+          sx={{ backgroundColor: selectColor }}
         >
           {svg}
           <Link
             overlay
             underline="none"
+            onClick={() => {
+              setType(title);
+              console.log('clicked on', title);
+            }}
+            sx={{ color: 'text.tertiary' }}
+          >
+            {title}
+          </Link>
+        </SelectCard>
+      </Grid>
+    )
+  }
+
+  const AmenitiesCard = ({ svg, title }) => {
+    const selectColor = amenities.includes(title) ? '#ededed' : null;
+    return (
+      <Grid xs={4}>
+        <SelectCard
+          sx={{ backgroundColor: selectColor }}
+        >
+          {svg}
+          <Link
+            overlay
+            underline="none"
+            onClick={() => {
+              console.log('clicked on', title);
+              if (amenities.includes(title)) {
+                setAmenities(old => {
+                  old = old.filter(x => x.localeCompare(title) !== 0)
+                  console.log('remove', title);
+                  return old;
+                })
+              } else {
+                setAmenities(old => {
+                  return [title, ...old];
+                })
+              }
+            }}
             sx={{ color: 'text.tertiary' }}
           >
             {title}
@@ -292,6 +321,9 @@ export const EditListing = () => {
   }
 
   const createListing = () => {
+    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
+      accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
+    0);
     fetchThumbnail()
       .then((data) => {
         apiCall('POST', '/listings/new', {
@@ -302,21 +334,42 @@ export const EditListing = () => {
           metadata: {
             type,
             beds,
+            sleepingArrangement,
             bedrooms,
             baths,
             active: false,
           }
         }, true)
-          .then(() => navigate('/'))
+          .then(() => navigate('/listings/my'))
           .catch((err) => setErrorMsg(err.error))
       })
   }
 
+  
+  const params = useParams();
+  const id = params.id;
+  useEffect(
+    apiCall('GET', '/listings/' + id, {}, true)
+    .then((data) => {
+      setDetails({
+        title: data.title,
+        address: data.address,
+        price: data.price,
+        thumbnail: data.thumbnail,
+        type: data.metadata.type,
+        beds: data.metadata.beds,
+        sleepingArrangement: data.metadata.sleepingArrangement
+      })
+    })
+  }
+  )
+  
+
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
-        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Go back to your listings </Link>
-        <h3> Give your listing a title. </h3>
+        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Back to your listings </Link>
+        <h3> Give your listing a new title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 
         <h3> Where is your listing located? </h3>
@@ -345,7 +398,7 @@ export const EditListing = () => {
 
         <h3> Which of these best describes your place? </h3>
         <Grid container spacing={2}>
-          <PlaceTypeCard svg={houseSVG} title='House' />
+          <PlaceTypeCard svg={houseSVG} title='House'/>
           <PlaceTypeCard svg={apartmentSVG} title='Apartment' />
           <PlaceTypeCard svg={bnbSVG} title='Bed & Breakfast' />
           <PlaceTypeCard svg={hotelSVG} title='Hotel' />
@@ -359,8 +412,6 @@ export const EditListing = () => {
         <h3> Share some basic details about the place </h3>
         <BasicFeatures title='Bedrooms' feature={bedrooms} setFeature={setBedrooms} minSize={0}/>
         <hr/>
-        <BasicFeatures title='Beds' feature={beds} setFeature={setBeds} minSize={1}/>
-        <hr/>
         <BasicFeatures title='Baths' feature={baths} setFeature={setBaths} minSize={1}/>
 
         <h3> Sleeping arrangements </h3>
@@ -368,22 +419,24 @@ export const EditListing = () => {
 
         <h3> Select all the amenities at your listing </h3>
         <Grid container spacing={2}>
-          <PlaceTypeCard svg={wifiSVG} title='Wifi'/>
-          <PlaceTypeCard svg={airconSVG} title='Air Conditioner'/>
-          <PlaceTypeCard svg={fireplaceSVG} title='Fireplace'/>
-          <PlaceTypeCard svg={parkingSVG} title='Parking'/>
-          <PlaceTypeCard svg={tvSVG} title='TV'/>
-          <PlaceTypeCard svg={kitchenSVG} title='Kitchen Essentials'/>
-          <PlaceTypeCard svg={washingSVG} title='Washing Machine'/>
-          <PlaceTypeCard svg={alarmSVG} title='Smoke Alarm'/>
-          <PlaceTypeCard svg={safeSVG} title='Safe'/>
+          <AmenitiesCard svg={wifiSVG} title='Wifi'/>
+          <AmenitiesCard svg={airconSVG} title='Air Conditioner'/>
+          <AmenitiesCard svg={fireplaceSVG} title='Fireplace'/>
+          <AmenitiesCard svg={parkingSVG} title='Parking'/>
+          <AmenitiesCard svg={tvSVG} title='TV'/>
+          <AmenitiesCard svg={kitchenSVG} title='Kitchen Essentials'/>
+          <AmenitiesCard svg={washingSVG} title='Washing Machine'/>
+          <AmenitiesCard svg={alarmSVG} title='Smoke Alarm'/>
+          <AmenitiesCard svg={safeSVG} title='Safe'/>
         </Grid>
 
         <br/>
         <LoadPhoto />
         <br/>
-
-        <Button onClick={(e) => { createListing() }}>Create new listing</Button>
+        <ButtonGroup spacing="0.5rem" aria-label="spacing button group">
+          <Button onClick={(e) => { createListing() }}>Save</Button>
+          <Button color='primary' variant='solid' onClick={(e) => { createListing() }}>Create new listing</Button>
+        </ButtonGroup>
         { errorMsg.length !== 0 ? SomethingWrongError() : null }
       </Container>
     </div>

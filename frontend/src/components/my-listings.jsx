@@ -222,9 +222,8 @@ export const MyListings = () => {
           const listingDets = listing.detail;
           console.log(listingDets);
           return (
-            // Change listing.type and reviews
             <ListingCard key={i} id={listing.id} title={listingDets.title}
-            type={'Apartment'} beds={listingDets.metadata.beds}
+            type={listingDets.metadata.type} beds={listingDets.metadata.beds}
             bathrooms={listingDets.metadata.baths} address={listingDets.address}
             thumbnail={listingDets.thumbnail} price={listingDets.price}
             reviews={listingDets.reviews} navigate={navigate}

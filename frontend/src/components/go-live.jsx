@@ -23,7 +23,7 @@ export function GoLiveDialog ({ listing }) {
   }]);
 
   const AvailablilityDatePickers = () => {
-    return dates.map((i) => {
+    return dates.sort((x, y) => x.key - y.key).map((i) => {
       console.log(i);
       return (
         <DatePicker key={i.key} id={i.key}/>
