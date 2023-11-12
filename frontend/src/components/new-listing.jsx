@@ -153,7 +153,6 @@ export const NewListing = () => {
   const [bedrooms, setBedrooms] = React.useState('1');
   const [baths, setBaths] = React.useState('1');
   const [photo, setPhoto] = React.useState([]);
-  const [sleepArr, setSleepArr] = React.useState([]); // sleepArr = [{single, double, queen, king, sofaBed}]
   const errors = [];
 
   const LoadPhoto = () => {
@@ -176,26 +175,17 @@ export const NewListing = () => {
     );
   }
 
-  // Change the sleeping arrangement
-  useEffect(() => {
-    sleepingArrangement = sleepingArrangement.filter(x => {
-      return x.i !== sleepArr.i && x.i !== undefined
-    });
-    sleepingArrangement.push(sleepArr);
-  }
-  , [sleepArr])
-
   const SleepingArrangements = () => {
     const [sleepArr, setSleepArr] = React.useState([]);
-    
-
     const bedroomArray = Array.from({ length: bedrooms }, (_, i) => i + 1)
     return bedroomArray.map((i) => {
-      const [single, setSingle] = React.useState(0);
-      const [double, setDouble] = React.useState(0);
-      const [queen, setQueen] = React.useState(0);
-      const [king, setKing] = React.useState(0);
-      const [sofaBed, setSofaBed] = React.useState(0);
+      let bedroomSleepingDetails = sleepingArrangement.filter(x => x.i === i);
+      bedroomSleepingDetails = bedroomSleepingDetails.length === 0 ? [] : bedroomSleepingDetails[0];
+      const [single, setSingle] = React.useState(bedroomSleepingDetails.single == null ? 0 : bedroomSleepingDetails.single);
+      const [double, setDouble] = React.useState(bedroomSleepingDetails.double == null ? 0 : bedroomSleepingDetails.double);
+      const [queen, setQueen] = React.useState(bedroomSleepingDetails.queen == null ? 0 : bedroomSleepingDetails.queen);
+      const [king, setKing] = React.useState(bedroomSleepingDetails.king == null ? 0 : bedroomSleepingDetails.king);
+      const [sofaBed, setSofaBed] = React.useState(bedroomSleepingDetails.sofaBed == null ? 0 : bedroomSleepingDetails.sofaBed);
       const bed = {
         i,
         single,
@@ -206,8 +196,16 @@ export const NewListing = () => {
       }
 
       useEffect(() => {
-        setSleepArr(bed);
-      }, [single, double, queen, king, sofaBed])
+        sleepingArrangement = sleepingArrangement.filter(x => {
+          return x.i !== sleepArr.i && x.i !== undefined
+        });
+        sleepingArrangement.push(sleepArr);
+        console.log('sa', sleepingArrangement);
+        console.log(single);
+      }
+      , [sleepArr])
+
+      useEffect(() => setSleepArr(bed), [single, double, queen, king, sofaBed]);
 
       return (
         <div key={i}>
@@ -291,9 +289,9 @@ export const NewListing = () => {
   }
 
   const createListing = () => {
-    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
-      accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
-    0);
+    // const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
+    //   accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
+    // 0);
     fetchThumbnail()
       .then((data) => {
         apiCall('POST', '/listings/new', {
@@ -303,8 +301,8 @@ export const NewListing = () => {
           thumbnail: data,
           metadata: {
             type,
-            beds,
-            sleepingArrangement,
+            // beds,
+            // sleepingArrangement,
             bedrooms,
             baths,
             active: false,
