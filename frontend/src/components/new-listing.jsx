@@ -1,7 +1,11 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid } from '@mui/joy'
+import {
+  SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
+  AccordionGroup, AccordionSummary, AccordionDetails, Accordion
+} from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 
 import Link from '@mui/joy/Link';
@@ -9,7 +13,7 @@ import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import { apiCall } from '../helpers/apicalls';
 import { fileToDataUrl } from '../helpers/image';
-import { useNavigate } from 'react-router-dom';
+
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
   hotelSVG, bnbSVG, mansionSVG, tentSVG, wifiSVG, safeSVG, tvSVG, alarmSVG,
@@ -137,6 +141,8 @@ const loadPhotos = (photos) => {
   }))
 }
 
+let sleepingArrangement = [];
+
 export const NewListing = () => {
   const navigate = useNavigate();
   const [errorMsg, setErrorMsg] = React.useState('');
@@ -144,10 +150,10 @@ export const NewListing = () => {
   const [address, setAddress] = React.useState('');
   const [price, setPrice] = React.useState('');
   const [type, setType] = React.useState('');
-  const [beds, setBeds] = React.useState('1');
   const [bedrooms, setBedrooms] = React.useState('1');
   const [baths, setBaths] = React.useState('1');
   const [photo, setPhoto] = React.useState([]);
+  const [sleepArr, setSleepArr] = React.useState([]); // sleepArr = [{single, double, queen, king, sofaBed}]
   const errors = [];
 
   const LoadPhoto = () => {
@@ -168,6 +174,62 @@ export const NewListing = () => {
         <hr/>
       </>
     );
+  }
+
+  // Change the sleeping arrangement
+  useEffect(() => {
+    sleepingArrangement = sleepingArrangement.filter(x => {
+      return x.i !== sleepArr.i && x.i !== undefined
+    });
+    sleepingArrangement.push(sleepArr);
+  }
+  , [sleepArr])
+
+  const SleepingArrangements = () => {
+    const [sleepArr, setSleepArr] = React.useState([]);
+    
+
+    const bedroomArray = Array.from({ length: bedrooms }, (_, i) => i + 1)
+    return bedroomArray.map((i) => {
+      const [single, setSingle] = React.useState(0);
+      const [double, setDouble] = React.useState(0);
+      const [queen, setQueen] = React.useState(0);
+      const [king, setKing] = React.useState(0);
+      const [sofaBed, setSofaBed] = React.useState(0);
+      const bed = {
+        i,
+        single,
+        double,
+        queen,
+        king,
+        sofaBed
+      }
+
+      useEffect(() => {
+        setSleepArr(bed);
+      }, [single, double, queen, king, sofaBed])
+
+      return (
+        <div key={i}>
+          <AccordionGroup size="md" color="success" transition=
+          {{
+            initial: '0.3s ease-out',
+            expanded: '0.2s ease',
+          }}>
+            <Accordion>
+              <AccordionSummary>Bedroom {i}</AccordionSummary>
+              <AccordionDetails>
+                <BasicFeatures title='Single' feature={single} setFeature={setSingle} minSize={0}/>
+                <BasicFeatures title='Double' feature={double} setFeature={setDouble} minSize={0}/>
+                <BasicFeatures title='Queen' feature={queen} setFeature={setQueen} minSize={0}/>
+                <BasicFeatures title='King' feature={king} setFeature={setKing} minSize={0}/>
+                <BasicFeatures title='Sofa Bed' feature={sofaBed} setFeature={setSofaBed} minSize={0}/>
+              </AccordionDetails>
+            </Accordion>
+          </AccordionGroup>
+        </div>
+      )
+    })
   }
 
   const SomethingWrongError = () => {
@@ -229,6 +291,9 @@ export const NewListing = () => {
   }
 
   const createListing = () => {
+    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
+      accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
+    0);
     fetchThumbnail()
       .then((data) => {
         apiCall('POST', '/listings/new', {
@@ -239,12 +304,13 @@ export const NewListing = () => {
           metadata: {
             type,
             beds,
+            sleepingArrangement,
             bedrooms,
             baths,
             active: false,
           }
         }, true)
-          .then(() => navigate('/'))
+          .then(() => navigate('/listings/my'))
           .catch((err) => setErrorMsg(err.error))
       })
   }
@@ -252,7 +318,7 @@ export const NewListing = () => {
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
-        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings-my')}> Go back to your listings </Link>
+        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Go back to your listings </Link>
         <h3> Give your listing a title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 
@@ -296,9 +362,10 @@ export const NewListing = () => {
         <h3> Share some basic details about the place </h3>
         <BasicFeatures title='Bedrooms' feature={bedrooms} setFeature={setBedrooms} minSize={0}/>
         <hr/>
-        <BasicFeatures title='Beds' feature={beds} setFeature={setBeds} minSize={1}/>
-        <hr/>
         <BasicFeatures title='Baths' feature={baths} setFeature={setBaths} minSize={1}/>
+
+        <h3> Sleeping arrangements </h3>
+        <SleepingArrangements />
 
         <h3> Select all the amenities at your listing </h3>
         <Grid container spacing={2}>

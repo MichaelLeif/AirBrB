@@ -28,7 +28,7 @@ const AccountMenu = () => {
   }
 
   const userValid = getToken();
-  const logoutButton = () => {
+  const LogoutButton = () => {
     return (
     <MenuItem
       component={Link} to='/login' onClick={() => logout()}>
@@ -36,7 +36,7 @@ const AccountMenu = () => {
     </MenuItem>)
   }
 
-  const registerOrLogin = () => {
+  const RegisterOrLogin = () => {
     return (
       <div>
         <MenuItem component={Link} to='/register'>
@@ -49,13 +49,13 @@ const AccountMenu = () => {
     );
   }
 
-  const showListings = () => {
+  const ShowListings = () => {
     return (
       <div>
         <MenuItem onClick={handleClose}>
           All listings
         </MenuItem>
-        <MenuItem component={Link} to='/listings-my'>
+        <MenuItem component={Link} to='/listings/my'>
           Your listings
         </MenuItem>
         <Divider />
@@ -114,9 +114,9 @@ const AccountMenu = () => {
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {!userValid ? registerOrLogin() : null}
-        {userValid ? showListings() : null}
-        {userValid ? logoutButton() : null}
+        {!userValid ? <RegisterOrLogin/> : null}
+        {userValid ? <ShowListings/> : null}
+        {userValid ? <LogoutButton/> : null}
       </Menu>
     </React.Fragment>
   );
