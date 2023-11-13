@@ -6,8 +6,9 @@ import { apiCall, getToken } from './helpers/apicalls';
 import { NavBar } from './components/navbar'
 import { MyListings } from './components/my-listings'
 import { NewListing } from './components/new-listing'
-import { EditListingFetch } from './components/edit-listing-data';
+import { EditListingFetch } from './components/listing-edit-fetch';
 import { ListingDataContext } from './listingDataContext';
+import { BookingListingFetch } from './components/listing-booking-fetch';
 
 const Home = () => {
   return <div>
@@ -50,6 +51,7 @@ function App () {
             <Route path="/register" element={<Register />} />
             <Route path="/hosting" element={<Register />}/>
             <Route path="/listings/:id" element={<EditListingFetch />} />
+            <Route path="/listings/reservations/:id" element={<BookingListingFetch />}/>
             <Route path="/listings/my" element={<MyListings />}/>
             <Route path="/listings/new" element={<NewListing />}/>
           </Routes>

@@ -1,7 +1,7 @@
 import React, { useEffect, useContext } from 'react'
 import { useParams } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
-import { EditListing } from './edit-listing';
+import { EditListing } from './listing-edit';
 import { Loading } from '../helpers/generics'
 import { ListingDataContext } from '../listingDataContext';
 

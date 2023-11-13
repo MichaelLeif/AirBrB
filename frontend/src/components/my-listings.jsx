@@ -62,8 +62,14 @@ const Rating = ({ reviews }) => {
   )
 }
 
-const deleteListing = (id) => {
+const deleteHandler = (id, navigate) => {
   apiCall('DELETE', '/listings/' + id, {}, true);
+  navigate('/listings/my');
+}
+
+const unpublishHandler = (id, navigate) => {
+  apiCall('PUT', '/listings/unpublish/' + id, {}, true);
+  navigate('/listings/my');
 }
 
 const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, price, navigate, published }) => {
@@ -130,14 +136,15 @@ const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, pri
             <JoyButton sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
               Edit
             </JoyButton>
-            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={(e) => {
-              deleteListing(id);
-              navigate('/listings/my');
-            }
-              }>
+            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={(e) => navigate('/listings/reservations/' + id)}>
+              View reservations
+            </JoyButton>
+            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={(e) => deleteHandler(id, navigate)}>
               Delete
             </JoyButton>
-            { !published ? <GoLiveDialog listing={id}/> : <JoyButton sx ={{ flex: 0.5 }} color='warning'> Unpublish </JoyButton> }
+            { !published
+              ? <GoLiveDialog listing={id} navigate={navigate}/>
+              : <JoyButton sx ={{ flex: 0.5 }} color='warning' onClick={(e) => unpublishHandler(id, navigate)} > Unpublish </JoyButton> }
       </Box>
     </JoyCardContent>
     </JoyCard>

@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { apiCall } from '../helpers/apicalls'
 
-export function GoLiveDialog ({ listing }) {
+export function GoLiveDialog ({ listing, navigate }) {
   const [open, setOpen] = React.useState(false);
   const [id, setId] = React.useState(1);
   const [dates, setDates] = React.useState([{
@@ -113,6 +113,7 @@ export function GoLiveDialog ({ listing }) {
       }
     });
     apiCall('PUT', '/listings/publish/' + id, { availability }, true);
+    navigate('/listings/my');
     setOpen(false);
   }
 
