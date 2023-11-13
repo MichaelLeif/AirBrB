@@ -19,7 +19,7 @@ import {
   airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
 } from '../helpers/svg'
 import { ListingDataContext, useContext } from '../listingDataContext';
-
+import BreadCrumbs from './breadcrumbs'
 export const ErrorInfo = ({ children }) => {
   return (
     <FormHelperText>
@@ -353,7 +353,7 @@ export const EditListing = ({ listingId }) => {
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
-        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Back to your listings </Link>
+        <BreadCrumbs navigate={navigate}> Edit Listing </BreadCrumbs>
         <h3> Give your listing a title. </h3>
         <Input name='title' placeholder="Name of listing" value={title} size="lg" onChange={(e) => {
           console.log('reset title to', e.target.value);

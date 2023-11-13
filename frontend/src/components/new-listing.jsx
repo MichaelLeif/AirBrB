@@ -24,6 +24,8 @@ import {
   airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
 } from '../helpers/svg'
 
+import BreadCrumbs from './breadcrumbs';
+
 export const ErrorInfo = ({ children }) => {
   return (
     <FormHelperText>
@@ -34,7 +36,7 @@ export const ErrorInfo = ({ children }) => {
 }
 
 const PriceError = () => {
-  return <ErrorInfo> Please provide your price to 2 dp. </ErrorInfo>
+  return <ErrorInfo> Please provide your price to 2dp. </ErrorInfo>
 }
 
 export default function InteractiveCard () {
@@ -132,7 +134,6 @@ const InputFileUpload = ({ photo, setPhoto }) => {
         setPhoto(old => [...old, {
           photo: files[0],
         }]);
-        // setPhoto(() => [{ photo: files[0] }]);
       }} />
     </Button>
   );
@@ -199,6 +200,7 @@ export const NewListing = () => {
           {pic.length > 1 ? <OtherPhotos pic={pic.slice(1)} /> : null}
         </div>
         <InputFileUpload photo={photo} setPhoto={setPhoto}/>
+        <br/>
         <br/>
         <hr/>
       </>
@@ -379,7 +381,7 @@ export const NewListing = () => {
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
-        <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Back to your listings </Link>
+        <BreadCrumbs navigate={navigate}> Create Listing </BreadCrumbs>
         <h3> Give your listing a title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 

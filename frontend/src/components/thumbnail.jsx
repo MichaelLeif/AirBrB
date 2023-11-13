@@ -7,7 +7,7 @@ import Link from '@mui/joy/Link';
 
 export default function Thumbnail ({ pic, setPic }) {
   return (
-    <Card sx={{ minHeight: '280px' }}>
+    <Card sx={{ minHeight: '280px', marginBottom: '10px' }}>
       <CardCover>
         {pic}
       </CardCover>
