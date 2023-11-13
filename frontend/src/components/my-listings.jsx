@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import { star } from '../helpers/svg'
 import { GoLiveDialog } from './go-live'
+import { LoadingButton } from '../helpers/generics';
 
 const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
@@ -36,10 +37,6 @@ const CreateListingButton = styled(Button)({
     borderColor: '#000000',
   },
 });
-
-const LoadingButton = styled(JoyButton)({
-  height: '73px',
-})
 
 const twodpPrice = (price) => {
   if (!price.includes('.')) {

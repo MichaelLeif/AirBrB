@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container } from '@mui/material';
+import { Container, ImageListItem, ImageList } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import Thumbnail from './thumbnail';
+
 import {
   SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
-  AccordionGroup, AccordionSummary, AccordionDetails, Accordion
+  AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
+  Select, Option
 } from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 
@@ -13,6 +16,7 @@ import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import { apiCall } from '../helpers/apicalls';
 import { fileToDataUrl } from '../helpers/image';
+// import ImageList from '@mui/material/ImageList';
 
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
@@ -96,7 +100,7 @@ const VisuallyHiddenInput = styled('input')`
   width: 1px;
 `;
 
-const InputFileUpload = (photo, setPhoto) => {
+const InputFileUpload = ({ photo, setPhoto }) => {
   return (
     <Button
       component="label"
@@ -125,18 +129,26 @@ const InputFileUpload = (photo, setPhoto) => {
       Upload a photo
       <VisuallyHiddenInput type="file" onChange={(e) => {
         const files = Array.from(e.target.files);
-        // setPhoto(old => [...old, {
-        //   photo: files[0],
-        // }]);
-        setPhoto(() => [{ photo: files[0] }]);
+        setPhoto(old => [...old, {
+          photo: files[0],
+        }]);
+        // setPhoto(() => [{ photo: files[0] }]);
       }} />
     </Button>
   );
 }
 
-const loadPhotos = (photos) => {
+const loadPhotos = (photos, setPhoto) => {
   return Promise.all(photos.map(async (photo, i) => {
-    return (<img key={i} height='200px' src={await fileToDataUrl(photo.photo)} alt='listing photo uploaded'/>)
+    return (
+      <img key={i} className='listing-photos' height='200px' src={await fileToDataUrl(photo.photo)} alt='listing photo uploaded'
+        onClick={(e) => setPhoto(old => {
+          console.log('remove ' + i);
+          const before = [...old].slice(0, i)
+          const after = [...old].slice(i + 1)
+          return [...before, ...after];
+        })}/>
+    );
   }))
 }
 
@@ -147,6 +159,8 @@ export const NewListing = () => {
   const [errorMsg, setErrorMsg] = React.useState('');
   const [title, setTitle] = React.useState('');
   const [address, setAddress] = React.useState('');
+  const [state, setState] = React.useState('NSW');
+  const [city, setCity] = React.useState('');
   const [price, setPrice] = React.useState('');
   const [type, setType] = React.useState('');
   const [bedrooms, setBedrooms] = React.useState('1');
@@ -154,20 +168,37 @@ export const NewListing = () => {
   const [photo, setPhoto] = React.useState([]);
   const [amenities, setAmenities] = React.useState([]);
 
+  const OtherPhotos = ({ pic }) => {
+    const pics = pic.map((pic, i) => {
+      return (
+        <ImageListItem key={i}>
+          {pic}
+        </ImageListItem>
+      )
+    })
+    return (
+      <ImageList cols={2} rowHeight={164}>
+        {pics}
+      </ImageList>
+    )
+  }
+
   const LoadPhoto = () => {
     const [pic, loadPic] = React.useState('');
+    console.log('rendering before', pic);
     useEffect(() => {
-      loadPhotos(photo)
+      loadPhotos(photo, setPhoto)
         .then((data) => loadPic(data));
     }, [photo]);
+    console.log('rendering after', pic);
     return (
       <>
         <h3> Upload photos of your listing </h3>
         <div>
-          {pic}
+          {pic.length > 0 ? <Thumbnail pic={pic[0]} setPic={setPhoto} /> : null}
+          {pic.length > 1 ? <OtherPhotos pic={pic.slice(1)} /> : null}
         </div>
-        {InputFileUpload(photo, setPhoto)}
-        <br/>
+        <InputFileUpload photo={photo} setPhoto={setPhoto}/>
         <br/>
         <hr/>
       </>
@@ -324,15 +355,20 @@ export const NewListing = () => {
       .then((data) => {
         apiCall('POST', '/listings/new', {
           title,
-          address,
+          address: {
+            address,
+            city,
+            state,
+          },
           price,
           thumbnail: data,
           metadata: {
             type,
+            baths,
+            bedrooms,
             beds,
             sleepingArrangement,
-            bedrooms,
-            baths,
+            amenities,
           }
         }, true)
           .then(() => navigate('/listings/my'))
@@ -354,10 +390,39 @@ export const NewListing = () => {
           fullWidth
           value={address}
           onChange={(e) => setAddress(e.target.value)}
+          sx = {{ marginBottom: '5px' }}
           startDecorator={
             <Button variant="soft" color="neutral" startDecorator={<LocationOn />}></Button>
           }
         />
+
+        <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={0.5}
+        >
+          <Input
+            placeholder="City or suburb"
+            size="lg"
+            value={city}
+            sx = {{ width: '75%' }}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <Select sx = {{ width: '25%' }} size="lg" value={state} onChange={(e) => {
+            console.log('change to', e.target.innerText);
+            setState(e.target.innerText)
+          }}>
+            <Option value="NSW">NSW</Option>
+            <Option value="VIC">VIC</Option>
+            <Option value="QLD">QLD</Option>
+            <Option value="SA">SA</Option>
+            <Option value="WA">WA</Option>
+            <Option value="TAS">TAS</Option>
+            <Option value="NT">NT</Option>
+            <Option value="ACT">ACT</Option>
+          </Select>
+        </Stack>
 
         <h3> How much is it to stay at your listing per night? </h3>
         <FormControl error = {!priceCheck(price)}>

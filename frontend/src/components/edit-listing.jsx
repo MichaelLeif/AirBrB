@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { apiCall } from '../helpers/apicalls'
 import {
-  SvgIcon, Input, Button, ButtonGroup, FormHelperText, FormControl, Card, Grid,
-  AccordionGroup, AccordionSummary, AccordionDetails, Accordion
+  SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
+  AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
+  Select, Option, ButtonGroup
 } from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 
 import Link from '@mui/joy/Link';
-import CardContent from '@mui/joy/CardContent';
-import Typography from '@mui/joy/Typography';
-import { apiCall } from '../helpers/apicalls';
 import { fileToDataUrl } from '../helpers/image';
 
 import {
@@ -19,6 +18,7 @@ import {
   hotelSVG, bnbSVG, mansionSVG, tentSVG, wifiSVG, safeSVG, tvSVG, alarmSVG,
   airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
 } from '../helpers/svg'
+import { ListingDataContext, useContext } from '../listingDataContext';
 
 export const ErrorInfo = ({ children }) => {
   return (
@@ -31,35 +31,6 @@ export const ErrorInfo = ({ children }) => {
 
 const PriceError = () => {
   return <ErrorInfo> Please provide your price to 2 dp. </ErrorInfo>
-}
-
-export default function InteractiveCard () {
-  return (
-    <Card
-      variant="outlined"
-      orientation="horizontal"
-      sx={{
-        width: 320,
-        '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-      }}
-    >
-      <CardContent>
-        <Typography level="title-lg" id="card-description">
-          Yosemite Park
-        </Typography>
-        <Typography level="body-sm" aria-describedby="card-description" mb={1}>
-          <Link
-            overlay
-            underline="none"
-            href="#interactive-card"
-            sx={{ color: 'text.tertiary' }}
-          >
-            California, USA
-          </Link>
-        </Typography>
-      </CardContent>
-    </Card>
-  );
 }
 
 const RoundButton = styled(Button)(() => ({
@@ -125,10 +96,9 @@ const InputFileUpload = (photo, setPhoto) => {
       Upload a photo
       <VisuallyHiddenInput type="file" onChange={(e) => {
         const files = Array.from(e.target.files);
-        // setPhoto(old => [...old, {
-        //   photo: files[0],
-        // }]);
-        setPhoto(() => [{ photo: files[0] }]);
+        setPhoto(old => [...old, {
+          photo: files[0],
+        }]);
       }} />
     </Button>
   );
@@ -140,29 +110,85 @@ const loadPhotos = (photos) => {
   }))
 }
 
-let sleepingArrangement = [];
-
-export const EditListing = () => {
+export const EditListing = ({ listingId }) => {
   const navigate = useNavigate();
-  const [errorMsg, setErrorMsg] = React.useState('');
-  const [details, setDetails] = React.useState({
-    title: '',
-    type: '',
-    price: '',
-    address: '',
-    bedrooms: '',
-    bathrooms: '',
-    amenities: [],
-    sleepingArrangement: [],
-    thumbnail: '',
-    images: '',
-  });
+  const { listingData, setListingData } = useContext(ListingDataContext);
+  const data = listingData.find(x => x.id === listingId).data;
+  console.log('refresh');
+
+  const [title, setTitle] = React.useState(data.title);
+  const [address, setAddress] = React.useState(data.address.address);
+  const [city, setCity] = React.useState(data.address.city);
+  const [state, setState] = React.useState(data.address.state);
+  const [price, setPrice] = React.useState(data.price);
+  const [type, setType] = React.useState(data.metadata.type);
+  const [bedrooms, setBedrooms] = React.useState(data.metadata.bedrooms);
+  const [baths, setBaths] = React.useState(data.metadata.baths);
+  const [photo, setPhoto] = React.useState([]);// thumbnail
+  const [amenities, setAmenities] = React.useState(data.metadata.amenities);
+  let sleepingArrangement = React.useState(data.metadata.sleepingArrangement)[0];
+  const allData = () => {
+    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
+      accumulator + currentValue.single + currentValue.double +
+      currentValue.queen + currentValue.king + currentValue.sofaBed, 0);
+    return {
+      title,
+      address: {
+        address,
+        city,
+        state
+      },
+      price,
+      thumbnail: photo[0],
+      metadata: {
+        type,
+        baths,
+        bedrooms,
+        beds,
+        sleepingArrangement,
+        amenities
+      }
+    }
+  }
+
+  const handlerSave = () => {
+    setListingData(old => {
+      old = old.filter(x => x.id !== listingId);
+      return [...old, {
+        id: listingId,
+        data: allData()
+      }];
+    });
+    navigate('/listings/my');
+  }
+
+  const handlerUpdate = () => {
+    apiCall('PUT', '/listings/' + listingId, allData(), true)
+      .then(() => {
+        setListingData(old => {
+          old = old.filter(x => x.id !== listingId);
+          return [...old, {
+            id: listingId,
+            data: allData()
+          }];
+        });
+        navigate('/listings/my');
+      })
+  }
 
   const LoadPhoto = () => {
+    let success = true;
     const [pic, loadPic] = React.useState('');
     useEffect(() => {
       loadPhotos(photo)
-        .then((data) => loadPic(data));
+        .then((data) => {
+          if (success) {
+            loadPic(data);
+          }
+        });
+      return () => {
+        success = false;
+      }
     }, [photo]);
     return (
       <>
@@ -199,14 +225,22 @@ export const EditListing = () => {
       }
 
       useEffect(() => {
-        sleepingArrangement = sleepingArrangement.filter(x => {
-          return x.i !== sleepArr.i && x.i !== undefined
-        });
-        sleepingArrangement.push(sleepArr);
+        let isMounted = true;
+        if (isMounted) {
+          sleepingArrangement = sleepingArrangement.filter(x => {
+            return x.i !== sleepArr.i && x.i !== undefined
+          });
+          sleepingArrangement.push(sleepArr);
+        }
+        return () => { isMounted = false }
       }
       , [sleepArr])
 
-      useEffect(() => setSleepArr(bed), [single, double, queen, king, sofaBed]);
+      useEffect(() => {
+        let isMounted = true;
+        if (isMounted) setSleepArr(bed);
+        return () => { isMounted = false }
+      }, [single, double, queen, king, sofaBed]);
 
       return (
         <div key={i}>
@@ -234,7 +268,7 @@ export const EditListing = () => {
   const SomethingWrongError = () => {
     return (
       <FormControl error>
-        <ErrorInfo> {errorMsg} </ErrorInfo>
+        <ErrorInfo>Something went wrong</ErrorInfo>
       </FormControl>
     )
   }
@@ -316,61 +350,15 @@ export const EditListing = () => {
     )
   }
 
-  const fetchThumbnail = () => {
-    return fileToDataUrl(photo[0].photo);
-  }
-
-  const createListing = () => {
-    const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
-      accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
-    0);
-    fetchThumbnail()
-      .then((data) => {
-        apiCall('POST', '/listings/new', {
-          title,
-          address,
-          price,
-          thumbnail: data,
-          metadata: {
-            type,
-            beds,
-            sleepingArrangement,
-            bedrooms,
-            baths,
-            active: false,
-          }
-        }, true)
-          .then(() => navigate('/listings/my'))
-          .catch((err) => setErrorMsg(err.error))
-      })
-  }
-
-  
-  const params = useParams();
-  const id = params.id;
-  useEffect(
-    apiCall('GET', '/listings/' + id, {}, true)
-    .then((data) => {
-      setDetails({
-        title: data.title,
-        address: data.address,
-        price: data.price,
-        thumbnail: data.thumbnail,
-        type: data.metadata.type,
-        beds: data.metadata.beds,
-        sleepingArrangement: data.metadata.sleepingArrangement
-      })
-    })
-  }
-  )
-  
-
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
         <Link color="neutral" level="body-sm" underline="always" onClick={(e) => navigate('/listings/my')}> Back to your listings </Link>
-        <h3> Give your listing a new title. </h3>
-        <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
+        <h3> Give your listing a title. </h3>
+        <Input name='title' placeholder="Name of listing" value={title} size="lg" onChange={(e) => {
+          console.log('reset title to', e.target.value);
+          setTitle(e.target.value);
+        }}/>
 
         <h3> Where is your listing located? </h3>
         <Input
@@ -379,10 +367,39 @@ export const EditListing = () => {
           fullWidth
           value={address}
           onChange={(e) => setAddress(e.target.value)}
+          sx = {{ marginBottom: '5px' }}
           startDecorator={
             <Button variant="soft" color="neutral" startDecorator={<LocationOn />}></Button>
           }
         />
+
+        <Stack
+            direction="row"
+            justifyContent="center"
+            alignItems="center"
+            spacing={0.5}
+        >
+          <Input
+            placeholder="City or suburb"
+            size="lg"
+            value={city}
+            sx = {{ width: '75%' }}
+            onChange={(e) => setCity(e.target.value)}
+          />
+          <Select sx = {{ width: '25%' }} size="lg" value={state} onChange={(e) => {
+            console.log('change to', e.target.innerText);
+            setState(e.target.innerText)
+          }}>
+            <Option value="NSW">NSW</Option>
+            <Option value="VIC">VIC</Option>
+            <Option value="QLD">QLD</Option>
+            <Option value="SA">SA</Option>
+            <Option value="WA">WA</Option>
+            <Option value="TAS">TAS</Option>
+            <Option value="NT">NT</Option>
+            <Option value="ACT">ACT</Option>
+          </Select>
+        </Stack>
 
         <h3> How much is it to stay at your listing per night? </h3>
         <FormControl error = {!priceCheck(price)}>
@@ -415,7 +432,7 @@ export const EditListing = () => {
         <BasicFeatures title='Baths' feature={baths} setFeature={setBaths} minSize={1}/>
 
         <h3> Sleeping arrangements </h3>
-        <SleepingArrangements />
+        <SleepingArrangements/>
 
         <h3> Select all the amenities at your listing </h3>
         <Grid container spacing={2}>
@@ -433,11 +450,13 @@ export const EditListing = () => {
         <br/>
         <LoadPhoto />
         <br/>
-        <ButtonGroup spacing="0.5rem" aria-label="spacing button group">
-          <Button onClick={(e) => { createListing() }}>Save</Button>
-          <Button color='primary' variant='solid' onClick={(e) => { createListing() }}>Create new listing</Button>
+        <ButtonGroup spacing='10px'>
+          <Button variant='outlined' onClick={(e) => {
+            handlerSave();
+          }}>Save</Button>
+          <Button variant='solid' color='primary' onClick={(e) => { handlerUpdate() }}>Update listing</Button>
         </ButtonGroup>
-        { errorMsg.length !== 0 ? SomethingWrongError() : null }
+        <SomethingWrongError />
       </Container>
     </div>
   );

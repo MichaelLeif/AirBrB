@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
-
 import { Login } from './components/login'
 import { Register } from './components/register'
 import { apiCall, getToken } from './helpers/apicalls';
 import { NavBar } from './components/navbar'
 import { MyListings } from './components/my-listings'
 import { NewListing } from './components/new-listing'
-import { EditListing } from './components/edit-listing'
+import { EditListingFetch } from './components/edit-listing-data';
+import { ListingDataContext } from './listingDataContext';
 
 const Home = () => {
   return <div>
@@ -36,20 +36,24 @@ const Dashboard = () => {
 }
 
 function App () {
+  const [listingData, setListingData] = useState([]);
+
   return (
     <>
       <BrowserRouter>
-        <NavBar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/hosting" element={<Register />}/>
-          <Route path="/listings/:id" element={<EditListing />} />
-          <Route path="/listings/my" element={<MyListings />}/>
-          <Route path="/listings/new" element={<NewListing />}/>
-        </Routes>
+        <ListingDataContext.Provider value={{ listingData, setListingData }}>
+          <NavBar />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/hosting" element={<Register />}/>
+            <Route path="/listings/:id" element={<EditListingFetch />} />
+            <Route path="/listings/my" element={<MyListings />}/>
+            <Route path="/listings/new" element={<NewListing />}/>
+          </Routes>
+        </ListingDataContext.Provider>
       </BrowserRouter>
     </>
   );

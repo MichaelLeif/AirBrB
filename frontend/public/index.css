@@ -109,3 +109,16 @@ svg {
     gap: 5px;
     align-items: flex-end;
 }
+
+.thumbnail {
+    border-radius: 10px;
+}
+
+.listing-photos {
+    border-radius: 8px;
+    /* border: 0.5px solid rgb(85, 94, 104); */
+}
+.listing-photos:hover {
+    opacity: 0.5;
+}
+ 
