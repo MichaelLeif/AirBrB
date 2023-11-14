@@ -17,7 +17,7 @@ import Add from '@mui/icons-material/Add';
 import Input from '@mui/joy/Input';
 import Divider from '@mui/joy/Divider';
 
-function Listing () {
+export const Listing = () => {
   const [isLoading, setLoading] = React.useState(true);
   const [listing, setListing] = React.useState({});
   const { listid, checkin, checkout } = useParams();
@@ -368,5 +368,3 @@ function Listing () {
     </>
   )
 }
-
-export default Listing

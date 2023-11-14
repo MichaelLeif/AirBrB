@@ -105,7 +105,7 @@ const line = {
   height: '60%'
 }
 
-function Landing () {
+export const Landing = () => {
   const [listing, setListings] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [isHover, setHover] = React.useState('');
@@ -461,5 +461,3 @@ function Landing () {
     </>
   )
 }
-
-export default Landing

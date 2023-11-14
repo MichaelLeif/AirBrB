@@ -1,0 +1,124 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+#logo {
+    height: 40px;
+}
+
+#nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: content-box;
+    height: 80px;
+    padding: 10px 80px;
+    border-bottom: 1px solid rgb(233, 233, 233);
+}
+
+.login-box {
+    border-radius: 10px;
+    padding: 0px;
+    margin-top: 80px;
+    border: 1px solid rgb(149, 149, 149);    
+}
+
+hr {
+    opacity: 30%;
+    margin: 0px;
+}
+
+.login-title {
+    display: flex;
+    justify-content: center;
+}
+
+.login-box h2 {
+    margin-top: 40px;
+    margin-bottom: 10px;
+}
+
+#my-listings {
+    padding: 30px 80px;
+    background-color: white;
+}
+
+#houseIcon {
+    height: 40px;
+}
+
+#newListingCard h2, p {
+    margin: 10px 0px;
+}
+
+#newListingCard svg {
+    margin-top: 30px;
+}
+
+#newListingCard button {
+    margin-bottom: 10px;
+}
+
+svg {
+    height: 30px;
+}
+
+button span.MuiButton-startDecorator {
+    margin: 0;
+}
+
+#my-listings h3 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+.modifyFeature {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 0px
+}
+
+.basicFeature {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#listing-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rating {
+    display: flex;
+}
+
+svg {
+    height: 25px;
+}
+
+.goLiveDate {
+    display: flex;
+    width: 100%;
+    gap: 5px;
+    align-items: flex-end;
+}
+
+.thumbnail {
+    border-radius: 10px;
+}
+
+.listing-photos {
+    border-radius: 8px;
+}
+
+.listing-photos:hover {
+    opacity: 0.5;
+}
+
+.listing-info {
+    padding-bottom: 25px;
+}
