@@ -22,7 +22,7 @@ import Input from '@mui/joy/Input';
 
 const contentContainer = {
   height: 'auto',
-  padding: '150px 70px',
+  padding: '50px 70px',
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr)',
   gridTemplateRows: 'auto auto',
@@ -32,14 +32,13 @@ const contentContainer = {
 }
 
 const searchContainer = {
-  position: 'fixed',
-  top: '0',
-  width: '100%',
+  position: 'absolute',
+  top: '-25px',
+  width: '50%',
   height: '150px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: 'white',
   zIndex: '2000'
 }
 
@@ -65,7 +64,7 @@ const opacityContainer = {
 }
 
 const inputContainer = {
-  width: '42%',
+  width: '90%',
   height: '40%',
   display: 'flex',
   alignItems: 'center',
@@ -116,32 +115,14 @@ export const Landing = () => {
   const [maxPrice, setMaxPrice] = React.useState(0);
   const [minBedroom, setMinBedroom] = React.useState(0);
   const [maxBedroom, setMaxBedroom] = React.useState(0);
+  const [bookings, setBookings] = React.useState([]);
 
   const wrapper = {
     opacity: open ? '0.2' : '1'
   }
 
   React.useEffect(async () => {
-    const response = await fetch(path + '/listings', {
-      method: 'GET',
-      headers: {
-        'Content-type': 'application/json',
-      }
-    });
-    const data = await response.json();
-    if (data.error) {
-      alert(data.error);
-    } else {
-      if (!filter) {
-        data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
-        setListings(data.listings);
-        setLoading(false);
-      }
-    }
-  }, [])
-
-  React.useEffect(async () => {
-    const response = await fetch(path + '/listings', {
+    let response = await fetch(path + '/listings', {
       method: 'GET',
       headers: {
         'Content-type': 'application/json',
@@ -150,7 +131,7 @@ export const Landing = () => {
     const data = await response.json();
     const moreData = [];
     for (const place of data.listings) {
-      const response = await fetch(path + '/listings/' + place.id, {
+      response = await fetch(path + '/listings/' + place.id, {
         method: 'GET',
         headers: {
           'Content-type': 'application/json',
@@ -158,6 +139,18 @@ export const Landing = () => {
       });
       const received = await response.json();
       moreData.push(received.listing);
+    }
+    let books;
+    if (localStorage.getItem('token')) {
+      const response = await fetch(path + '/bookings', {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: localStorage.getItem('token')
+        }
+      });
+      const data = await response.json();
+      books = data.bookings;
     }
     if (data.error) {
       alert(data.error);
@@ -215,9 +208,30 @@ export const Landing = () => {
         alert('date filter');
         setListings(data.listings);
       } else {
-        data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
-        setListings(data.listings);
+        if (bookings) {
+          data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title));
+          data.listings = data.listings.sort((a, b) => {
+            for (const booking of books) {
+              if (a.id === booking.listingId) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return -1;
+                }
+              } else if (b.id === booking.listingId) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return 1;
+                }
+              }
+            }
+            return 0;
+          });
+          setListings(data.listings);
+          setBookings(books);
+        } else {
+          data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
+          setListings(data.listings);
+        }
       }
+      setLoading(false);
     }
   }, [filter, filterValue])
 
@@ -313,7 +327,15 @@ export const Landing = () => {
         <div style={contentContainer}>
           {
             listing.map((e) => {
-              return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined);
+              if (bookings) {
+                for (const booking of bookings) {
+                  if (localStorage.getItem('user') === booking.owner && e.id === booking.listingId) {
+                    console.log('heyyy');
+                    return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined, booking.status);
+                  }
+                }
+              }
+              return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined, undefined);
             })
           }
         </div>

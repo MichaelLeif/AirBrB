@@ -12,7 +12,7 @@ import CardOverflow from '@mui/joy/CardOverflow';
 import Divider from '@mui/joy/Divider';
 import Chip from '@mui/joy/Chip';
 
-function Listinfo (props, dateValue) {
+function Listinfo (props, dateValue, bookingStatus) {
   const item = {
     cursor: 'pointer',
   }
@@ -22,6 +22,26 @@ function Listinfo (props, dateValue) {
     let timeDuration = new Date(dateValue[1]) - new Date(dateValue[0]);
     timeDuration = timeDuration / (1000 * 3600 * 24);
     nights = timeDuration;
+  }
+
+  const BookingStatus = () => {
+    if (bookingStatus) {
+      console.log(bookingStatus);
+      if (bookingStatus === 'accepted') {
+        return (
+         <Chip color='success' style={{ marginLeft: '30px' }}>Accepted</Chip>
+        )
+      } else {
+        return (
+          <Chip color='warning' style={{ marginLeft: '30px' }}>Pending</Chip>
+        )
+      }
+    } else {
+      return (
+        <>
+        </>
+      )
+    }
   }
 
   const MakeListing = () => {
@@ -66,7 +86,7 @@ function Listinfo (props, dateValue) {
                   return r + a.rating
                 }, 0) / props.reviews.length
               }/5</Typography>
-              <Chip color='success' style={{ marginLeft: '30px' }}>Accepted</Chip>
+              <BookingStatus />
             </CardContent>
           </CardOverflow>
         </Card>
