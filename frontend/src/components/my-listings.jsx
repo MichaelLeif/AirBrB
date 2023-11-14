@@ -251,8 +251,19 @@ export const MyListings = () => {
     )
   }
 
+  const findIncome = async () => {
+    const listing = await apiCall('GET', '/listings', {}, true)
+    const myListings = listing.listings.filter(listing => listing.owner === getUser()).map(x => x.id);
+    console.log(myListings);
+    const booking = await apiCall('GET', '/bookings', {}, true);
+    const bookingsAtListings = booking.bookings.filter(booking => myListings.some(x => x === parseInt(booking.listingId)));
+    console.log(bookingsAtListings);
+  }
+
   const xAxisArray = Array.from(Array(31).keys());
   const incomePerDay = Array.from(Array(31).keys());
+  const incomeArray = 1;
+  console.log(incomeArray, findIncome());
 
   return (
     <Tabs aria-label="Basic tabs" defaultValue={0} id='my-listings'>

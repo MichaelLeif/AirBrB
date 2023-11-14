@@ -2,6 +2,7 @@ import React from 'react'
 import { apiCall } from '../helpers/apicalls';
 import { Container, TextField, Alert, Button } from '@mui/material';
 import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
 
 const RegisterButton = styled(Button)({
   textTransform: 'none',
@@ -30,6 +31,7 @@ const Error = styled(Alert)({
 
 export const Register = () => {
   // Use effect state
+  const navigate = useNavigate();
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
@@ -52,6 +54,7 @@ export const Register = () => {
       .then((data) => {
         setToken(data.token);
         setUser(email);
+        navigate('/');
       })
       .catch((err) => {
         console.log('Bad request');
