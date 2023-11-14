@@ -5,7 +5,7 @@ import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import Link from '@mui/joy/Link';
 
-export default function Thumbnail ({ pic, setPic }) {
+export const Thumbnail = ({ pic, setPic }) => {
   return (
     <Card sx={{ minHeight: '280px', marginBottom: '10px' }}>
       <CardCover>

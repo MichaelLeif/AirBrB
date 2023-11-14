@@ -8,7 +8,8 @@ import { apiCall } from '../helpers/apicalls';
 import { useNavigate, useParams } from 'react-router-dom';
 import { setBookingListingData } from './listing-booking-fetch';
 import { twodpPrice } from './my-listings';
-import D from 'ticktalk';
+const dayjs = require('dayjs');
+const relativeTime = require('dayjs/plugin/relativeTime');
 
 function createData (user, startDate, endDate, price, status, bookingId) {
   return { user, startDate, endDate, price, status, bookingId };
@@ -175,10 +176,8 @@ export const ListingReservations = ({ data, setData }) => {
     )
   }
   const timeSince = (time) => {
-    console.log(time);
-    const d = new D(time);
-    console.log(d);
-    return d.when();
+    dayjs.extend(relativeTime);
+    return dayjs(time).fromNow();
   }
   // Calculate the yearly earnings - filter by year and accepted
   const yearlyEarnings = yearlyAccepted.reduce((total, curr) => total + curr.totalPrice, 0);

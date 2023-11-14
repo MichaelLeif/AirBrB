@@ -147,12 +147,13 @@ export const Listing = () => {
   }
 
   const handleBooking = async (e) => {
+    console.log('make booking');
     e.preventDefault();
     if (localStorage.getItem('token')) {
       const body = {
         dateRange: {
-          checkIn: checkInState,
-          checkOut: checkOutState,
+          start: checkInState,
+          end: checkOutState,
           nights
         },
         totalPrice: listing.price * nights
@@ -172,7 +173,7 @@ export const Listing = () => {
       } else {
         console.log('hey');
         setBooked(data.bookingId);
-        alert(booked);
+        console.log('booked', booked);
       }
     } else {
       navigate('/login');

@@ -52,7 +52,7 @@ const AccountMenu = () => {
   const ShowListings = () => {
     return (
       <div>
-        <MenuItem onClick={handleClose}>
+        <MenuItem component={Link} to='/'>
           All listings
         </MenuItem>
         <MenuItem component={Link} to='/listings/my'>

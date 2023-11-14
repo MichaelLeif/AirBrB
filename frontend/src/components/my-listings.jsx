@@ -151,9 +151,11 @@ const ListingCard = ({ id, data, navigate }) => {
             <JoyButton sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
               Edit
             </JoyButton>
-            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={(e) => navigate('/listings/reservations/' + id)}>
-              View reservations
-            </JoyButton>
+            { published
+              ? (<JoyButton sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={(e) => navigate('/listings/reservations/' + id)}>
+                  View reservations
+                </JoyButton>)
+              : null }
             <JoyButton sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={(e) => deleteHandler(id, navigate)}>
               Delete
             </JoyButton>
