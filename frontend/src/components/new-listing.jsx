@@ -237,7 +237,8 @@ export const NewListing = () => {
         beds,
         sleepingArrangement,
         amenities,
-        photos: photo
+        photos: photo,
+        more: 123,
       }
     }, true)
       .then(() => {

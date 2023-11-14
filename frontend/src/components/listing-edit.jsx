@@ -52,7 +52,7 @@ export const EditListing = ({ listingId }) => {
   const navigate = useNavigate();
   const { listingData, setListingData } = useContext(ListingDataContext);
   const data = listingData.find(x => x.id === listingId).data;
-  console.log('refresh');
+  console.log(data.metadata.photos);
 
   const [title, setTitle] = React.useState(data.title);
   const [address, setAddress] = React.useState(data.address.address);
@@ -78,14 +78,15 @@ export const EditListing = ({ listingId }) => {
         state
       },
       price,
-      thumbnail: photo[0],
+      thumbnail: photo[0].photo,
       metadata: {
         type,
         baths,
         bedrooms,
         beds,
         sleepingArrangement,
-        amenities
+        amenities,
+        photos: photo
       }
     }
   }
