@@ -6,6 +6,16 @@ import {
   path
 } from './Pages.jsx';
 import Rating from '@mui/material/Rating';
+import Typography from '@mui/joy/Typography';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import Sheet from '@mui/joy/Sheet';
+import Button from '@mui/joy/Button';
+import FormLabel from '@mui/joy/FormLabel';
+import Textarea from '@mui/joy/Textarea';
+import Add from '@mui/icons-material/Add';
+import Input from '@mui/joy/Input';
+import Divider from '@mui/joy/Divider';
 
 function Listing () {
   const [isLoading, setLoading] = React.useState(true);
@@ -39,81 +49,37 @@ function Listing () {
     flexDirection: 'row'
   }
 
-  const title = {
-    width: '100%',
-    height: '40px',
-    fontSize: '30px',
-    fontWeight: 'bold',
-    cursor: 'default'
-  }
-
   const subheader = {
     fontSize: '20px',
     cursor: 'default'
   }
 
   const thumbnail = {
-    width: '75%',
+    width: '100%',
     height: '100%',
   }
 
-  const bookDiv = {
-    width: '25%',
-    borderRadius: '20px',
-    border: '1px solid',
-    boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px',
-    marginLeft: '5%',
-    padding: '20px',
+  const infoDiv = {
+    width: '30%',
     display: 'flex',
     flexDirection: 'column',
     rowGap: '15px'
   }
 
-  const dateBook = {
+  const infoContainer = {
     width: '100%',
-    height: '20%',
+    height: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: '20px'
   }
 
   const checkDate = {
     height: '60%',
     display: 'flex',
     flexDirection: 'column',
-    border: '1px solid',
-    borderRadius: '8px',
-  }
-
-  const dateInput = {
-    border: 'none',
-    outline: 'none',
-    cursor: 'pointer'
-  }
-
-  const checkIn = {
-    padding: '10px 5px',
-  }
-
-  const checkOut = {
-    borderLeft: '1px solid',
-    height: '100%',
-    padding: '10px 5px',
+    rowGap: '10px',
     boxSizing: 'border-box',
-  }
-
-  const reserveButton = {
-    width: '100%',
-    height: '100%',
-    fontSize: '20px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    marginTop: '10px'
-  }
-
-  const listingInfo = {
-    height: 'auto',
-    display: 'flex',
-    flexDirection: 'column',
-    fontSize: '20px'
   }
 
   const secondContainer = {
@@ -145,34 +111,6 @@ function Listing () {
     height: 'auto',
     display: 'flex',
     flexDirection: 'column'
-  }
-
-  const reviewPopupWrapper = {
-    position: 'fixed',
-    top: '0',
-    width: '100%',
-    height: '750px',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
-
-  const reviewPopUpContainer = {
-    width: '40%',
-    height: '50%',
-    border: '1px solid',
-    borderRadius: '20px',
-    padding: '10px 10px',
-    display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    boxSizing: 'border-box'
-  }
-
-  const reviewPopUp = {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
   }
 
   React.useEffect(async () => {
@@ -239,6 +177,7 @@ function Listing () {
 
   const handleReview = async (e) => {
     e.preventDefault();
+    alert('review functionality');
     setReview(false);
   }
 
@@ -246,94 +185,98 @@ function Listing () {
     return (
       <div style={reviewBox}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <span style={subheader}>{prop.user}</span>
+          <Typography level='h4'>{prop.user}</Typography>
           <Rating
             name="read-only"
-            defaultValue={prop.number}
+            defaultValue={prop.rating}
             precision={0.5}
             size="small"
             readOnly
           />
         </div>
-        <span>{prop.text}</span>
+        <Typography level='body-sm'>{prop.description}</Typography>
       </div>
     )
   }
-  console.log(listing);
+
   return (
     <>
       <div style={wrapper}>
         <div style={firstContainer}>
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <span style={title}>{listing.title}, {listing.metadata.type}</span>
-            <span style={subheader}>{listing.address.street}, {listing.address.suburb}, {listing.address.city}</span>
+            <Typography level="h1">{listing.title}, {listing.metadata.type}</Typography>
+            <Typography level="h2" fontSize="xl" sx={{ mb: 0.5 }}>
+              {listing.address.street}, {listing.address.city}, {listing.address.state}
+            </Typography>
           </div>
           <div style={firstContainerFlex}>
             <img style={thumbnail} src={listing.thumbnail} />
-            <div style={bookDiv}>
-              {
-                nights > 0
-                  ? <span style={title}>${listing.price * nights} <span style={subheader}>per stay</span></span>
-                  : <span style={title}>${listing.price} <span style={subheader}>per night</span></span>
-              }
-              <div style={dateBook}>
-                <form style={checkDate} onSubmit={(e) => {
-                  handleBooking(e);
-                }}>
-                  <div style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
-                    <div style ={checkIn}>
-                      <label htmlFor='check-in'>CHECK-IN</label>
-                      <input id='check-in' type='date' style={dateInput} defaultValue={checkin} onChange={(e) => {
-                        setCheckin(e.target.value);
-                      }}/>
-                    </div>
-                    <div style={checkOut}>
-                      <label htmlFor='check-out'>CHECK-OUT</label>
-                      <input id='check-out' type='date' style={dateInput} defaultValue={checkout} onChange={(e) => {
-                        setCheckout(e.target.value);
-                      }} />
-                    </div>
+          </div>
+          <div style={{ width: '100%', height: 'auto' }}>
+            <div style={{ border: '1px solid', borderRadius: '20px', boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px', padding: '20px', overflow: 'auto' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={infoDiv}>
+                  <div style={infoContainer}>
+                    <Typography level='h1'>Rooms</Typography>
                   </div>
-                  <div>
-                    <button style={reserveButton}>
-                      RESERVE
-                    </button>
+                </div>
+                <Divider orientation='vertical' />
+                <div style={infoDiv}>
+                  <div style={infoContainer}>
+                    <Typography level='h1'>Amenities</Typography>
                   </div>
-                </form>
-              </div>
-              <div style={listingInfo}>
-                <span style={title}>Rooms</span>
-                <span style={subheader}>Bed: {listing.metadata.bed !== undefined ? listing.metadata.bed : 0}</span>
-                <span style={subheader}>Bedrooms: {listing.metadata.bedroom !== undefined ? listing.metadata.bedroom : 0}</span>
-                <span style={subheader}>Bathrooms: {listing.metadata.bathroom !== undefined ? listing.metadata.bathroom : 0}</span>
-                <span style={title}>Amenities</span>
-                {
-                  listing.metadata.amenities
-                    ? listing.metadata.amenities.map((k) => {
-                      return (
-                        <span key='amenity' style={subheader}>{k}</span>
-                      )
-                    })
-                    : <span style={subheader}>No amenities are available at this stay</span>
-                }
-                <span style={title}>Ratings</span>
-                <div style={{ display: 'flex', flexDirection: 'row', columnGap: '10px' }}>
-                  <Rating
-                    name="read-only"
-                    defaultValue={
-                      listing.reviews.reduce((r, a) => {
-                        return r + a.number
-                      }, 0) / listing.reviews.length
-                    }
-                    precision={0.1}
-                    size="medium"
-                    readOnly
-                  />
-                  <span style={subheader}>{
-                      listing.reviews.reduce((r, a) => {
-                        return r + a.number
-                      }, 0) / listing.reviews.length
-                  }/5</span>
+                </div>
+                <Divider orientation='vertical' />
+                <div style={infoDiv}>
+                  {
+                    nights > 0
+                      ? <Typography level='h2'>${listing.price * nights} <Typography level='h3'>per stay</Typography></Typography>
+                      : <Typography level='h2'>${listing.price} <Typography level='h3'>per night</Typography></Typography>
+                  }
+                  <div style={infoContainer}>
+                    <form style={checkDate} onSubmit={(e) => {
+                      handleBooking(e);
+                    }}
+                    >
+                      <div style={{ display: 'flex', width: '100%' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
+                          <FormLabel>CHECK-IN</FormLabel>
+                          <Input style={{ width: '100%' }}type='date' placeholder="Placeholder" defaultValue={checkin} onChange={(e) => {
+                            setCheckin(e.target.value)
+                          }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
+                          <FormLabel>CHECK-OUT</FormLabel>
+                          <Input style={{ width: '100%' }} type='date' defaultValue={checkout} onChange={(e) => {
+                            setCheckout(e.target.value);
+                          }} />
+                        </div>
+                      </div>
+                      <Button type='submit' style={{ width: '100%' }} color='danger'>
+                          RESERVE
+                      </Button>
+                    </form>
+                  </div>
+                  <Typography level='h1'>Ratings</Typography>
+                  <div style={{ display: 'flex', flexDirection: 'row', columnGap: '10px' }}>
+                    <Rating
+                      name="read-only"
+                      defaultValue={
+                        listing.reviews.reduce((r, a) => {
+                          return r + a.rating
+                        }, 0) / listing.reviews.length
+                      }
+                      precision={0.1}
+                      size="medium"
+                      readOnly
+                    />
+                    <span style={subheader}>{
+                        listing.reviews.reduce((r, a) => {
+                          return r + a.rating
+                        }, 0) / listing.reviews.length
+                    }/5</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -341,10 +284,10 @@ function Listing () {
           <div style={secondContainer}>
             <div style={reviewWrapper}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={title}>Reviews</span>
-                <button onClick={(e) => {
+                <Typography level='h1'>Reviews</Typography>
+                <Button startDecorator={<Add />} color='danger' onClick={(e) => {
                   setReview(true);
-                }}>Create a review</button>
+                }}>Write a review</Button>
               </div>
               <div style={reviewContainer}>
                 {
@@ -359,34 +302,68 @@ function Listing () {
       </div>
       {
         review &&
-          <div style={reviewPopupWrapper}>
-            <div style={reviewPopUpContainer}>
-              <div style={reviewPopUp}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ ...title, marginLeft: '20px', marginTop: '10px' }}>Write a review</span>
-                  <button style={{ alignSelf: 'flex-start', width: 'auto', height: 'auto', border: 'none', outline: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '20px' }} onClick={(e) => {
-                    setReview(false);
-                  }}>🆇</button>
-                </div>
-                <form style={{ width: '100%', height: '100%', padding: '20px', display: 'flex', flexDirection: 'column', rowGap: '20px', boxSizing: 'border-box' }} onSubmit={(e) => {
-                  handleReview(e);
-                }}>
-                  <Rating
-                    name="half-rating"
-                    defaultValue={0}
-                    precision={0.5}
-                    size="large"
-                    onChange={(e) => {
-                      rating = e.target.value;
-                      console.log(rating);
-                    }}
-                  />
-                  <textarea style={{ height: '100%' }}></textarea>
-                  <button type='submit' style={{ cursor: 'pointer' }}>Submit</button>
-                </form>
-              </div>
-            </div>
-          </div>
+          <Modal
+          aria-labelledby="modal-title"
+          aria-describedby="modal-desc"
+          open={open}
+          onClose={() => setReview(false)}
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          size='lg'
+        >
+          <Sheet
+            variant="outlined"
+            sx={{
+              maxWidth: 500,
+              borderRadius: 'md',
+              p: 3,
+              boxShadow: 'lg',
+            }}
+          >
+            <ModalClose variant="plain" sx={{ m: 1 }} />
+            <Typography
+              component="h1"
+              id="modal-title"
+              level="h2"
+              textColor="inherit"
+              fontWeight="lg"
+              mb={1}
+            >
+              Write a review
+            </Typography>
+            <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '500px', height: '200px', rowGap: '20px' }} onSubmit={(e) => {
+              e.preventDefault();
+              handleReview(e);
+              setReview(false);
+            }}>
+              <Rating
+                name="half-rating"
+                defaultValue={0}
+                precision={0.5}
+                size="large"
+                onChange={(e) => {
+                  rating = e.target.value;
+                  console.log(rating);
+                }}
+              />
+              <Textarea
+                placeholder="Say something nice!"
+                style={{ width: '100%', height: '100%' }}
+                size='md'
+                minRows={2}
+                sx={{
+                  '&::before': {
+                    display: 'none',
+                  },
+                  '&:focus-within': {
+                    outline: '2px solid var(--Textarea-focusedHighlight)',
+                    outlineOffset: '2px',
+                  },
+                }}
+              />
+              <Button type='submit' color='danger' size='lg'>Submit</Button>
+            </form>
+          </Sheet>
+        </Modal>
       }
     </>
   )

@@ -1,10 +1,24 @@
 import React from 'react';
 import {
-  Link,
-} from 'react-router-dom';
-import {
   path
 } from './Pages.jsx';
+import Listinfo from './Listinfo.jsx'
+import ButtonGroup from '@mui/joy/ButtonGroup';
+import IconButton from '@mui/joy/IconButton';
+import Settings from '@mui/icons-material/Settings';
+import '@fontsource/inter';
+import Typography from '@mui/joy/Typography';
+import Modal from '@mui/joy/Modal';
+import ModalClose from '@mui/joy/ModalClose';
+import Sheet from '@mui/joy/Sheet';
+import Box from '@mui/joy/Box';
+import Slider from '@mui/joy/Slider';
+import Button from '@mui/joy/Button';
+import Select from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+import FormControl from '@mui/joy/FormControl';
+import FormLabel from '@mui/joy/FormLabel';
+import Input from '@mui/joy/Input';
 
 const contentContainer = {
   height: 'auto',
@@ -13,20 +27,20 @@ const contentContainer = {
   gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr)',
   gridTemplateRows: 'auto auto',
   columnGap: '24px',
-  rowGap: '100px',
+  rowGap: '50px',
   overflow: 'auto'
 }
 
 const searchContainer = {
   position: 'fixed',
   top: '0',
-  left: '0',
   width: '100%',
   height: '150px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   backgroundColor: 'white',
+  zIndex: '2000'
 }
 
 const container = {
@@ -51,43 +65,22 @@ const opacityContainer = {
 }
 
 const inputContainer = {
-  width: '88%',
+  width: '42%',
   height: '40%',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'flex-start',
   border: '1px solid',
   borderRadius: '50px',
   boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px'
 }
 
 const dest = {
-  width: '15%',
-  cursor: 'pointer'
-}
-
-const bed = {
-  width: '7%',
-  cursor: 'pointer'
-}
-
-const bedRoom = {
-  width: '10%',
+  width: '29%',
   cursor: 'pointer'
 }
 
 const date = {
-  width: '11%',
-  cursor: 'pointer'
-}
-
-const price = {
-  width: '12%',
-  cursor: 'pointer'
-}
-
-const rating = {
-  width: '9%',
+  width: '22.5%',
   cursor: 'pointer'
 }
 
@@ -112,83 +105,21 @@ const line = {
   height: '60%'
 }
 
-function makeListing (props, dateValue) {
-  const item = {
-    height: '380px',
-    cursor: 'pointer',
-  }
-
-  const img = {
-    width: '100%',
-    height: '80%',
-    borderRadius: '20px',
-  }
-
-  const flex = {
-    display: 'flex',
-    flexDirection: 'column'
-  }
-
-  const grid = {
-    display: 'grid',
-    marginTop: '20px',
-    marginLeft: '5px',
-    columnGap: '20px',
-    gridTemplateColumns: '85% 15%',
-    gridTemplateRows: '25% 25% 25% 25%',
-    gridTemplateAreas:
-      `
-      'Name Rating'
-      'Address1 .'
-      'Address2 .'
-      'Price .'
-      `,
-  }
-
-  const ListInfo = () => {
-    return (
-      <div style={flex}>
-        <img style={img} src={props.thumbnail} />
-        <div style={grid}>
-          <span style={{ gridArea: 'Name' }}>{props.title}</span>
-          <span style={{ gridArea: 'Address1' }}>{props.address.street}</span>
-          <span style={{ gridArea: 'Address2' }}>{props.address.suburb}</span>
-          <span style={{ gridArea: 'Price' }}>${props.price}</span>
-          <span style={{ gridArea: 'Rating' }}>{
-            props.reviews.reduce((r, a) => {
-              return r + a.number
-            }, 0) / props.reviews.length
-          }</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (dateValue !== undefined) {
-    return (
-      <div key={props.id} style={item}>
-        <Link to={`/listing/${props.id}/${dateValue[0]}/${dateValue[1]}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
-          <ListInfo />
-        </Link>
-      </div>
-    )
-  }
-
-  return (
-    <div key={props.id} style={item}>
-      <Link to={`/listing/${props.id}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
-        <ListInfo />
-      </Link>
-    </div>
-  )
-}
-
 function Landing () {
   const [listing, setListings] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [isHover, setHover] = React.useState('');
   const [filter, setFilter] = React.useState('');
   const [filterValue, setFilterValue] = React.useState([]);
+  const [open, setOpen] = React.useState(false);
+  const [minPrice, setMinPrice] = React.useState(0);
+  const [maxPrice, setMaxPrice] = React.useState(0);
+  const [minBedroom, setMinBedroom] = React.useState(0);
+  const [maxBedroom, setMaxBedroom] = React.useState(0);
+
+  const wrapper = {
+    opacity: open ? '0.2' : '1'
+  }
 
   React.useEffect(async () => {
     const response = await fetch(path + '/listings', {
@@ -202,7 +133,7 @@ function Landing () {
       alert(data.error);
     } else {
       if (!filter) {
-        data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title));
+        data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
         setListings(data.listings);
         setLoading(false);
       }
@@ -244,14 +175,6 @@ function Landing () {
           }
         });
         setListings(data.listings);
-      } else if (filter === 'bed') {
-        const filtered = moreData.filter(e => {
-          if (e.metadata.bed >= filterValue[0] && e.metadata.bed <= filterValue[1]) {
-            return true;
-          }
-          return false;
-        })
-        setListings(filtered);
       } else if (filter === 'bedroom') {
         const filtered = moreData.filter(e => {
           if (e.metadata.bedroom >= filterValue[0] && e.metadata.bedroom <= filterValue[1]) {
@@ -268,20 +191,19 @@ function Landing () {
           return false;
         });
         setListings(filtered);
-      } else if (filter === 'ratings') {
-        console.log(filterValue);
-        if (filterValue[0] === 'Highest') {
+      } else if (filter === 'rating') {
+        if (filterValue[0] === 'highest') {
           const filtered = moreData.sort((a, b) => {
-            if (a.reviews.reduce((r, a) => { return r + a.number }, 0) > b.reviews.reduce((r, a) => { return r + b.number }, 0)) {
-              return 1;
-            } else {
+            if (a.reviews.reduce((r, a) => { return r + a.rating }, 0) > b.reviews.reduce((r, b) => { return r + b.rating }, 0)) {
               return -1;
+            } else {
+              return 1;
             }
           });
           setListings(filtered);
-        } else if (filterValue[0] === 'Lowest') {
+        } else if (filterValue[0] === 'lowest') {
           const filtered = moreData.sort((a, b) => {
-            if (a.reviews.reduce((r, a) => { return r + a.number }, 0) < b.reviews.reduce((r, a) => { return r + b.number }, 0)) {
+            if (a.reviews.reduce((r, a) => { return r + a.rating }, 0) < b.reviews.reduce((r, b) => { return r + b.rating }, 0)) {
               return -1;
             } else {
               return 1;
@@ -289,7 +211,11 @@ function Landing () {
           });
           setListings(filtered);
         }
+      } else if (filter === 'date') {
+        alert('date filter');
+        setListings(data.listings);
       } else {
+        data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
         setListings(data.listings);
       }
     }
@@ -308,12 +234,27 @@ function Landing () {
   const handleFilter = (e) => {
     e.preventDefault();
     let searchTarget = '';
-    const value = [];
+    let value = [];
     for (const element of e.target) {
-      if (element.value && element.value !== 'No filter') {
-        searchTarget = element.id;
+      if (element.value && element.value !== 'No filter' && element.name) {
+        searchTarget = element.name ? element.name : element.id;
         value.push(element.value);
       }
+    }
+    if ((value[0] !== '0' || value[1] !== '0') && searchTarget === 'bedroom') {
+      searchTarget = 'price';
+      setMinPrice(0);
+      setMaxPrice(0);
+    } else if (value[0] === '0' && value[1] === '0' && searchTarget === 'bedroom') {
+      value = value.slice(2, 4);
+      setMinBedroom(0);
+      setMaxBedroom(0);
+    } else if (value.includes('highest') || value.includes('lowest')) {
+      value = value.slice(4);
+      searchTarget = 'rating';
+    }
+    if (value[0] === '0' && value[1] === '0' && searchTarget !== 'rating') {
+      searchTarget = '';
     }
     setListings([]);
     setFilter(searchTarget);
@@ -321,124 +262,203 @@ function Landing () {
   }
 
   return (
-    <div>
-      <div style={searchContainer}>
-        <form style={inputContainer} onSubmit={(e) => {
-          handleFilter(e);
-        }}>
-          <div style={{ ...dest, ...(isHover === 'title' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('title');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='title' style={label}>Where</label>
-            <input id='title' name='title' type='text' style={input} placeholder='Search Destinations' defaultValue='' />
+    <>
+      <div style={wrapper}>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div style={searchContainer}>
+            <form style={inputContainer} onSubmit={(e) => {
+              handleFilter(e);
+            }}>
+              <div style={{ ...dest, ...(isHover === 'title' ? opacityContainer : container) }} onMouseEnter={() => {
+                setHover('title');
+              }} onMouseLeave={() => {
+                setHover('');
+              }}>
+                <label htmlFor='title' style={label}>Where</label>
+                <input id='title' name='title' type='text' style={input} placeholder='Search Destinations' defaultValue='' />
+              </div>
+              <div name='vl' style={line}></div>
+              <div style={{ ...date, ...(isHover === 'check-in' ? opacityContainer : container) }} onMouseEnter={() => {
+                setHover('check-in');
+              }} onMouseLeave={() => {
+                setHover('');
+              }}>
+                <label htmlFor='check-in' style={label}>Check in </label>
+                <input id='date' name='check-in' type='date' style={input} defaultValue='' />
+              </div>
+              <div name='vl' style={line}></div>
+              <div style={{ ...date, ...(isHover === 'check-out' ? opacityContainer : container) }} onMouseEnter={() => {
+                setHover('check-out');
+              }} onMouseLeave={() => {
+                setHover('');
+              }}>
+                <label htmlFor='check-out' style={label}>Check out </label>
+                <input id='date' name='check-out' type='date' style={input} defaultValue='' />
+              </div>
+              <div name='vl' style={line}></div>
+              <ButtonGroup variant='plain' style={{ margin: '0 5px' }}>
+                <IconButton onClick={(e) => {
+                  setOpen(true);
+                }}>
+                  Filter
+                  <Settings />
+                </IconButton>
+              </ButtonGroup>
+              <Button type='submit' size="md" variant={'solid'} color="danger" style={{ borderRadius: '50px', height: '100%', width: '100%' }}>
+                Search
+              </Button>
+            </form>
           </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...bed, ...(isHover === 'min-bed' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('min-bed');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='min-bed' style={label}>Min bed</label>
-            <input id='bed' name='min-bed' type='number' style={input} placeholder='0' defaultValue=''/>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...bed, ...(isHover === 'max-bed' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('max-bed');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='max-bed' style={label}>Max bed</label>
-            <input id='bed' name='max-bed' type='number' style={input} placeholder='0' defaultValue=''/>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...bedRoom, ...(isHover === 'min-bedroom' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('min-bedroom');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='min-bedroom' style={label}>Min bedroom</label>
-            <input id='bedroom' name='min-bedroom' type='number' style={input} placeholder='0' defaultValue=''/>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...bedRoom, ...(isHover === 'max-bedroom' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('max-bedroom');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='max-bedroom' style={label}>Max bedroom</label>
-            <input id='bedroom' name='max-bedroom' type='number' style={input} placeholder='0' defaultValue=''/>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...date, ...(isHover === 'check-in' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('check-in');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='check-in' style={label}>Check in </label>
-            <input id='date' name='check-in' type='date' style={input} defaultValue='' />
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...date, ...(isHover === 'check-out' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('check-out');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='check-out' style={label}>Check out </label>
-            <input id='date' name='check-out' type='date' style={input} defaultValue='' />
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...price, ...(isHover === 'min-price' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('min-price');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='min-price' style={label}>Min price </label>
-            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'flex-start' }}>
-              <span style={{ paddingTop: '2.8px' }}>$</span>
-              <input id='price' name='min-price' type='number' style={{ ...input, width: '100%' }} placeholder='0' defaultValue='' />
-            </div>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...price, ...(isHover === 'max-price' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('max-price');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='max-price' style={label}>Max price </label>
-            <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'flex-start' }}>
-              <span style={{ paddingTop: '2.8px' }}>$</span>
-              <input id='price' name='max-price' type='number' style={{ ...input, width: '100%' }} placeholder='0' defaultValue='' />
-            </div>
-          </div>
-          <div name='vl' style={line}></div>
-          <div style={{ ...rating, ...(isHover === 'rating' ? opacityContainer : container) }} onMouseEnter={() => {
-            setHover('rating');
-          }} onMouseLeave={() => {
-            setHover('');
-          }}>
-            <label htmlFor='ratings' style={label}>Ratings </label>
-            <select id='ratings' name='ratings' style={{ border: 'none' }}>
-              <option defaultValue=''>No filter</option>
-              <option defaultValue='low'>Lowest</option>
-              <option defaultValue='high'>Highest</option>
-            </select>
-          </div>
-          <div style={container}>
-            <button type='submit' style={{ height: '100%', borderRadius: '50px', border: 'none', cursor: 'pointer' }}>Search</button>
-          </div>
-        </form>
+        </div>
+        <div style={contentContainer}>
+          {
+            listing.map((e) => {
+              return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined);
+            })
+          }
+        </div>
       </div>
-      <div style={contentContainer}>
-        {
-          listing.map((e) => {
-            console.log(e);
-            return makeListing(e, filter === 'date' ? filterValue : undefined);
-          })
-        }
-      </div>
-    </div>
+      {
+        open &&
+          <Modal
+            aria-labelledby="modal-title"
+            aria-describedby="modal-desc"
+            open={open}
+            onClose={() => setOpen(false)}
+            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            size='lg'
+          >
+            <Sheet
+              variant="outlined"
+              sx={{
+                maxWidth: 500,
+                borderRadius: 'md',
+                p: 3,
+                boxShadow: 'lg',
+              }}
+            >
+            <ModalClose variant="plain" sx={{ m: 1 }} />
+            <Typography
+              component="h1"
+              id="modal-title"
+              level="h4"
+              textColor="inherit"
+              fontWeight="lg"
+              mb={1}
+            >
+              Advanced search
+            </Typography>
+            <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} onSubmit={(e) => {
+              e.preventDefault();
+              handleFilter(e);
+              setOpen(false);
+            }}>
+              <Typography
+              style={{ marginBottom: '20px' }}
+              >
+                Price
+              </Typography>
+              <Box sx={{ width: 400 }}>
+                <Slider
+                  defaultValue={[0, 0]}
+                  max={50000}
+                  getAriaValueText={(value) => {
+                    return `$${value}`
+                  }}
+                  color="danger"
+                  onChange={(e) => {
+                    setMinPrice(e.target.value[0]);
+                    setMaxPrice(e.target.value[1]);
+                  }}
+                />
+              </Box>
+              <div style={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
+                <FormControl>
+                  <FormLabel>Min</FormLabel>
+                  <Input
+                    name='price'
+                    startDecorator={'$'}
+                    value={minPrice}
+                    style={{ width: '100px' }}
+                    onChange={(e) => {
+                      setMinPrice(e.target.value);
+                    }}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Max</FormLabel>
+                  <Input
+                    name='price'
+                    startDecorator={'$'}
+                    value={maxPrice}
+                    style={{ width: '100px' }}
+                    onChange={(e) => {
+                      setMaxPrice(e.target.value);
+                    }}
+                  />
+                </FormControl>
+              </div>
+              <Typography
+              style={{ marginBottom: '20px' }}
+              >
+                Bedroom
+              </Typography>
+              <Box sx={{ width: 400 }}>
+                <Slider
+                  defaultValue={[0, 0]}
+                  max={50}
+                  getAriaValueText={(value) => {
+                    return `$${value}`
+                  }}
+                  color="danger"
+                  onChange={(e) => {
+                    setMinBedroom(e.target.value[0]);
+                    setMaxBedroom(e.target.value[1]);
+                  }}
+                />
+              </Box>
+              <div style={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
+                <FormControl>
+                  <FormLabel>Min</FormLabel>
+                  <Input
+                    name='bedroom'
+                    value={minBedroom}
+                    style={{ width: '100px' }}
+                    onChange={(e) => {
+                      setMinBedroom(e.target.value);
+                    }}
+                  />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Max</FormLabel>
+                  <Input
+                    name='bedroom'
+                    value={maxBedroom}
+                    style={{ width: '100px' }}
+                    onChange={(e) => {
+                      setMaxBedroom(e.target.value);
+                    }}
+                  />
+                </FormControl>
+              </div>
+              <Select
+                placeholder="Rating"
+                size="md"
+                variant="outlined"
+                style={{ marginBottom: '20px' }}
+                defaultValue='No filter'
+                name='rating'
+                >
+                <Option value='no-filter'>No filter</Option>
+                <Option value='highest'>Highest</Option>
+                <Option value='lowest'>Lowest</Option>
+              </Select>
+              <Button type='submit' color='danger' size='lg'>Search</Button>
+            </form>
+          </Sheet>
+        </Modal>
+      }
+    </>
   )
 }
 
