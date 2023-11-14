@@ -7,12 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import { star } from '../helpers/svg'
 import { GoLiveDialog } from './go-live'
-import { LoadingButton } from '../helpers/generics';
+import { Loading, LoadingButton } from '../helpers/generics';
 import Tabs from '@mui/joy/Tabs';
 import TabList from '@mui/joy/TabList';
 import Tab from '@mui/joy/Tab';
 import TabPanel from '@mui/joy/TabPanel';
-import { LineChart } from '@mui/x-charts'
+import { LineChart } from '@mui/x-charts';
+import { checkAccepted } from './listing-booking';
+
 const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
   border: 'none',
@@ -251,19 +253,81 @@ export const MyListings = () => {
     )
   }
 
+  const checkBeforeToday = (booking) => {
+    const now = new Date();
+    const then = new Date(booking.dateRange.start);
+    return now.getTime() - then.getTime() > 0;
+  }
+
+  const daysBetween = (start, finish) => {
+    const startSec = new Date(start);
+    const finishSec = new Date(finish);
+    return Math.round((finishSec.getTime() - startSec.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
+  const daysSinceToday = (start) => {
+    const startSec = new Date(start);
+    const finishSec = new Date();
+    return Math.round((finishSec.getTime() - startSec.getTime()) / (1000 * 60 * 60 * 24));
+  }
+
   const findIncome = async () => {
     const listing = await apiCall('GET', '/listings', {}, true)
     const myListings = listing.listings.filter(listing => listing.owner === getUser()).map(x => x.id);
-    console.log(myListings);
+    console.log('mylisting', myListings);
     const booking = await apiCall('GET', '/bookings', {}, true);
-    const bookingsAtListings = booking.bookings.filter(booking => myListings.some(x => x === parseInt(booking.listingId)));
-    console.log(bookingsAtListings);
+    const bookingsAtListings = booking.bookings.filter(booking => checkAccepted(booking) && checkBeforeToday(booking) && myListings.some(x => x === parseInt(booking.listingId)));
+    console.log('bookingsatlisting', bookingsAtListings);
+    const incomeArray = new Array(31).fill(0);
+    console.log(incomeArray);
+    bookingsAtListings.forEach((booking) => {
+      const start = booking.dateRange.start;
+      const end = booking.dateRange.end;
+      const numDays = daysBetween(start, end) + 1;
+      const pricePerDay = booking.totalPrice / numDays * 1.0;
+      const daysFromStart = daysSinceToday(start);
+      const daysFromEnd = daysSinceToday(end);
+      console.log(pricePerDay);
+      for (let i = daysFromEnd; i <= daysFromStart; i++) {
+        console.log(i);
+        if (i < 0) {
+          continue;
+        }
+
+        if (i > 30) {
+          break;
+        }
+
+        incomeArray[i] += pricePerDay;
+      }
+    })
+    return incomeArray;
   }
 
   const xAxisArray = Array.from(Array(31).keys());
-  const incomePerDay = Array.from(Array(31).keys());
-  const incomeArray = 1;
-  console.log(incomeArray, findIncome());
+  const ProfitGraph = () => {
+    const [data, setData] = React.useState(null);
+    if (!data) {
+      findIncome()
+        .then((data) => {
+          setData(data);
+        })
+    }
+
+    return !data
+      ? <Loading />
+      : (<LineChart
+        xAxis={[{ data: xAxisArray, tickMinStep: 1, tickMaxStep: 1, label: 'Number of days ago' }]}
+        series={[
+          {
+            curve: 'linear',
+            data,
+          },
+        ]}
+        height={450}
+        yAxis={[{ label: 'Income ($)' }]}
+      />)
+  }
 
   return (
     <Tabs aria-label="Basic tabs" defaultValue={0} id='my-listings'>
@@ -278,17 +342,7 @@ export const MyListings = () => {
         </TabPanel>
         <TabPanel value={1}>
           <h3> Profit in the Last Month </h3>
-          <LineChart
-            xAxis={[{ data: xAxisArray, tickMinStep: 1, tickMaxStep: 1, label: 'Number of days ago' }]}
-            series={[
-              {
-                curve: 'linear',
-                data: incomePerDay,
-              },
-            ]}
-            height={450}
-            yAxis={[{ label: 'Income ($)' }]}
-          />
+          <ProfitGraph />
         </TabPanel>
     </Tabs>
   );

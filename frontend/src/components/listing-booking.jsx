@@ -22,7 +22,7 @@ const rows = (data) => {
   return data.map(x => createData(x.owner, x.dateRange.start, x.dateRange.end, dollarFormat(x.totalPrice), x.status, x.id));
 };
 
-const checkAccepted = (x) => {
+export const checkAccepted = (x) => {
   return x.status.localeCompare('accepted') === 0;
 }
 

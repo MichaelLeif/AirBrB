@@ -12,11 +12,8 @@ import {
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 
 import Link from '@mui/joy/Link';
-import CardContent from '@mui/joy/CardContent';
-import Typography from '@mui/joy/Typography';
 import { apiCall } from '../helpers/apicalls';
 import { fileToDataUrl } from '../helpers/image';
-// import ImageList from '@mui/material/ImageList';
 
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
@@ -37,35 +34,6 @@ export const ErrorInfo = ({ children }) => {
 
 const PriceError = () => {
   return <ErrorInfo> Please provide your price to 2dp. </ErrorInfo>
-}
-
-export default function InteractiveCard () {
-  return (
-    <Card
-      variant="outlined"
-      orientation="horizontal"
-      sx={{
-        width: 320,
-        '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-      }}
-    >
-      <CardContent>
-        <Typography level="title-lg" id="card-description">
-          Yosemite Park
-        </Typography>
-        <Typography level="body-sm" aria-describedby="card-description" mb={1}>
-          <Link
-            overlay
-            underline="none"
-            href="#interactive-card"
-            sx={{ color: 'text.tertiary' }}
-          >
-            California, USA
-          </Link>
-        </Typography>
-      </CardContent>
-    </Card>
-  );
 }
 
 const RoundButton = styled(Button)(() => ({
@@ -102,7 +70,14 @@ const VisuallyHiddenInput = styled('input')`
   width: 1px;
 `;
 
-const InputFileUpload = ({ photo, setPhoto }) => {
+const updatePhotos = (e, setPhoto) => {
+  const files = Array.from(e.target.files);
+  setPhoto(old => [...old, {
+    photo: files[0],
+  }]);
+}
+
+const InputFileUpload = ({ handler }) => {
   return (
     <Button
       component="label"
@@ -129,12 +104,7 @@ const InputFileUpload = ({ photo, setPhoto }) => {
       }
     >
       Upload a photo
-      <VisuallyHiddenInput type="file" onChange={(e) => {
-        const files = Array.from(e.target.files);
-        setPhoto(old => [...old, {
-          photo: files[0],
-        }]);
-      }} />
+      <VisuallyHiddenInput type="file" onChange={handler} />
     </Button>
   );
 }
@@ -184,6 +154,10 @@ export const NewListing = () => {
     )
   }
 
+  const fileHandler = (e) => {
+    updatePhotos(e, setPhoto);
+  }
+
   const LoadPhoto = () => {
     const [pic, loadPic] = React.useState('');
     console.log('rendering before', pic);
@@ -199,10 +173,7 @@ export const NewListing = () => {
           {pic.length > 0 ? <Thumbnail pic={pic[0]} setPic={setPhoto} /> : null}
           {pic.length > 1 ? <OtherPhotos pic={pic.slice(1)} /> : null}
         </div>
-        <InputFileUpload photo={photo} setPhoto={setPhoto}/>
-        <br/>
-        <br/>
-        <hr/>
+        <InputFileUpload handler={fileHandler}/>
       </>
     );
   }
@@ -380,10 +351,30 @@ export const NewListing = () => {
       })
   }
 
+  const OrDividerGrid = styled(Grid)(() => ({
+    alignItems: 'center',
+    '& > hr': { flexGrow: '1' },
+    '& > span': { padding: '0px 8px' }
+  }))
+
+  const OrDivider = () => {
+    return (
+      <OrDividerGrid container spacing={2}>
+        <hr/>
+        <span>or</span>
+        <hr/>
+      </OrDividerGrid>
+    )
+  }
+
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
         <BreadCrumbs navigate={navigate}> Create Listing </BreadCrumbs>
+
+        <h3> Upload a JSON file of your listing. </h3>
+        <LoadPhoto />
+        <OrDivider/>
         <h3> Give your listing a title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 
@@ -473,10 +464,8 @@ export const NewListing = () => {
           <AmenitiesCard svg={alarmSVG} title='Smoke Alarm'/>
           <AmenitiesCard svg={safeSVG} title='Safe'/>
         </Grid>
-
-        <br/>
         <LoadPhoto />
-        <br/>
+        <hr/>
 
         <Button onClick={(e) => { createListing() }}>Create new listing</Button>
         { errorMsg.length !== 0 ? SomethingWrongError() : null }
