@@ -8,7 +8,11 @@ import { Add } from '@mui/icons-material';
 import { star } from '../helpers/svg'
 import { GoLiveDialog } from './go-live'
 import { LoadingButton } from '../helpers/generics';
-
+import Tabs from '@mui/joy/Tabs';
+import TabList from '@mui/joy/TabList';
+import Tab from '@mui/joy/Tab';
+import TabPanel from '@mui/joy/TabPanel';
+import { LineChart } from '@mui/x-charts'
 const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
   border: 'none',
@@ -247,9 +251,34 @@ export const MyListings = () => {
     )
   }
 
+  const xAxisArray = Array.from(Array(31).keys());
+  const incomePerDay = Array.from(Array(31).keys());
+
   return (
-    <div id='my-listings'>
-      <FindMyListings />
-    </div>
+    <Tabs aria-label="Basic tabs" defaultValue={0} id='my-listings'>
+        <TabList>
+          <Tab>My Listings</Tab>
+          <Tab>Performance</Tab>
+        </TabList>
+        <TabPanel value={0}>
+        <div>
+          <FindMyListings />
+        </div>
+        </TabPanel>
+        <TabPanel value={1}>
+          <h3> Profit in the Last Month </h3>
+          <LineChart
+            xAxis={[{ data: xAxisArray, tickMinStep: 1, tickMaxStep: 1, label: 'Number of days ago' }]}
+            series={[
+              {
+                curve: 'linear',
+                data: incomePerDay,
+              },
+            ]}
+            height={450}
+            yAxis={[{ label: 'Income ($)' }]}
+          />
+        </TabPanel>
+    </Tabs>
   );
 }
