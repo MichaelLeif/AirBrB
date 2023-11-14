@@ -5,6 +5,7 @@ import { Button, SvgIcon } from '@mui/joy';
 import { styled } from '@mui/material/styles';
 
 export function fileToDataUrl (file) {
+  console.log(file)
   const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg']
   const valid = validFileTypes.find(type => type === file.type);
   // Bad data, let's walk away.
@@ -35,12 +36,10 @@ const VisuallyHiddenInput = styled('input')`
 
 export const LoadPhoto = ({ photo, setPhoto, children }) => {
   const [pic, loadPic] = React.useState('');
-  console.log('rendering before', pic);
   useEffect(() => {
-    loadPhotos(photo, setPhoto)
-      .then((data) => loadPic(data));
+    const photos = loadPhotos(photo, setPhoto)
+    loadPic(photos);
   }, [photo]);
-  console.log('rendering after', pic);
   return (
     <>
       <h3> {children} </h3>
@@ -48,7 +47,10 @@ export const LoadPhoto = ({ photo, setPhoto, children }) => {
         {pic.length > 0 ? <Thumbnail pic={pic[0]} setPic={setPhoto} /> : null}
         {pic.length > 1 ? <OtherPhotos pic={pic.slice(1)} /> : null}
       </div>
-      <InputFileUpload handler={(e) => updatePhotos(e, setPhoto)}/>
+      <InputFileUpload handler={async (e) => {
+        const photo = await processPhoto(e)
+        updatePhotos(photo, setPhoto);
+      }}/>
     </>
   );
 }
@@ -68,10 +70,14 @@ const OtherPhotos = ({ pic }) => {
   )
 }
 
-const updatePhotos = (e, setPhoto) => {
-  const files = Array.from(e.target.files);
+const processPhoto = (e) => {
+  const photo = e.target.files;
+  return fileToDataUrl(photo[0]);
+}
+
+const updatePhotos = (photo, setPhoto) => {
   setPhoto(old => [...old, {
-    photo: files[0],
+    photo,
   }]);
 }
 
@@ -111,15 +117,14 @@ const InputFileUpload = ({ handler }) => {
 }
 
 const loadPhotos = (photos, setPhoto) => {
-  return Promise.all(photos.map(async (photo, i) => {
+  return photos.map((photo, i) => {
     return (
-      <img key={i} className='listing-photos' height='200px' src={await fileToDataUrl(photo.photo)} alt='listing photo uploaded'
+      <img key={i} className='listing-photos' height='200px' src={photo.photo} alt='listing photo uploaded'
         onClick={(e) => setPhoto(old => {
-          console.log('remove ' + i);
           const before = [...old].slice(0, i)
           const after = [...old].slice(i + 1)
           return [...before, ...after];
         })}/>
     );
-  }))
+  })
 }
