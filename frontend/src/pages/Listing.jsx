@@ -1,6 +1,7 @@
 import React from 'react'
 import {
-  useParams
+  useParams,
+  useNavigate
 } from 'react-router-dom'
 import {
   path
@@ -25,6 +26,7 @@ export const Listing = () => {
   const [checkOutState, setCheckout] = React.useState(checkout || '');
   const [booked, setBooked] = React.useState();
   const [review, setReview] = React.useState(false);
+  const navigate = useNavigate();
   let nights = 0;
   let rating = 0;
 
@@ -148,14 +150,15 @@ export const Listing = () => {
     e.preventDefault();
     if (localStorage.getItem('token')) {
       const body = {
-        range: {
+        dateRange: {
           checkIn: checkInState,
           checkOut: checkOutState,
           nights
         },
-        price: listing.price * nights
+        totalPrice: listing.price * nights
       }
-      const response = await fetch(path + `/booking/new/${listid}`, {
+      console.log(body);
+      const response = await fetch(path + `/bookings/new/${listid}`, {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
@@ -167,11 +170,12 @@ export const Listing = () => {
       if (data.error) {
         alert(data.error);
       } else {
+        console.log('hey');
         setBooked(data.bookingId);
         alert(booked);
       }
     } else {
-      alert('bring to login page');
+      navigate('/login');
     }
   }
 
