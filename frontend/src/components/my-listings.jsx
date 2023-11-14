@@ -38,7 +38,7 @@ const CreateListingButton = styled(Button)({
   },
 });
 
-const twodpPrice = (price) => {
+export const twodpPrice = (price) => {
   if (!price.includes('.')) {
     return price + '.00'
   }
@@ -72,7 +72,16 @@ const unpublishHandler = (id, navigate) => {
   navigate('/listings/my');
 }
 
-const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, price, navigate, published }) => {
+const ListingCard = ({ id, data, navigate }) => {
+  const title = data.title;
+  const type = data.metadata.type;
+  const beds = data.metadata.beds;
+  const bathrooms = data.metadata.baths;
+  const thumbnail = data.thumbnail;
+  const price = data.price
+  const reviews = data.reviews;
+  const published = data.published;
+
   return (
     <JoyCard
     orientation="horizontal"
@@ -143,7 +152,7 @@ const ListingCard = ({ id, title, type, beds, bathrooms, thumbnail, reviews, pri
               Delete
             </JoyButton>
             { !published
-              ? <GoLiveDialog listing={id} navigate={navigate}/>
+              ? <GoLiveDialog data={data} listing={id} navigate={navigate}/>
               : <JoyButton sx ={{ flex: 0.5 }} color='warning' onClick={(e) => unpublishHandler(id, navigate)} > Unpublish </JoyButton> }
       </Box>
     </JoyCardContent>
@@ -177,7 +186,6 @@ export const MyListings = () => {
           const user = getUser();
           const myListings = data.listings.filter(x => x.owner === user);
           setListing(myListings.length);
-          console.log('my listing', myListings);
           if (myListings.length === 0) {
             setProcessed(true);
           }
@@ -224,14 +232,9 @@ export const MyListings = () => {
       return (
         details.map((listing, i) => {
           const listingDets = listing.detail;
-          console.log(listingDets);
           return (
-            <ListingCard key={i} id={listing.id} title={listingDets.title}
-            type={listingDets.metadata.type} beds={listingDets.metadata.beds}
-            bathrooms={listingDets.metadata.baths} address={listingDets.address}
-            thumbnail={listingDets.thumbnail} price={listingDets.price}
-            reviews={listingDets.reviews} navigate={navigate}
-            published={listingDets.published}/>
+            <ListingCard key={i} id={listing.id} data={listingDets} navigate={navigate}
+            />
           )
         })
       )

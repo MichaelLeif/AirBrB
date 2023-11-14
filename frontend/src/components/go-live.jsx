@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { apiCall } from '../helpers/apicalls'
 
-export function GoLiveDialog ({ listing, navigate }) {
+export function GoLiveDialog ({ data, listing, navigate }) {
   const [open, setOpen] = React.useState(false);
   const [id, setId] = React.useState(1);
   const [dates, setDates] = React.useState([{
@@ -112,7 +112,31 @@ export function GoLiveDialog ({ listing, navigate }) {
         end: x.finish,
       }
     });
+
+    const newMeta = {
+      amenities: data.metadata.amenities,
+      type: data.metadata.type,
+      beds: data.metadata.beds,
+      baths: data.metadata.baths,
+      bedrooms: data.metadata.bedrooms,
+      sleepingArrangement: data.metadata.sleepingArrangement,
+      publishTime: Date.now(),
+    }
+
+    console.log('newmeta', newMeta);
+
     apiCall('PUT', '/listings/publish/' + id, { availability }, true);
+    apiCall('PUT', '/listings/' + id, {
+      title: data.title,
+      address: {
+        address: data.address.address,
+        city: data.address.city,
+        state: data.address.state,
+      },
+      price: data.price,
+      thumbnail: data.thumbnail,
+      metadata: newMeta,
+    }, true)
     navigate('/listings/my');
     setOpen(false);
   }

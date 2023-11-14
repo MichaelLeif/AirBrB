@@ -4,42 +4,64 @@ import Tabs from '@mui/joy/Tabs';
 import TabList from '@mui/joy/TabList';
 import Tab from '@mui/joy/Tab';
 import TabPanel from '@mui/joy/TabPanel';
-// import Button from '@mui/joy/Button';
-// import ButtonGroup from '@mui/joy/ButtonGroup';
 import { apiCall } from '../helpers/apicalls';
 import { useNavigate, useParams } from 'react-router-dom';
+import { setBookingListingData } from './listing-booking-fetch';
+import { twodpPrice } from './my-listings';
+import D from 'ticktalk';
 
 function createData (user, startDate, endDate, price, status, bookingId) {
   return { user, startDate, endDate, price, status, bookingId };
 }
 
 const dollarFormat = (price) => {
-  return '$' + price.toString()
+  return '$' + twodpPrice(price.toString())
 }
 
 const rows = (data) => {
   return data.map(x => createData(x.owner, x.dateRange.start, x.dateRange.end, dollarFormat(x.totalPrice), x.status, x.id));
 };
 
-export const ListingReservations = ({ data }) => {
+const checkAccepted = (x) => {
+  return x.status.localeCompare('accepted') === 0;
+}
+
+const checkDeclined = (x) => {
+  return x.status.localeCompare('declined') === 0;
+}
+
+const checkPending = (x) => {
+  return x.status.localeCompare('pending') === 0;
+}
+
+const thisYear = new Date().getFullYear();
+const checkYear = (x) => {
+  const bookingStart = new Date(x.dateRange.start);
+  return bookingStart.getFullYear() === thisYear;
+}
+
+export const ListingReservations = ({ data, setData }) => {
   console.log('parse', data);
   const title = data.title;
   const reservationData = data.data;
+  const publishTime = data.publishTime;
   const navigate = useNavigate();
   const listingId = useParams().id;
+  const pendingData = reservationData.filter(checkPending);
+  const acceptedData = reservationData.filter(checkAccepted);
+  const declinedData = reservationData.filter(checkDeclined);
+  const yearlyAccepted = reservationData.filter(x => checkAccepted(x) && checkYear(x));
 
   const acceptHandler = (bookingId) => {
     apiCall('PUT', '/bookings/accept/' + bookingId, {}, true)
       .then(() => {
-        console.log('accept');
-        navigate('/listings/reservations/' + listingId)
-        console.log('accepted');
+        setBookingListingData(listingId, setData);
       });
   }
 
   const deniedHandler = (bookingId) => {
     apiCall('PUT', '/bookings/decline/' + bookingId, {}, true)
-      .then(() => navigate('/listings/reservations/' + listingId));
+      .then(() => setBookingListingData(listingId, setData));
   }
 
   const AcceptedChip = () => <Chip color="success"> Accepted </Chip>
@@ -131,11 +153,8 @@ export const ListingReservations = ({ data }) => {
     );
   }
 
-  const ReservationTable = ({ data, navigate }) => {
+  const ReservationTable = ({ data }) => {
     console.log('reservation pending data', data);
-    const pendingData = data.filter(x => x.status.localeCompare('pending') === 0);
-    const acceptedData = data.filter(x => x.status.localeCompare('accepted') === 0);
-    const declinedData = data.filter(x => x.status.localeCompare('declined') === 0);
     return (
       <Tabs aria-label="Basic tabs" defaultValue={0}>
         <TabList>
@@ -155,12 +174,26 @@ export const ListingReservations = ({ data }) => {
       </Tabs>
     )
   }
+  const timeSince = (time) => {
+    console.log(time);
+    const d = new D(time);
+    console.log(d);
+    return d.when();
+  }
+  // Calculate the yearly earnings - filter by year and accepted
+  const yearlyEarnings = yearlyAccepted.reduce((total, curr) => total + curr.totalPrice, 0);
+  const daysBooked = yearlyAccepted.length;
+  const activeSince = timeSince(publishTime);
 
   return (
     <Grid container spacing={2} sx={{ flexGrow: 1, padding: '50px 80px' }}>
       <Grid xs={3}>
         <Sheet sx={{ borderRadius: '8px', minHeight: '90%' }}>
           <Typography level='h3'>{title}</Typography>
+          <br/>
+          <Typography className='listing-info' level='body-md'><b>Active since</b><br/>{activeSince}</Typography>
+          <Typography className='listing-info' level='body-md'> <b>Yearly earnings</b><br/> {dollarFormat(yearlyEarnings)}</Typography>
+          <Typography className='listing-info' level='body-md'><b>Days booked in {thisYear}</b><br/>{daysBooked}</Typography>
         </Sheet>
       </Grid>
       <Grid xs={9}>

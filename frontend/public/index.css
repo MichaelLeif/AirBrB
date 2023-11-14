@@ -121,4 +121,7 @@ svg {
 .listing-photos:hover {
     opacity: 0.5;
 }
- 
+
+.listing-info {
+    padding-bottom: 25px;
+}

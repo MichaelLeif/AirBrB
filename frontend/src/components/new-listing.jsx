@@ -373,7 +373,9 @@ export const NewListing = () => {
             amenities,
           }
         }, true)
-          .then(() => navigate('/listings/my'))
+          .then(() => {
+            navigate('/listings/my')
+          })
           .catch((err) => setErrorMsg(err.error))
       })
   }
