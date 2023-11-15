@@ -88,7 +88,7 @@ export const Register = () => {
         <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-confirm-password" label="Confirm your password" type='password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <RegisterButton variant="contained" disableElevation onClick={() => register()}>
+        <RegisterButton variant="contained" disableElevation onSubmit={() => register()}>
           Register
         </RegisterButton>
       </div>

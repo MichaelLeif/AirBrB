@@ -1,20 +1,16 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiCall } from '../helpers/apicalls';
+import { LoadPhoto } from '../helpers/image';
+
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
-
+import { LocationOn, InfoOutlined } from '@mui/icons-material';
 import {
   Input, Button, FormHelperText, FormControl, Card, Grid,
   AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
-  Select, Option
+  Select, Option, Link
 } from '@mui/joy'
-
-// import { Thumbnail } from '../components/thumbnail'
-import { LocationOn, InfoOutlined } from '@mui/icons-material';
-
-import Link from '@mui/joy/Link';
-import { apiCall } from '../helpers/apicalls';
-import { LoadPhoto } from '../helpers/image';
 
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
@@ -146,7 +142,6 @@ export const NewListing = () => {
     return (
       <Grid xs={4}>
         <SelectCard
-          // color={shade}
           sx={{ backgroundColor: selectColor }}
         >
           {svg}
@@ -213,10 +208,6 @@ export const NewListing = () => {
     )
   }
 
-  // const fetchThumbnail = () => {
-  //   return fileToDataUrl(photo[0].photo);
-  // }
-
   const createListing = () => {
     const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
       accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
@@ -260,13 +251,14 @@ export const NewListing = () => {
 
         {/* <OrDivider/> */}
         <h3> Give your listing a title. </h3>
-        <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
+        <Input required placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 
         <h3> Where is your listing located? </h3>
         <Input
           placeholder="Listing address"
           size="lg"
           fullWidth
+          required
           value={address}
           onChange={(e) => setAddress(e.target.value)}
           sx = {{ marginBottom: '5px' }}
@@ -284,6 +276,7 @@ export const NewListing = () => {
           <Input
             placeholder="City or suburb"
             size="lg"
+            required
             value={city}
             sx = {{ width: '75%' }}
             onChange={(e) => setCity(e.target.value)}
@@ -307,6 +300,7 @@ export const NewListing = () => {
         <FormControl error = {!priceCheck(price)}>
           <Input
           size="lg"
+          required
           placeholder="Amount"
           value={price}
           onChange={(e) => setPrice(e.target.value)}

@@ -31,6 +31,7 @@ const RegisterButton = styled(Button)({
 
 export const Login = () => {
   // Use effect state
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
@@ -59,7 +60,6 @@ export const Login = () => {
   const ErrorMessage = () => {
     return <Error severity="error">{error}</Error>;
   }
-  const navigate = useNavigate();
 
   return (
     <>
@@ -73,7 +73,7 @@ export const Login = () => {
           {error ? <ErrorMessage/> : null}
           <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
           <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-          <RegisterButton variant="contained" disableElevation onClick={async () => {
+          <RegisterButton type="submit" variant="contained" disableElevation onClick={async () => {
             const success = await login();
             if (success) {
               console.log('DIRECT');
