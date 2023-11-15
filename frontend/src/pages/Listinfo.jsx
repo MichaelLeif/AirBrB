@@ -11,9 +11,11 @@ import CardContent from '@mui/joy/CardContent';
 import CardOverflow from '@mui/joy/CardOverflow';
 import Divider from '@mui/joy/Divider';
 import Chip from '@mui/joy/Chip';
+import { Box } from '@mui/material';
 
 function Listinfo (props, dateValue, bookingStatus) {
   const item = {
+    width: '332px',
     cursor: 'pointer',
   }
   let nights = 1;
@@ -29,11 +31,11 @@ function Listinfo (props, dateValue, bookingStatus) {
       console.log(bookingStatus);
       if (bookingStatus === 'accepted') {
         return (
-         <Chip color='success' style={{ marginLeft: '30px' }}>Accepted</Chip>
+         <Chip color='success' sx={{ marginLeft: '10px' }}>Accepted</Chip>
         )
       } else {
         return (
-          <Chip color='warning' style={{ marginLeft: '30px' }}>Pending</Chip>
+          <Chip color='warning' sx={{ marginLeft: '10px' }}>Pending</Chip>
         )
       }
     } else {
@@ -61,13 +63,13 @@ function Listinfo (props, dateValue, bookingStatus) {
               {props.title}
             </Typography>
             <Typography level="body-sm">
-              {props.address.street}, {props.address.city}, {props.address.state}
+              {props.address.address}, {props.address.city}, {props.address.state}
             </Typography>
           </CardContent>
           <CardOverflow variant="soft">
             <Divider inset="context" />
             <CardContent orientation="horizontal">
-              <Typography level="body-xs" style={{ marginTop: '5px' }}>${props.price * nights}</Typography>
+              <Typography level="body-xs" sx={{ marginTop: '5px' }}>${props.price * nights}</Typography>
               <Divider orientation="vertical" />
               <Rating
                 name="read-only"
@@ -76,15 +78,17 @@ function Listinfo (props, dateValue, bookingStatus) {
                     return r + a.rating
                   }, 0) / props.reviews.length
                 }
-                style={{ marginTop: '5px', zIndex: '-1 !important' }}
+                sx={{ marginTop: '5px', zIndex: '-1 !important' }}
                 precision={0.1}
                 size="small"
                 readOnly
               />
-              <Typography level="body-xs" style={{ marginTop: '6px' }}>{
-                props.reviews.reduce((r, a) => {
-                  return r + a.rating
-                }, 0) / props.reviews.length
+              <Typography level="body-xs" sx={{ marginTop: '6px' }}>{
+                (!props.reviews.length
+                  ? 0
+                  : props.reviews.reduce((r, a) => {
+                    return r + a.rating
+                  }, 0) / props.reviews.length).toFixed(2)
               }/5</Typography>
               <BookingStatus />
             </CardContent>
@@ -93,25 +97,25 @@ function Listinfo (props, dateValue, bookingStatus) {
       </>
     )
   }
+  let linkPath = `/listing/${props.id}`;
+
+  if (bookingStatus === 'accepted') {
+    linkPath = `${linkPath}/${true}`
+  } else {
+    linkPath = `${linkPath}/${false}`
+  }
 
   if (dateValue !== undefined) {
-    console.log(dateValue);
-    return (
-      <div key={props.id} style={item}>
-        <Link to={`/listing/${props.id}/${dateValue[0]}/${dateValue[1]}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
-          <MakeListing />
-        </Link>
-      </div>
-    )
+    linkPath = linkPath + `/${dateValue[0]}/${dateValue[1]}`
   }
 
   return (
-    <div key={props.id} style={item}>
+    <Box key={props.id} sx={item}>
       {console.log('rerender')}
-      <Link to={`/listing/${props.id}`} key={props.id} style={{ textDecoration: 'none', color: 'black' }}>
+      <Link to={linkPath} key={props.id} style={{ textDecoration: 'none', color: 'black', width: '332px' }}>
         <MakeListing />
       </Link>
-    </div>
+    </Box>
   )
 }
 
