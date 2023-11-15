@@ -205,9 +205,9 @@ export const Landing = () => {
         } else if (filterValue[0] === 'lowest') {
           const filtered = moreData.sort((a, b) => {
             if (a.reviews.length === 0) {
-              return 1;
-            } else if (b.reviews.length === 0) {
               return -1;
+            } else if (b.reviews.length === 0) {
+              return 1;
             }
             if ((a.reviews.reduce((r, a) => { return r + a.rating }, 0) / a.reviews.length) < (b.reviews.reduce((r, b) => { return r + b.rating }, 0) / b.reviews.length)) {
               return -1;
