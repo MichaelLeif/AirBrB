@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Link,
 } from 'react-router-dom';
-import '@fontsource/inter';
 import Rating from '@mui/material/Rating';
 import Typography from '@mui/joy/Typography';
 import AspectRatio from '@mui/joy/AspectRatio';

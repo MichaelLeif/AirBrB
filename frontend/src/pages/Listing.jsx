@@ -318,7 +318,7 @@ export const Listing = () => {
   const SleepingArrangement = (room) => {
     const order = [];
     if (room.single) {
-      order.push(`${room.single} single bed` + (room.single > 1 ? 's' : 'a'));
+      order.push(`${room.single} single bed` + (room.single > 1 ? 's' : ''));
     }
     if (room.double) {
       order.push(`${room.double} double bed` + (room.double > 1 ? 's' : ''));
@@ -436,10 +436,12 @@ export const Listing = () => {
                       readOnly
                     />
                     <Typography>{
-                        (listing.reviews.reduce((r, a) => {
+                      (!listing.reviews.length
+                        ? 0
+                        : listing.reviews.reduce((r, a) => {
                           return r + a.rating
                         }, 0) / listing.reviews.length).toFixed(2)
-                    }/5</Typography>
+                      }/5</Typography>
                   </Box>
                 </Box>
               </Box>
