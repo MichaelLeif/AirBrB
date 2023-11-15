@@ -1,25 +1,26 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { apiCall } from '../helpers/apicalls';
+import { RoundButton } from './listing-info-fragments';
+import { LoadPhoto } from '../helpers/image';
+import { ListingDataContext, useContext } from '../listingDataContext';
+import BreadCrumbs from './breadcrumbs'
+
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { apiCall } from '../helpers/apicalls'
-import {
-  SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
-  AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
-  Select, Option, ButtonGroup
-} from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
-
-import Link from '@mui/joy/Link';
-import { fileToDataUrl } from '../helpers/image';
+import {
+  Input, Button, FormHelperText, FormControl, Card, Grid,
+  AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
+  Select, Option, ButtonGroup, Link
+} from '@mui/joy'
 
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
   hotelSVG, bnbSVG, mansionSVG, tentSVG, wifiSVG, safeSVG, tvSVG, alarmSVG,
   airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
 } from '../helpers/svg'
-import { ListingDataContext, useContext } from '../listingDataContext';
-import BreadCrumbs from './breadcrumbs'
+
 export const ErrorInfo = ({ children }) => {
   return (
     <FormHelperText>
@@ -32,14 +33,6 @@ export const ErrorInfo = ({ children }) => {
 const PriceError = () => {
   return <ErrorInfo> Please provide your price to 2 dp. </ErrorInfo>
 }
-
-const RoundButton = styled(Button)(() => ({
-  borderRadius: '50%/50%',
-  fontSize: '1rem',
-  minHeight: 'none',
-  width: '35px',
-  height: '35px',
-}));
 
 export const SelectCard = styled(Card)((theme) => ({
   textAlign: 'center',
@@ -55,66 +48,11 @@ export const SelectCard = styled(Card)((theme) => ({
   '&:active': { backgroundColor: '#ffffff' },
 }));
 
-const VisuallyHiddenInput = styled('input')`
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  white-space: nowrap;
-  width: 1px;
-`;
-
-const InputFileUpload = (photo, setPhoto) => {
-  return (
-    <Button
-      component="label"
-      role={undefined}
-      tabIndex={-1}
-      variant="outlined"
-      color="neutral"
-      startDecorator={
-        <SvgIcon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-            />
-          </svg>
-        </SvgIcon>
-      }
-    >
-      Upload a photo
-      <VisuallyHiddenInput type="file" onChange={(e) => {
-        const files = Array.from(e.target.files);
-        setPhoto(old => [...old, {
-          photo: files[0],
-        }]);
-      }} />
-    </Button>
-  );
-}
-
-const loadPhotos = (photos) => {
-  return Promise.all(photos.map(async (photo, i) => {
-    return (<img key={i} height='200px' src={await fileToDataUrl(photo.photo)} alt='listing photo uploaded'/>)
-  }))
-}
-
 export const EditListing = ({ listingId }) => {
   const navigate = useNavigate();
   const { listingData, setListingData } = useContext(ListingDataContext);
   const data = listingData.find(x => x.id === listingId).data;
-  console.log('refresh');
+  console.log(data.metadata.photos);
 
   const [title, setTitle] = React.useState(data.title);
   const [address, setAddress] = React.useState(data.address.address);
@@ -124,9 +62,10 @@ export const EditListing = ({ listingId }) => {
   const [type, setType] = React.useState(data.metadata.type);
   const [bedrooms, setBedrooms] = React.useState(data.metadata.bedrooms);
   const [baths, setBaths] = React.useState(data.metadata.baths);
-  const [photo, setPhoto] = React.useState([]);// thumbnail
+  const [photo, setPhoto] = React.useState(data.metadata.photos); // this is in data form
   const [amenities, setAmenities] = React.useState(data.metadata.amenities);
   let sleepingArrangement = React.useState(data.metadata.sleepingArrangement)[0];
+
   const allData = () => {
     const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
       accumulator + currentValue.single + currentValue.double +
@@ -139,14 +78,15 @@ export const EditListing = ({ listingId }) => {
         state
       },
       price,
-      thumbnail: photo[0],
+      thumbnail: photo[0].photo,
       metadata: {
         type,
         baths,
         bedrooms,
         beds,
         sleepingArrangement,
-        amenities
+        amenities,
+        photos: photo
       }
     }
   }
@@ -174,34 +114,6 @@ export const EditListing = ({ listingId }) => {
         });
         navigate('/listings/my');
       })
-  }
-
-  const LoadPhoto = () => {
-    let success = true;
-    const [pic, loadPic] = React.useState('');
-    useEffect(() => {
-      loadPhotos(photo)
-        .then((data) => {
-          if (success) {
-            loadPic(data);
-          }
-        });
-      return () => {
-        success = false;
-      }
-    }, [photo]);
-    return (
-      <>
-        <h3> Upload photos of your listing </h3>
-        <div>
-          {pic}
-        </div>
-        {InputFileUpload(photo, setPhoto)}
-        <br/>
-        <br/>
-        <hr/>
-      </>
-    );
   }
 
   const SleepingArrangements = () => {
@@ -448,7 +360,7 @@ export const EditListing = ({ listingId }) => {
         </Grid>
 
         <br/>
-        <LoadPhoto />
+        <LoadPhoto photo={photo} setPhoto={setPhoto}> Update photos of your listing </LoadPhoto> <br/>
         <br/>
         <ButtonGroup spacing='10px'>
           <Button variant='outlined' onClick={(e) => {

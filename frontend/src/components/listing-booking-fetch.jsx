@@ -1,7 +1,5 @@
-import React, { useState } from 'react'
-import { useParams } from 'react-router-dom';
+import React from 'react'
 import { apiCall } from '../helpers/apicalls';
-import { Loading } from '../helpers/generics'
 import { ListingReservations } from './listing-booking';
 
 export const setBookingListingData = (listingId, setData) => {
@@ -25,13 +23,13 @@ export const setBookingListingData = (listingId, setData) => {
 }
 
 export const BookingListingFetch = () => {
-  const params = useParams();
-  const listingId = parseInt(params.id);
-  const [data, setData] = useState(null);
+  // const params = useParams();
+  // const listingId = parseInt(params.id);
+  // const [data, setData] = useState(null);
 
-  if (!data) {
-    setBookingListingData(listingId, setData);
-  }
+  // if (!data) {
+  //   setBookingListingData(listingId, setData);
+  // }
 
-  return data ? <ListingReservations data={data} setData={setData}/> : <Loading />
+  return <ListingReservations />;
 }

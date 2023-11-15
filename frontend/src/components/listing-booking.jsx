@@ -8,7 +8,9 @@ import { apiCall } from '../helpers/apicalls';
 import { useNavigate, useParams } from 'react-router-dom';
 import { setBookingListingData } from './listing-booking-fetch';
 import { twodpPrice } from './my-listings';
-import D from 'ticktalk';
+import { Loading } from '../helpers/generics';
+const dayjs = require('dayjs');
+const relativeTime = require('dayjs/plugin/relativeTime');
 
 function createData (user, startDate, endDate, price, status, bookingId) {
   return { user, startDate, endDate, price, status, bookingId };
@@ -22,7 +24,7 @@ const rows = (data) => {
   return data.map(x => createData(x.owner, x.dateRange.start, x.dateRange.end, dollarFormat(x.totalPrice), x.status, x.id));
 };
 
-const checkAccepted = (x) => {
+export const checkAccepted = (x) => {
   return x.status.localeCompare('accepted') === 0;
 }
 
@@ -40,17 +42,42 @@ const checkYear = (x) => {
   return bookingStart.getFullYear() === thisYear;
 }
 
-export const ListingReservations = ({ data, setData }) => {
-  console.log('parse', data);
-  const title = data.title;
-  const reservationData = data.data;
-  const publishTime = data.publishTime;
+export const ListingReservations = () => {
+  const params = useParams();
+  const listingId = parseInt(params.id);
+  const [data, setData] = React.useState(null);
+
+  let title = null;
+  let reservationData = null;
+  let publishTime = null;
+  let pendingData = null;
+  let acceptedData = null;
+  let declinedData = null;
+  let yearlyAccepted = null;
+  let yearlyEarnings = null;
+  let daysBooked = null;
+  let activeSince = null;
+  const timeSince = (time) => {
+    dayjs.extend(relativeTime);
+    return dayjs(time).fromNow();
+  }
+  // Calculate the yearly earnings - filter by year and accepted
+  if (!data) {
+    setBookingListingData(listingId, setData);
+  } else {
+    title = data.title;
+    reservationData = data.data;
+    publishTime = data.publishTime;
+    pendingData = reservationData.filter(checkPending);
+    acceptedData = reservationData.filter(checkAccepted);
+    declinedData = reservationData.filter(checkDeclined);
+    yearlyAccepted = reservationData.filter(x => checkAccepted(x) && checkYear(x));
+    yearlyEarnings = yearlyAccepted.reduce((total, curr) => total + curr.totalPrice, 0);
+    daysBooked = yearlyAccepted.length;
+    activeSince = timeSince(publishTime);
+  }
+
   const navigate = useNavigate();
-  const listingId = useParams().id;
-  const pendingData = reservationData.filter(checkPending);
-  const acceptedData = reservationData.filter(checkAccepted);
-  const declinedData = reservationData.filter(checkDeclined);
-  const yearlyAccepted = reservationData.filter(x => checkAccepted(x) && checkYear(x));
 
   const acceptHandler = (bookingId) => {
     apiCall('PUT', '/bookings/accept/' + bookingId, {}, true)
@@ -174,18 +201,9 @@ export const ListingReservations = ({ data, setData }) => {
       </Tabs>
     )
   }
-  const timeSince = (time) => {
-    console.log(time);
-    const d = new D(time);
-    console.log(d);
-    return d.when();
-  }
-  // Calculate the yearly earnings - filter by year and accepted
-  const yearlyEarnings = yearlyAccepted.reduce((total, curr) => total + curr.totalPrice, 0);
-  const daysBooked = yearlyAccepted.length;
-  const activeSince = timeSince(publishTime);
 
-  return (
+  const Booking = () => {
+    return (
     <Grid container spacing={2} sx={{ flexGrow: 1, padding: '50px 80px' }}>
       <Grid xs={3}>
         <Sheet sx={{ borderRadius: '8px', minHeight: '90%' }}>
@@ -200,6 +218,8 @@ export const ListingReservations = ({ data, setData }) => {
       <Typography level='h3' sx={{ marginBottom: '15px' }}>Reservations</Typography>
       <ReservationTable data={reservationData} navigate={navigate}/>
       </Grid>
-    </Grid>
-  );
+    </Grid>)
+  }
+
+  return data ? <Booking /> : <Loading />
 }

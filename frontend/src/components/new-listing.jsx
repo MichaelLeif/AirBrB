@@ -1,22 +1,20 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, ImageListItem, ImageList } from '@mui/material';
+import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import Thumbnail from './thumbnail';
 
 import {
-  SvgIcon, Input, Button, FormHelperText, FormControl, Card, Grid,
+  Input, Button, FormHelperText, FormControl, Card, Grid,
   AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
   Select, Option
 } from '@mui/joy'
+
+// import { Thumbnail } from '../components/thumbnail'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 
 import Link from '@mui/joy/Link';
-import CardContent from '@mui/joy/CardContent';
-import Typography from '@mui/joy/Typography';
 import { apiCall } from '../helpers/apicalls';
-import { fileToDataUrl } from '../helpers/image';
-// import ImageList from '@mui/material/ImageList';
+import { LoadPhoto } from '../helpers/image';
 
 import {
   houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
@@ -39,35 +37,6 @@ const PriceError = () => {
   return <ErrorInfo> Please provide your price to 2dp. </ErrorInfo>
 }
 
-export default function InteractiveCard () {
-  return (
-    <Card
-      variant="outlined"
-      orientation="horizontal"
-      sx={{
-        width: 320,
-        '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
-      }}
-    >
-      <CardContent>
-        <Typography level="title-lg" id="card-description">
-          Yosemite Park
-        </Typography>
-        <Typography level="body-sm" aria-describedby="card-description" mb={1}>
-          <Link
-            overlay
-            underline="none"
-            href="#interactive-card"
-            sx={{ color: 'text.tertiary' }}
-          >
-            California, USA
-          </Link>
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
 const RoundButton = styled(Button)(() => ({
   borderRadius: '50%/50%',
   fontSize: '1rem',
@@ -76,7 +45,7 @@ const RoundButton = styled(Button)(() => ({
   height: '35px',
 }));
 
-export const SelectCard = styled(Card)((theme) => ({
+export const SelectCard = styled(Card)(() => ({
   textAlign: 'center',
   display: 'flex',
   justifyContent: 'center',
@@ -89,69 +58,6 @@ export const SelectCard = styled(Card)((theme) => ({
   '&:hover': { boxShadow: 'md', borderColor: 'neutral.outlinedHoverBorder' },
   '&:active': { backgroundColor: '#ffffff' },
 }));
-
-const VisuallyHiddenInput = styled('input')`
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 1px;
-  overflow: hidden;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  white-space: nowrap;
-  width: 1px;
-`;
-
-const InputFileUpload = ({ photo, setPhoto }) => {
-  return (
-    <Button
-      component="label"
-      role={undefined}
-      tabIndex={-1}
-      variant="outlined"
-      color="neutral"
-      startDecorator={
-        <SvgIcon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
-            />
-          </svg>
-        </SvgIcon>
-      }
-    >
-      Upload a photo
-      <VisuallyHiddenInput type="file" onChange={(e) => {
-        const files = Array.from(e.target.files);
-        setPhoto(old => [...old, {
-          photo: files[0],
-        }]);
-      }} />
-    </Button>
-  );
-}
-
-const loadPhotos = (photos, setPhoto) => {
-  return Promise.all(photos.map(async (photo, i) => {
-    return (
-      <img key={i} className='listing-photos' height='200px' src={await fileToDataUrl(photo.photo)} alt='listing photo uploaded'
-        onClick={(e) => setPhoto(old => {
-          console.log('remove ' + i);
-          const before = [...old].slice(0, i)
-          const after = [...old].slice(i + 1)
-          return [...before, ...after];
-        })}/>
-    );
-  }))
-}
 
 let sleepingArrangement = [];
 
@@ -168,44 +74,6 @@ export const NewListing = () => {
   const [baths, setBaths] = React.useState('1');
   const [photo, setPhoto] = React.useState([]);
   const [amenities, setAmenities] = React.useState([]);
-
-  const OtherPhotos = ({ pic }) => {
-    const pics = pic.map((pic, i) => {
-      return (
-        <ImageListItem key={i}>
-          {pic}
-        </ImageListItem>
-      )
-    })
-    return (
-      <ImageList cols={2} rowHeight={164}>
-        {pics}
-      </ImageList>
-    )
-  }
-
-  const LoadPhoto = () => {
-    const [pic, loadPic] = React.useState('');
-    console.log('rendering before', pic);
-    useEffect(() => {
-      loadPhotos(photo, setPhoto)
-        .then((data) => loadPic(data));
-    }, [photo]);
-    console.log('rendering after', pic);
-    return (
-      <>
-        <h3> Upload photos of your listing </h3>
-        <div>
-          {pic.length > 0 ? <Thumbnail pic={pic[0]} setPic={setPhoto} /> : null}
-          {pic.length > 1 ? <OtherPhotos pic={pic.slice(1)} /> : null}
-        </div>
-        <InputFileUpload photo={photo} setPhoto={setPhoto}/>
-        <br/>
-        <br/>
-        <hr/>
-      </>
-    );
-  }
 
   const SleepingArrangements = () => {
     const [sleepArr, setSleepArr] = React.useState([]);
@@ -345,45 +213,52 @@ export const NewListing = () => {
     )
   }
 
-  const fetchThumbnail = () => {
-    return fileToDataUrl(photo[0].photo);
-  }
+  // const fetchThumbnail = () => {
+  //   return fileToDataUrl(photo[0].photo);
+  // }
 
   const createListing = () => {
     const beds = sleepingArrangement.reduce((accumulator, currentValue) =>
       accumulator + currentValue.single + currentValue.double + currentValue.queen + currentValue.king + currentValue.sofaBed,
     0);
-    fetchThumbnail()
-      .then((data) => {
-        apiCall('POST', '/listings/new', {
-          title,
-          address: {
-            address,
-            city,
-            state,
-          },
-          price,
-          thumbnail: data,
-          metadata: {
-            type,
-            baths,
-            bedrooms,
-            beds,
-            sleepingArrangement,
-            amenities,
-          }
-        }, true)
-          .then(() => {
-            navigate('/listings/my')
-          })
-          .catch((err) => setErrorMsg(err.error))
+    apiCall('POST', '/listings/new', {
+      title,
+      address: {
+        address,
+        city,
+        state,
+      },
+      price,
+      thumbnail: photo[0].photo,
+      metadata: {
+        type,
+        baths: parseInt(baths),
+        bedrooms: parseInt(bedrooms),
+        beds,
+        sleepingArrangement,
+        amenities,
+        photos: photo,
+        more: 123,
+      }
+    }, true)
+      .then(() => {
+        navigate('/listings/my')
       })
+      .catch((err) => setErrorMsg(err.error))
   }
+
+  const SubmitButton = styled(Button)(() => ({
+    margin: '5px 0px 30px 0px'
+  }))
 
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
         <BreadCrumbs navigate={navigate}> Create Listing </BreadCrumbs>
+
+        {/* <h3> Upload a JSON file of your listing. </h3> */}
+
+        {/* <OrDivider/> */}
         <h3> Give your listing a title. </h3>
         <Input placeholder="Name of listing" value={title} size="lg" onChange={(e) => setTitle(e.target.value)}/>
 
@@ -473,12 +348,8 @@ export const NewListing = () => {
           <AmenitiesCard svg={alarmSVG} title='Smoke Alarm'/>
           <AmenitiesCard svg={safeSVG} title='Safe'/>
         </Grid>
-
-        <br/>
-        <LoadPhoto />
-        <br/>
-
-        <Button onClick={(e) => { createListing() }}>Create new listing</Button>
+        <LoadPhoto photo={photo} setPhoto={setPhoto}> Upload photos of your listing </LoadPhoto> <br/>
+        <SubmitButton onClick={(e) => { createListing() }}>Create new listing</SubmitButton>
         { errorMsg.length !== 0 ? SomethingWrongError() : null }
       </Container>
     </div>
