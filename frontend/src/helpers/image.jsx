@@ -117,6 +117,7 @@ const InputFileUpload = ({ handler }) => {
 }
 
 const loadPhotos = (photos, setPhoto) => {
+  console.log(photos);
   return photos.map((photo, i) => {
     return (
       <img key={i} className='listing-photos' height='200px' src={photo.photo} alt='listing photo uploaded'

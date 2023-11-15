@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Login } from './components/login'
+import { Login, login } from './components/login'
 import { Register } from './components/register'
 import { NavBar } from './components/navbar'
 import { MyListings } from './components/my-listings'
@@ -21,7 +21,7 @@ function App () {
           <NavBar />
           <Routes>
             <Route path='/' element={<Landing />} />
-            <Route path='/login' element={<Login />} />
+            <Route path='/login' element={<Login onSubmit={login}/>} />
             <Route path='/register' element={<Register />} />
             <Route path='/hosting' element={<Register />}/>
             <Route path='/listings/:id' element={<EditListingFetch />} />

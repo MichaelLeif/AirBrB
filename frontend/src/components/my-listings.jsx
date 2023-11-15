@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { apiCall, getUser } from '../helpers/apicalls';
+import { apiCall } from '../helpers/apicalls';
+import { getUser } from '../helpers/auth';
 import { Card, CardContent, Button } from '@mui/material';
 import { Button as JoyButton, Card as JoyCard, AspectRatio, CardContent as JoyCardContent, Sheet, Typography, Box } from '@mui/joy'
 import { styled } from '@mui/material/styles';
