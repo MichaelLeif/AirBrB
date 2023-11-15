@@ -17,21 +17,38 @@ import Textarea from '@mui/joy/Textarea';
 import Add from '@mui/icons-material/Add';
 import Input from '@mui/joy/Input';
 import Divider from '@mui/joy/Divider';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import Alert from '@mui/joy/Alert';
+import IconButton from '@mui/joy/IconButton';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Box } from '@mui/material';
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import {
+  wifiSVG, safeSVG, tvSVG, alarmSVG,
+  airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
+} from '../helpers/svg';
+import AspectRatio from '@mui/joy/AspectRatio';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 export const Listing = () => {
+  const mobileResponsive = useMediaQuery('only screen and (min-width: 400px) and (max-width: 1000px');
   const [isLoading, setLoading] = React.useState(true);
   const [listing, setListing] = React.useState({});
-  const { listid, checkin, checkout } = useParams();
+  const { listid, accepted, checkin, checkout } = useParams();
   const [checkInState, setCheckin] = React.useState(checkin || '');
   const [checkOutState, setCheckout] = React.useState(checkout || '');
-  const [booked, setBooked] = React.useState();
   const [review, setReview] = React.useState(false);
+  const [booked, setBooked] = React.useState(false);
   const navigate = useNavigate();
   let nights = 0;
   let rating = 0;
 
   const wrapper = {
-    padding: '50px 200px',
+    display: 'flex',
+    padding: '0 10%',
+    justifyContent: 'center',
+    alignItems: 'center',
     opacity: review ? '0.2' : '1'
   }
 
@@ -51,18 +68,13 @@ export const Listing = () => {
     flexDirection: 'row'
   }
 
-  const subheader = {
-    fontSize: '20px',
-    cursor: 'default'
-  }
-
   const thumbnail = {
     width: '100%',
     height: '100%',
   }
 
   const infoDiv = {
-    width: '30%',
+    width: mobileResponsive ? '100%' : '30%',
     display: 'flex',
     flexDirection: 'column',
     rowGap: '15px'
@@ -102,7 +114,7 @@ export const Listing = () => {
     height: 'auto',
     display: 'flex',
     flexWrap: 'wrap',
-    flexDirection: 'row',
+    flexDirection: mobileResponsive ? 'column' : 'row',
     justifyContent: 'space-between',
     rowGap: '30px',
     marginTop: '20px',
@@ -140,9 +152,9 @@ export const Listing = () => {
 
   if (isLoading) {
     return (
-      <div>
+      <Box>
         LOADING...
-      </div>
+      </Box>
     )
   }
 
@@ -171,9 +183,11 @@ export const Listing = () => {
       if (data.error) {
         alert(data.error);
       } else {
-        console.log('hey');
-        setBooked(data.bookingId);
-        console.log('booked', booked);
+        setBooked(true);
+        setTimeout(() => {
+          console.log('heyyy');
+          setBooked(false);
+        }, 4000);
       }
     } else {
       navigate('/login');
@@ -182,129 +196,301 @@ export const Listing = () => {
 
   const handleReview = async (e) => {
     e.preventDefault();
-    alert('review functionality');
-    setReview(false);
+    if (accepted === 'true') {
+      let id;
+      let response = await fetch(path + '/bookings', {
+        method: 'GET',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: localStorage.getItem('token')
+        }
+      })
+      const bookings = await response.json();
+      for (const booking of bookings.bookings) {
+        if (localStorage.getItem('user') === booking.owner && parseInt(booking.listingId) === parseInt(listid)) {
+          id = booking.id;
+          break;
+        }
+      }
+      response = await fetch(path + `/listings/${listid}/review/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-type': 'application/json',
+          Authorization: localStorage.getItem('token')
+        },
+        body: JSON.stringify({ review: { name: localStorage.getItem('user'), rating: parseInt(rating), description: e.target[11].value } })
+      })
+      let data = await response.json();
+      if (data.error) {
+        alert(data.error);
+      } else {
+        response = await fetch(path + `/listings/${listid}`, {
+          method: 'GET',
+          headers: {
+            'Content-type': 'application/json',
+          }
+        });
+        data = await response.json();
+        setListing(data.listing);
+        setReview(false);
+      }
+    } else {
+      if (!localStorage.getItem('token')) {
+        navigate('/login');
+      } else {
+        setReview(false);
+      }
+    }
   }
 
   const createReviewBox = (prop) => {
     return (
-      <div style={reviewBox}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography level='h4'>{prop.user}</Typography>
+      <Box sx={reviewBox}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography level='h4'>{prop.name}</Typography>
           <Rating
             name="read-only"
             defaultValue={prop.rating}
             precision={0.5}
             size="small"
             readOnly
+            sx={{ marginTop: '7px', ...mobileResponsive && { marginLeft: '30px' } }}
           />
-        </div>
+        </Box>
         <Typography level='body-sm'>{prop.description}</Typography>
-      </div>
+      </Box>
+    )
+  }
+
+  const Svg = (feature) => {
+    console.log(feature);
+    if (feature === 'Wifi') {
+      return wifiSVG;
+    } else if (feature === 'Air Conditioner') {
+      return airconSVG;
+    } else if (feature === 'Fireplace') {
+      return fireplaceSVG;
+    } else if (feature === 'Parking') {
+      return parkingSVG;
+    } else if (feature === 'TV') {
+      return tvSVG;
+    } else if (feature === 'Kitchen Essentials') {
+      return kitchenSVG;
+    } else if (feature === 'Washing Machine') {
+      return washingSVG;
+    } else if (feature === 'Smoke Alarm') {
+      return alarmSVG;
+    } else if (feature === 'Safe') {
+      return safeSVG;
+    }
+  }
+
+  const Amenities = () => {
+    if (!listing.metadata.amenities) {
+      return (
+        <Typography>
+          There are no amenities for this listing
+        </Typography>
+      )
+    }
+    return (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '100%', justifyContent: 'space-between', rowGap: '20px' }}>
+        {
+          listing.metadata.amenities.map((feature) => {
+            return (
+              <Card key={feature} variant="soft" color="neutral" sx={{ width: '37%', height: 'auto' }}>
+                <CardContent sx={{ width: '50%' }}>
+                  <AspectRatio minHeight="50px" maxHeight="100px" sx={{ width: '50%' }}>
+                    {
+                      Svg(feature)
+                    }
+                  </AspectRatio>
+                  <Typography>{feature}</Typography>
+                </CardContent>
+              </Card>
+            )
+          })
+        }
+      </Box>
+    )
+  }
+
+  const SleepingArrangement = (room) => {
+    const order = [];
+    if (room.single) {
+      order.push(`${room.single} single bed` + (room.single > 1 ? 's' : 'a'));
+    }
+    if (room.double) {
+      order.push(`${room.double} double bed` + (room.double > 1 ? 's' : ''));
+    }
+    if (room.queen) {
+      order.push(`${room.queen} queen bed` + (room.queen > 1 ? 's' : ''));
+    }
+    if (room.king) {
+      order.push(`${room.king} king bed` + (room.king > 1 ? 's' : ''));
+    }
+    if (room.sofaBed) {
+      order.push(`${room.sofaBed} sofa bed` + (room.sofaBed > 1 ? 's' : ''));
+    }
+    return order.join(', ');
+  }
+
+  const Rooms = () => {
+    if (!listing.metadata.amenities) {
+      return (
+        <Typography>
+          There are no amenities for this listing
+        </Typography>
+      )
+    }
+    return (
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '100%', justifyContent: 'space-between', rowGap: '20px' }}>
+        {
+          listing.metadata.sleepingArrangement.map((bedroom) => {
+            return (
+              <Card key={bedroom.i} variant="soft" color="neutral" sx={{ width: '37%', height: 'auto' }}>
+                <CardContent sx={{ width: '100%' }}>
+                  <Typography level="title-md">Bedroom {bedroom.i}</Typography>
+                  <Typography level='body-sm'>{SleepingArrangement(bedroom)}</Typography>
+                </CardContent>
+              </Card>
+            )
+          })
+        }
+      </Box>
     )
   }
 
   return (
     <>
-      <div style={wrapper}>
-        <div style={firstContainer}>
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-            <Typography level="h1">{listing.title}, {listing.metadata.type}</Typography>
+      <Box sx={wrapper}>
+        <Box sx={firstContainer}>
+          <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+            <Typography level="h1">{listing.title}{listing.metadata.type && `, ${listing.metadata.type}`}</Typography>
             <Typography level="h2" fontSize="xl" sx={{ mb: 0.5 }}>
-              {listing.address.street}, {listing.address.city}, {listing.address.state}
+              {listing.address.address}, {listing.address.city}, {listing.address.state}
             </Typography>
-          </div>
-          <div style={firstContainerFlex}>
+          </Box>
+          <Box sx={firstContainerFlex}>
             <img style={thumbnail} src={listing.thumbnail} />
-          </div>
-          <div style={{ width: '100%', height: 'auto' }}>
-            <div style={{ border: '1px solid', borderRadius: '20px', boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px', padding: '20px', overflow: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={infoDiv}>
-                  <div style={infoContainer}>
+          </Box>
+          <Box sx={{ width: '100%', height: 'auto' }}>
+            <Box sx={{ border: '1px solid', borderRadius: '20px', boxShadow: 'rgb(0, 0, 0, 0.12) 0px 6px 16px', padding: '20px', overflow: 'auto' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', ...mobileResponsive ? { flexDirection: 'column' } : { flexDirection: 'row' } }}>
+                <Box sx={infoDiv}>
+                  <Box sx={infoContainer}>
                     <Typography level='h1'>Rooms</Typography>
-                  </div>
-                </div>
-                <Divider orientation='vertical' />
-                <div style={infoDiv}>
-                  <div style={infoContainer}>
+                    <Rooms />
+                  </Box>
+                </Box>
+                <Divider orientation={mobileResponsive ? 'horizontal' : 'vertical'} />
+                <Box sx={infoDiv}>
+                  <Box sx={infoContainer}>
                     <Typography level='h1'>Amenities</Typography>
-                  </div>
-                </div>
-                <Divider orientation='vertical' />
-                <div style={infoDiv}>
+                    <Amenities />
+                  </Box>
+                </Box>
+                <Divider orientation={mobileResponsive ? 'horizontal' : 'vertical'} />
+                <Box sx={infoDiv}>
                   {
                     nights > 0
                       ? <Typography level='h2'>${listing.price * nights} <Typography level='h3'>per stay</Typography></Typography>
                       : <Typography level='h2'>${listing.price} <Typography level='h3'>per night</Typography></Typography>
                   }
-                  <div style={infoContainer}>
+                  <Box sx={infoContainer}>
                     <form style={checkDate} onSubmit={(e) => {
                       handleBooking(e);
                     }}
                     >
-                      <div style={{ display: 'flex', width: '100%' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
+                      <Box sx={{ display: 'flex', width: '100%' }}>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
                           <FormLabel>CHECK-IN</FormLabel>
                           <Input style={{ width: '100%' }}type='date' placeholder="Placeholder" defaultValue={checkin} onChange={(e) => {
                             setCheckin(e.target.value)
                           }}
                           />
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
+                        </Box>
+                        <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
                           <FormLabel>CHECK-OUT</FormLabel>
                           <Input style={{ width: '100%' }} type='date' defaultValue={checkout} onChange={(e) => {
                             setCheckout(e.target.value);
                           }} />
-                        </div>
-                      </div>
+                        </Box>
+                      </Box>
                       <Button type='submit' style={{ width: '100%' }} color='danger'>
                           RESERVE
                       </Button>
                     </form>
-                  </div>
+                  </Box>
                   <Typography level='h1'>Ratings</Typography>
-                  <div style={{ display: 'flex', flexDirection: 'row', columnGap: '10px' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', columnGap: '10px' }}>
                     <Rating
                       name="read-only"
-                      defaultValue={
-                        listing.reviews.reduce((r, a) => {
+                      value={
+                        (listing.reviews.reduce((r, a) => {
                           return r + a.rating
-                        }, 0) / listing.reviews.length
+                        }, 0) / listing.reviews.length).toFixed(2)
                       }
                       precision={0.1}
                       size="medium"
                       readOnly
                     />
-                    <span style={subheader}>{
-                        listing.reviews.reduce((r, a) => {
+                    <Typography>{
+                        (listing.reviews.reduce((r, a) => {
                           return r + a.rating
-                        }, 0) / listing.reviews.length
-                    }/5</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style={secondContainer}>
-            <div style={reviewWrapper}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        }, 0) / listing.reviews.length).toFixed(2)
+                    }/5</Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+          <Box sx={secondContainer}>
+            <Box sx={reviewWrapper}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography level='h1'>Reviews</Typography>
-                <Button startDecorator={<Add />} color='danger' onClick={(e) => {
-                  setReview(true);
-                }}>Write a review</Button>
-              </div>
-              <div style={reviewContainer}>
+                <Button
+                  startDecorator={<Add />}
+                  color='danger'
+                  sx={{ ...mobileResponsive && { width: '100px' } }}
+                  onClick={(e) => {
+                    setReview(true);
+                  }}>Write a review</Button>
+              </Box>
+              <Box sx={reviewContainer}>
                 {
-                  listing.reviews.map((prop) => {
-                    return createReviewBox(prop);
-                  })
+                  listing.reviews
+                    ? listing.reviews.map((prop) => {
+                      return createReviewBox(prop);
+                    })
+                    : <Typography> There are currently no reviews</Typography>
                 }
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+      </Box>
+      { booked &&
+        <Box sx={{ position: 'fixed', top: '0', width: '100%' }}>
+          <Alert
+          startDecorator={<CheckCircleIcon />}
+          variant="soft"
+          color='success'
+          endDecorator={
+            <IconButton variant="soft" color='success'>
+              <CloseRoundedIcon onClick={(e) => setBooked(false)} />
+            </IconButton>
+          }
+          >
+            <Box>
+              <Box>Booking Confirmation</Box>
+              <Typography level="body-sm" color='success'>
+                Your booking was successful!
+              </Typography>
+            </Box>
+          </Alert>
+        </Box>
+      }
       {
         review &&
           <Modal

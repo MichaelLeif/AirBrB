@@ -28,7 +28,7 @@ function App () {
             <Route path='/listings/reservations/:id' element={<BookingListingFetch />}/>
             <Route path='/listings/my' element={<MyListings />}/>
             <Route path='/listings/new' element={<NewListing />}/>
-            <Route path='/listing/:listid/:checkin?/:checkout?' element={<Listing />} />
+            <Route path='/listing/:listid/:accepted/:checkin?/:checkout?/' element={<Listing />} />
           </Routes>
         </ListingDataContext.Provider>
       </BrowserRouter>

@@ -19,16 +19,16 @@ import Option from '@mui/joy/Option';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const contentContainer = {
   height: 'auto',
-  padding: '50px 70px',
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr)',
   gridTemplateRows: 'auto auto',
   columnGap: '24px',
   rowGap: '50px',
-  overflow: 'auto'
+  overflow: 'auto',
 }
 
 const searchContainer = {
@@ -105,6 +105,7 @@ const line = {
 }
 
 export const Landing = () => {
+  const mobileResponsive = useMediaQuery('only screen and (min-width: 400px) and (max-width: 1000px');
   const [listing, setListings] = React.useState([])
   const [loading, setLoading] = React.useState(true)
   const [isHover, setHover] = React.useState('');
@@ -116,6 +117,7 @@ export const Landing = () => {
   const [minBedroom, setMinBedroom] = React.useState(0);
   const [maxBedroom, setMaxBedroom] = React.useState(0);
   const [bookings, setBookings] = React.useState([]);
+  const [mobileSearch, setMobileSearch] = React.useState(false);
 
   const wrapper = {
     opacity: open ? '0.2' : '1'
@@ -138,6 +140,7 @@ export const Landing = () => {
         }
       });
       const received = await response.json();
+      received.listing.id = place.id;
       moreData.push(received.listing);
     }
     let books;
@@ -187,7 +190,12 @@ export const Landing = () => {
       } else if (filter === 'rating') {
         if (filterValue[0] === 'highest') {
           const filtered = moreData.sort((a, b) => {
-            if (a.reviews.reduce((r, a) => { return r + a.rating }, 0) > b.reviews.reduce((r, b) => { return r + b.rating }, 0)) {
+            if (a.reviews.length === 0) {
+              return 1;
+            } else if (b.reviews.length === 0) {
+              return -1;
+            }
+            if ((a.reviews.reduce((r, a) => { return r + a.rating }, 0) / a.reviews.length) > (b.reviews.reduce((r, b) => { return r + b.rating }, 0) / b.reviews.length)) {
               return -1;
             } else {
               return 1;
@@ -196,7 +204,12 @@ export const Landing = () => {
           setListings(filtered);
         } else if (filterValue[0] === 'lowest') {
           const filtered = moreData.sort((a, b) => {
-            if (a.reviews.reduce((r, a) => { return r + a.rating }, 0) < b.reviews.reduce((r, b) => { return r + b.rating }, 0)) {
+            if (a.reviews.length === 0) {
+              return 1;
+            } else if (b.reviews.length === 0) {
+              return -1;
+            }
+            if ((a.reviews.reduce((r, a) => { return r + a.rating }, 0) / a.reviews.length) < (b.reviews.reduce((r, b) => { return r + b.rating }, 0) / b.reviews.length)) {
               return -1;
             } else {
               return 1;
@@ -205,18 +218,26 @@ export const Landing = () => {
           setListings(filtered);
         }
       } else if (filter === 'date') {
-        alert('date filter');
-        setListings(data.listings);
+        const filtered = moreData.filter(listing => {
+          for (const available of listing.availability) {
+            if (new Date(filterValue[0]) >= new Date(available.start) && new Date(filterValue[1]) <= new Date(available.end)) {
+              return true;
+            }
+          }
+          return false;
+        })
+        setListings(filtered);
       } else {
         if (bookings) {
           data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title));
           data.listings = data.listings.sort((a, b) => {
             for (const booking of books) {
-              if (a.id === booking.listingId) {
+              if (a.id === parseInt(booking.listingId)) {
+                console.log(a);
                 if (localStorage.getItem('user') === booking.owner) {
                   return -1;
                 }
-              } else if (b.id === booking.listingId) {
+              } else if (b.id === parseInt(booking.listingId)) {
                 if (localStorage.getItem('user') === booking.owner) {
                   return 1;
                 }
@@ -238,9 +259,9 @@ export const Landing = () => {
   if (loading) {
     return (
       <>
-        <div style={contentContainer}>
+        <Box sx={contentContainer}>
           LOADING
-        </div>
+        </Box>
       </>
     )
   }
@@ -250,6 +271,7 @@ export const Landing = () => {
     let searchTarget = '';
     let value = [];
     for (const element of e.target) {
+      console.log(element);
       if (element.value && element.value !== 'No filter' && element.name) {
         searchTarget = element.name ? element.name : element.id;
         value.push(element.value);
@@ -277,209 +299,304 @@ export const Landing = () => {
 
   return (
     <>
-      <div style={wrapper}>
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <div style={searchContainer}>
-            <form style={inputContainer} onSubmit={(e) => {
-              handleFilter(e);
-            }}>
-              <div style={{ ...dest, ...(isHover === 'title' ? opacityContainer : container) }} onMouseEnter={() => {
-                setHover('title');
-              }} onMouseLeave={() => {
-                setHover('');
-              }}>
-                <label htmlFor='title' style={label}>Where</label>
-                <input id='title' name='title' type='text' style={input} placeholder='Search Destinations' defaultValue='' />
-              </div>
-              <div name='vl' style={line}></div>
-              <div style={{ ...date, ...(isHover === 'check-in' ? opacityContainer : container) }} onMouseEnter={() => {
-                setHover('check-in');
-              }} onMouseLeave={() => {
-                setHover('');
-              }}>
-                <label htmlFor='check-in' style={label}>Check in </label>
-                <input id='date' name='check-in' type='date' style={input} defaultValue='' />
-              </div>
-              <div name='vl' style={line}></div>
-              <div style={{ ...date, ...(isHover === 'check-out' ? opacityContainer : container) }} onMouseEnter={() => {
-                setHover('check-out');
-              }} onMouseLeave={() => {
-                setHover('');
-              }}>
-                <label htmlFor='check-out' style={label}>Check out </label>
-                <input id='date' name='check-out' type='date' style={input} defaultValue='' />
-              </div>
-              <div name='vl' style={line}></div>
-              <ButtonGroup variant='plain' style={{ margin: '0 5px' }}>
-                <IconButton onClick={(e) => {
-                  setOpen(true);
+      <Box sx={wrapper}>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Box sx={searchContainer}>
+            {
+              !mobileResponsive
+                ? <form style={inputContainer} onSubmit={(e) => {
+                  handleFilter(e);
                 }}>
-                  Filter
-                  <Settings />
-                </IconButton>
-              </ButtonGroup>
-              <Button type='submit' size="md" variant={'solid'} color="danger" style={{ borderRadius: '50px', height: '100%', width: '100%' }}>
-                Search
-              </Button>
-            </form>
-          </div>
-        </div>
-        <div style={contentContainer}>
-          {
-            listing.map((e) => {
-              if (bookings) {
-                for (const booking of bookings) {
-                  if (localStorage.getItem('user') === booking.owner && e.id === booking.listingId) {
-                    console.log('heyyy');
-                    return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined, booking.status);
+                  <Box sx={{ ...dest, ...(isHover === 'title' ? opacityContainer : container) }} onMouseEnter={() => {
+                    setHover('title');
+                  }} onMouseLeave={() => {
+                    setHover('');
+                  }}>
+                    <label htmlFor='title' style={label}>Where</label>
+                    <input name='title' type='text' style={input} placeholder='Search Destinations' defaultValue='' />
+                  </Box>
+                  <Box name='vl' style={line}></Box>
+                  <Box sx={{ ...date, ...(isHover === 'check-in' ? opacityContainer : container) }} onMouseEnter={() => {
+                    setHover('check-in');
+                  }} onMouseLeave={() => {
+                    setHover('');
+                  }}>
+                    <label htmlFor='check-in' style={label}>Check in </label>
+                    <input name='date' type='date' style={input} defaultValue='' />
+                  </Box>
+                  <Box name='vl' style={line}></Box>
+                  <Box sx={{ ...date, ...(isHover === 'check-out' ? opacityContainer : container) }} onMouseEnter={() => {
+                    setHover('check-out');
+                  }} onMouseLeave={() => {
+                    setHover('');
+                  }}>
+                    <label htmlFor='check-out' style={label}>Check out </label>
+                    <input name='date' type='date' style={input} defaultValue='' />
+                  </Box>
+                  <Box name='vl' style={line}></Box>
+                  <ButtonGroup variant='plain' style={{ margin: '0 5px' }}>
+                    <IconButton onClick={(e) => {
+                      setOpen(true);
+                    }}>
+                      Filter
+                      <Settings />
+                    </IconButton>
+                  </ButtonGroup>
+                  <Button type='submit' size="md" variant={'solid'} color="danger" style={{ borderRadius: '50px', height: '100%', width: '100%' }}>
+                    Search
+                  </Button>
+                </form>
+                : <Button
+                  color='danger'
+                  sx={{ marginTop: '150px', zIndex: '-10000', ...mobileSearch && { display: 'none' } }}
+                  onClick={(e) => {
+                    setMobileSearch(true);
+                  }}
+                >Search</Button>
+            }
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '50px' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', columnGap: '36px', width: '100%', margin: '0 30px', marginBottom: '50px', rowGap: '50px' }}>
+            {
+              listing.map((e) => {
+                let status;
+                if (bookings) {
+                  for (const booking of bookings) {
+                    if (status === 'accepted') {
+                      break;
+                    }
+                    if (localStorage.getItem('user') === booking.owner && e.id === parseInt(booking.listingId)) {
+                      status = booking.status;
+                    }
                   }
                 }
-              }
-              return Listinfo(e, filter === 'check-in' || filter === 'check-out' ? filterValue : undefined, undefined);
-            })
-          }
-        </div>
-      </div>
-      {
-        open &&
-          <Modal
-            aria-labelledby="modal-title"
-            aria-describedby="modal-desc"
-            open={open}
-            onClose={() => setOpen(false)}
-            sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-            size='lg'
+                return Listinfo(e, filter === 'date' ? filterValue : undefined, status);
+              })
+            }
+          </Box>
+        </Box>
+      </Box>
+        <Modal
+          aria-labelledby="modal-title"
+          aria-describedby="modal-desc"
+          open={mobileSearch}
+          onClose={() => setMobileSearch(false)}
+          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          size='lg'
+        >
+          <Sheet
+            variant="outlined"
+            sx={{
+              maxWidth: 400,
+              borderRadius: 'md',
+              p: 3,
+              boxShadow: 'lg',
+            }}
           >
-            <Sheet
-              variant="outlined"
-              sx={{
-                maxWidth: 500,
-                borderRadius: 'md',
-                p: 3,
-                boxShadow: 'lg',
-              }}
-            >
-            <ModalClose variant="plain" sx={{ m: 1 }} />
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <Typography
+            component="h1"
+            id="modal-title"
+            level="h4"
+            textColor="inherit"
+            fontWeight="lg"
+            mb={1}
+          >
+            Search
+          </Typography>
+          <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} onSubmit={(e) => {
+            e.preventDefault();
+            handleFilter(e);
+            setMobileSearch(false);
+          }}>
+            <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
+              <FormControl>
+                <FormLabel>Where</FormLabel>
+                <Input
+                  name='title'
+                  placeholder='Search Destination'
+                  style={{ width: '100%' }}
+                  onChange={(e) => {
+                    setMinPrice(e.target.value);
+                  }}
+                />
+              </FormControl>
+            </Box>
+            <Box sx={{ display: 'flex', width: '100%', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', rowGap: '20px', marginBottom: '20px' }}>
+              <FormControl>
+                <FormLabel>CHECK-IN</FormLabel>
+                <Input
+                  name='date'
+                  type='date'
+                  style={{ width: '100%' }}
+                  onChange={(e) => {
+                    setMinBedroom(e.target.value);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>CHECK-OUT</FormLabel>
+                <Input
+                  name='date'
+                  type='date'
+                  style={{ width: '100%' }}
+                  onChange={(e) => {
+                    setMaxBedroom(e.target.value);
+                  }}
+                />
+              </FormControl>
+            </Box>
+            <ButtonGroup variant='plain' style={{ margin: '0 5px', marginBottom: '10px' }}>
+              <IconButton onClick={(e) => {
+                setMobileSearch(false);
+                setOpen(true);
+              }}>
+                Filter
+                <Settings />
+              </IconButton>
+            </ButtonGroup>
+            <Button type='submit' color='danger' size='lg'>Search</Button>
+          </form>
+        </Sheet>
+      </Modal>
+      <Modal
+        aria-labelledby="modal-title"
+        aria-describedby="modal-desc"
+        open={open}
+        onClose={() => setOpen(false)}
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        size='lg'
+      >
+        <Sheet
+          variant="outlined"
+          sx={{
+            maxWidth: 400,
+            borderRadius: 'md',
+            p: 3,
+            boxShadow: 'lg',
+          }}
+        >
+          <ModalClose variant="plain" sx={{ m: 1 }} />
+          <Typography
+            component="h1"
+            id="modal-title"
+            level="h4"
+            textColor="inherit"
+            fontWeight="lg"
+            mb={1}
+          >
+            Advanced search
+          </Typography>
+          <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} onSubmit={(e) => {
+            e.preventDefault();
+            handleFilter(e);
+            setOpen(false);
+          }}>
             <Typography
-              component="h1"
-              id="modal-title"
-              level="h4"
-              textColor="inherit"
-              fontWeight="lg"
-              mb={1}
+            style={{ marginBottom: '20px' }}
             >
-              Advanced search
+              Price
             </Typography>
-            <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }} onSubmit={(e) => {
-              e.preventDefault();
-              handleFilter(e);
-              setOpen(false);
-            }}>
-              <Typography
-              style={{ marginBottom: '20px' }}
-              >
-                Price
-              </Typography>
-              <Box sx={{ width: 400 }}>
-                <Slider
-                  defaultValue={[0, 0]}
-                  max={50000}
-                  getAriaValueText={(value) => {
-                    return `$${value}`
-                  }}
-                  color="danger"
+            <Box sx={{ width: 350 }}>
+              <Slider
+                defaultValue={[0, 0]}
+                max={50000}
+                getAriaValueText={(value) => {
+                  return `$${value}`
+                }}
+                color="danger"
+                onChange={(e) => {
+                  setMinPrice(e.target.value[0]);
+                  setMaxPrice(e.target.value[1]);
+                }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
+              <FormControl>
+                <FormLabel>Min</FormLabel>
+                <Input
+                  name='price'
+                  startDecorator={'$'}
+                  value={minPrice}
+                  style={{ width: '100px' }}
                   onChange={(e) => {
-                    setMinPrice(e.target.value[0]);
-                    setMaxPrice(e.target.value[1]);
+                    setMinPrice(e.target.value);
                   }}
                 />
-              </Box>
-              <div style={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
-                <FormControl>
-                  <FormLabel>Min</FormLabel>
-                  <Input
-                    name='price'
-                    startDecorator={'$'}
-                    value={minPrice}
-                    style={{ width: '100px' }}
-                    onChange={(e) => {
-                      setMinPrice(e.target.value);
-                    }}
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Max</FormLabel>
-                  <Input
-                    name='price'
-                    startDecorator={'$'}
-                    value={maxPrice}
-                    style={{ width: '100px' }}
-                    onChange={(e) => {
-                      setMaxPrice(e.target.value);
-                    }}
-                  />
-                </FormControl>
-              </div>
-              <Typography
-              style={{ marginBottom: '20px' }}
-              >
-                Bedroom
-              </Typography>
-              <Box sx={{ width: 400 }}>
-                <Slider
-                  defaultValue={[0, 0]}
-                  max={50}
-                  getAriaValueText={(value) => {
-                    return `$${value}`
-                  }}
-                  color="danger"
+              </FormControl>
+              <FormControl>
+                <FormLabel>Max</FormLabel>
+                <Input
+                  name='price'
+                  startDecorator={'$'}
+                  value={maxPrice}
+                  style={{ width: '100px' }}
                   onChange={(e) => {
-                    setMinBedroom(e.target.value[0]);
-                    setMaxBedroom(e.target.value[1]);
+                    setMaxPrice(e.target.value);
                   }}
                 />
-              </Box>
-              <div style={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
-                <FormControl>
-                  <FormLabel>Min</FormLabel>
-                  <Input
-                    name='bedroom'
-                    value={minBedroom}
-                    style={{ width: '100px' }}
-                    onChange={(e) => {
-                      setMinBedroom(e.target.value);
-                    }}
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Max</FormLabel>
-                  <Input
-                    name='bedroom'
-                    value={maxBedroom}
-                    style={{ width: '100px' }}
-                    onChange={(e) => {
-                      setMaxBedroom(e.target.value);
-                    }}
-                  />
-                </FormControl>
-              </div>
-              <Select
-                placeholder="Rating"
-                size="md"
-                variant="outlined"
-                style={{ marginBottom: '20px' }}
-                defaultValue='No filter'
-                name='rating'
-                >
-                <Option value='no-filter'>No filter</Option>
-                <Option value='highest'>Highest</Option>
-                <Option value='lowest'>Lowest</Option>
-              </Select>
-              <Button type='submit' color='danger' size='lg'>Search</Button>
-            </form>
-          </Sheet>
-        </Modal>
-      }
+              </FormControl>
+            </Box>
+            <Typography
+            style={{ marginBottom: '20px' }}
+            >
+              Bedroom
+            </Typography>
+            <Box sx={{ width: 350 }}>
+              <Slider
+                defaultValue={[0, 0]}
+                max={50}
+                getAriaValueText={(value) => {
+                  return `$${value}`
+                }}
+                color="danger"
+                onChange={(e) => {
+                  setMinBedroom(e.target.value[0]);
+                  setMaxBedroom(e.target.value[1]);
+                }}
+              />
+            </Box>
+            <Box sx={{ display: 'flex', width: '100%', justifyContent: 'center', columnGap: '20px', marginBottom: '20px' }}>
+              <FormControl>
+                <FormLabel>Min</FormLabel>
+                <Input
+                  name='bedroom'
+                  value={minBedroom}
+                  style={{ width: '100px' }}
+                  onChange={(e) => {
+                    setMinBedroom(e.target.value);
+                  }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Max</FormLabel>
+                <Input
+                  name='bedroom'
+                  value={maxBedroom}
+                  style={{ width: '100px' }}
+                  onChange={(e) => {
+                    setMaxBedroom(e.target.value);
+                  }}
+                />
+              </FormControl>
+            </Box>
+            <Select
+              placeholder="Rating"
+              size="md"
+              variant="outlined"
+              style={{ marginBottom: '20px' }}
+              defaultValue='No filter'
+              name='rating'
+              >
+              <Option value='no-filter'>No filter</Option>
+              <Option value='highest'>Highest</Option>
+              <Option value='lowest'>Lowest</Option>
+            </Select>
+            <Button type='submit' color='danger' size='lg'>Search</Button>
+          </form>
+        </Sheet>
+      </Modal>
     </>
   )
 }
