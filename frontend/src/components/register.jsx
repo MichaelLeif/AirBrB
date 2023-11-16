@@ -47,6 +47,7 @@ export const Register = () => {
   }
 
   const register = () => {
+    console.log(register)
     if (!passwordsMatch(password, confirmPassword)) {
       return;
     }
@@ -55,10 +56,12 @@ export const Register = () => {
         setToken(data.token);
         setUser(email);
         navigate('/');
+        console.log('ok');
       })
       .catch((err) => {
         console.log('Bad request');
         setError(err.error);
+        console.log(err.error);
       })
   }
 
@@ -88,7 +91,7 @@ export const Register = () => {
         <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-confirm-password" label="Confirm your password" type='password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <RegisterButton variant="contained" disableElevation onSubmit={() => register()}>
+        <RegisterButton variant="contained" disableElevation onClick={() => register()}>
           Register
         </RegisterButton>
       </div>
