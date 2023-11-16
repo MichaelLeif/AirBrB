@@ -180,8 +180,7 @@ export const ListingReservations = () => {
     );
   }
 
-  const ReservationTable = ({ data }) => {
-    console.log('reservation pending data', data);
+  const ReservationTable = () => {
     return (
       <Tabs aria-label="Basic tabs" defaultValue={0}>
         <TabList>
@@ -216,7 +215,7 @@ export const ListingReservations = () => {
       </Grid>
       <Grid xs={9}>
       <Typography level='h3' sx={{ marginBottom: '15px' }}>Reservations</Typography>
-      <ReservationTable data={reservationData} navigate={navigate}/>
+      <ReservationTable/>
       </Grid>
     </Grid>)
   }

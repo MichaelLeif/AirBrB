@@ -25,6 +25,17 @@ const RatingInfo = ({ reviews }) => {
   )
 }
 
+const FeatureInfo = ({ title, num }) => {
+  return (
+    <div>
+      <Typography level="body-xs" fontWeight="lg">
+        {title}
+      </Typography>
+      <Typography fontWeight="lg">{num}</Typography>
+    </div>
+  )
+}
+
 export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteHandler, unpublishHandler }) => {
   const navigate = useNavigate();
   const title = data.title;
@@ -32,7 +43,7 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
   const beds = data.metadata.beds;
   const bathrooms = data.metadata.baths;
   const thumbnail = data.thumbnail;
-  const price = data.price
+  const price = '$' + twodpPrice(data.price).toString();
   const reviews = data.reviews;
   const published = data.published;
 
@@ -70,27 +81,10 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
           '& > div': { flex: 1 },
         }}
       >
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Beds
-          </Typography>
-          <Typography fontWeight="lg">{beds}</Typography>
-        </div>
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Bathrooms
-          </Typography>
-          <Typography fontWeight="lg">{bathrooms}</Typography>
-        </div>
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Price
-          </Typography>
-          <Typography fontWeight="lg">${twodpPrice(price)}</Typography>
-        </div>
-        <div>
-          <RatingInfo reviews={reviews}/>
-        </div>
+        <FeatureInfo title='Beds' num={beds} />
+        <FeatureInfo title='Bathrooms' num={bathrooms} />
+        <FeatureInfo title='Price' num={price} />
+        <RatingInfo reviews={reviews}/>
       </Sheet>
       <Box sx={{ display: 'flex', gap: 1.5 }} >
             <Button sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={() => editHandler(id)}>

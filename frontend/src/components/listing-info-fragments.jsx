@@ -124,16 +124,35 @@ export const Amenities = ({ amenities, setAmenities }) => {
   )
 }
 
-export const BasicFeatures = ({ title, feature, setFeature, minSize }) => {
+export const BasicFeatures = ({ title, feature, setFeature, minSize, upHandler, downHandler }) => {
   return (
     <div className='basicFeature'>
         <p> {title} </p>
         <div className='modifyFeature'>
-          <RoundButton variant='outlined' disabled = {feature <= minSize} onClick={(e) => setFeature(parseInt(feature) - 1)}> - </RoundButton>
-          <p> {feature} </p>
-          <RoundButton variant='outlined' onClick={(e) => setFeature(parseInt(feature) + 1)}> + </RoundButton>
+        <Buttons feature={feature} setFeature={setFeature} minSize={minSize} upHandler={upHandler} downHandler={downHandler}/>
         </div>
       </div>
+  )
+}
+
+export const Buttons = ({ feature, setFeature, minSize, upHandler, downHandler }) => {
+  return (
+    <div className='modifyFeature'>
+      <RoundButton variant='outlined' disabled = {feature <= minSize} onClick={(e) => {
+        setFeature(prev => parseInt(prev) - 1)
+        console.log(upHandler);
+        if (downHandler !== undefined) {
+          downHandler();
+        }
+      }}> - </RoundButton>
+      <p> {feature} </p>
+      <RoundButton variant='outlined' onClick={(e) => {
+        setFeature(prev => parseInt(prev) + 1)
+        if (upHandler !== undefined) {
+          upHandler();
+        }
+      }}> + </RoundButton>
+    </div>
   )
 }
 
