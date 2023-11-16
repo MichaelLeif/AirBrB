@@ -144,7 +144,6 @@ export const Landing = () => {
         moreData.push(received.listing);
       }
     }
-    console.log(moreData);
     let books;
     if (localStorage.getItem('token')) {
       const response = await fetch(path + '/bookings', {

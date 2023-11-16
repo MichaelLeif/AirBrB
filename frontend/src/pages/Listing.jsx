@@ -20,6 +20,7 @@ import Divider from '@mui/joy/Divider';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import Alert from '@mui/joy/Alert';
 import IconButton from '@mui/joy/IconButton';
+import WarningIcon from '@mui/icons-material/Warning';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { Box } from '@mui/material';
 import Card from '@mui/joy/Card';
@@ -40,6 +41,7 @@ export const Listing = () => {
   const [checkOutState, setCheckout] = React.useState(checkout || '');
   const [review, setReview] = React.useState(false);
   const [booked, setBooked] = React.useState(false);
+  const [reviewError, setReviewError] = React.useState(false);
   const navigate = useNavigate();
   let nights = 0;
   let rating = 0;
@@ -231,7 +233,11 @@ export const Listing = () => {
       if (!localStorage.getItem('token')) {
         navigate('/login');
       } else {
+        setReviewError(true);
         setReview(false);
+        setTimeout(() => {
+          setReviewError(false);
+        }, 4000);
       }
     }
   }
@@ -333,6 +339,36 @@ export const Listing = () => {
         }
       </Box>
     )
+  }
+
+  const ReviewErrorPopUp = ({ reviewError }) => {
+    if (reviewError) {
+      return (
+        <Box sx={{ position: 'fixed', top: '0', width: '100%' }}>
+          <Alert
+          startDecorator={<WarningIcon />}
+          variant="soft"
+          color='danger'
+          endDecorator={
+            <IconButton variant="soft" color='danger'>
+              <CloseRoundedIcon onClick={(e) => setReviewError(false)} />
+            </IconButton>
+          }
+          >
+            <Box>
+              <Box>Review Error</Box>
+              <Typography level="body-sm" color='success'>
+                Your booking must be accepted to review this listing!
+              </Typography>
+            </Box>
+          </Alert>
+        </Box>
+      )
+    } else {
+      return (
+        <></>
+      )
+    }
   }
 
   const BookingPopUp = ({ booked }) => {
@@ -477,6 +513,7 @@ export const Listing = () => {
           </Box>
         </Box>
       </Box>
+      <ReviewErrorPopUp reviewError={reviewError}/>
       <BookingPopUp booked={booked} />
       <ReviewPopUp review={review}
       onClose={() => setReview(false)}
