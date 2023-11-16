@@ -1,8 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { ListingCard } from './components/listing-card';
-import userEvent from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event';
+import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
+import { BedroomLayout, BasicFeatures, Buttons, RoundButton } from './components/listing-info-fragments';
+import { shallow, configure } from 'enzyme'
 
+configure({ adapter: new Adapter() });
 jest.mock('@mui/x-charts', () => jest.fn());
 const mockedUsedNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -10,138 +13,110 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockedUsedNavigate,
 }));
 
-const listedHome = {
-  title: 'listed home',
-  price: '1000',
-  metadata: {
-    type: 'House',
-    beds: 3,
-    bathrooms: 1,
-    thumbnail: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-  },
-  reviews: [],
-  published: true,
+const setSingle = jest.fn();
+const setDouble = jest.fn();
+const setQueen = jest.fn();
+const setKing = jest.fn();
+const setSofaBed = jest.fn();
+
+const oneBedroom = {
+  num: 1,
+  single: 0,
+  double: 0,
+  queen: 0,
+  king: 0,
+  sofaBed: 0,
+  setSingle,
+  setDouble,
+  setQueen,
+  setKing,
+  setSofaBed
 }
 
-const unlistedHome = {
-  title: 'unlisted home',
-  price: '1000',
-  metadata: {
-    type: 'House',
-    beds: 3,
-    bathrooms: 1,
-    thumbnail: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-  },
-  reviews: [],
-  published: false,
+const oneBedroomExtended = {
+  num: 5,
+  single: 1,
+  double: 3,
+  queen: 2,
+  king: 1,
+  sofaBed: 0,
+  setSingle,
+  setDouble,
+  setQueen,
+  setKing,
+  setSofaBed
 }
-
-const ratedHome = {
-  title: 'listed home',
-  price: '1000',
-  metadata: {
-    type: 'House',
-    beds: 3,
-    bathrooms: 1,
-    thumbnail: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==',
-  },
-  reviews: [
-    {
-      user: 'user1',
-      rating: 5,
-      description: 'good'
-    },
-    {
-      user: 'user2',
-      rating: 3,
-      description: 'ok'
-    }
-  ],
-  published: true,
-}
-
-const noop = () => {};
-const mockEdit = jest.fn();
-const mockReservation = jest.fn();
-const mockDelete = jest.fn();
-const mockGoLive = jest.fn();
 
 describe('<Listing card>', () => {
-  it('renders the photo, title, listing details, edit, delete and unpublished for listed home', () => {
-    render(<ListingCard id={123} data={listedHome} editHandler={noop} reservationHandler={noop} deleteHandler={noop} unpublishHandler={noop}/>)
-    expect(screen.getByText(/listed home/i)).toBeInTheDocument()
-    expect(screen.getByText(/beds/i)).toBeInTheDocument()
-    expect(screen.getByText(/bathrooms/i)).toBeInTheDocument()
-    expect(screen.getByText(/price/i)).toBeInTheDocument()
-    expect(screen.getByText(/no reviews/i)).toBeInTheDocument()
-    expect(screen.getByText(/3/i)).toBeInTheDocument()
+  it('renders single, double, queen, king, sofa beds - empty', () => {
+    render(<BedroomLayout num={oneBedroom.num} single={oneBedroom.single}
+      double={oneBedroom.double} queen={oneBedroom.queen} king={oneBedroom.king}
+      sofaBed={oneBedroom.sofaBed} setSingle={oneBedroom.setSingle}
+      setDouble={oneBedroom.setDouble} setQueen={oneBedroom.setQueen}
+      setKing={oneBedroom.setKing}setSofaBed={oneBedroom.setSofaBed}/>)
+    expect(screen.getByText(/bedroom 1/i)).toBeInTheDocument()
+    expect(screen.getByText(/single/i)).toBeInTheDocument()
+    expect(screen.getByText(/double/i)).toBeInTheDocument()
+    expect(screen.getByText(/queen/i)).toBeInTheDocument()
+    expect(screen.getByText(/king/i)).toBeInTheDocument()
+    expect(screen.getByText(/sofa bed/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/0/i)).toHaveLength(5)
+  })
+
+  it('renders single, double, queen, king, sofa beds - multiple beds', () => {
+    render(<BedroomLayout num={oneBedroomExtended.num} single={oneBedroomExtended.single}
+      double={oneBedroomExtended.double} queen={oneBedroomExtended.queen} king={oneBedroomExtended.king}
+      sofaBed={oneBedroomExtended.sofaBed} setSingle={oneBedroomExtended.setSingle}
+      setDouble={oneBedroomExtended.setDouble} setQueen={oneBedroomExtended.setQueen}
+      setKing={oneBedroomExtended.setKing}setSofaBed={oneBedroomExtended.setSofaBed}/>)
+    expect(screen.getByText(/bedroom 5/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/0/i)).toHaveLength(1)
+    expect(screen.getAllByText(/1/i)).toHaveLength(2)
+    expect(screen.getAllByText(/2/i)).toHaveLength(1)
+    expect(screen.getAllByText(/3/i)).toHaveLength(1)
+  })
+})
+
+describe('<BasicFeatures>', () => {
+  const up = jest.fn();
+  const down = jest.fn();
+  it('Renders title, number and buttons', () => {
+    const title = 'Single';
+    const num = 1;
+    render(<BasicFeatures title={title} feature={num} setFeature={setSingle} minSize={0}/>)
+    expect(screen.getByText(/single/i)).toBeInTheDocument()
     expect(screen.getByText(/1/i)).toBeInTheDocument()
-    expect(screen.getByText(/\$1000.00/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /unpublish/i })).toBeInTheDocument();
-    expect(screen.getByRole('img')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /-/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /\+/i })).toBeInTheDocument()
   })
 
-  it('renders the photo, title, listing details, edit, delete and unpublished for unlisted home', () => {
-    render(<ListingCard id={123} data={unlistedHome} editHandler={noop} reservationHandler={noop} deleteHandler={noop} unpublishHandler={noop}/>)
-    expect(screen.getByText(/listed home/i)).toBeInTheDocument()
-    expect(screen.getByText(/beds/i)).toBeInTheDocument()
-    expect(screen.getByText(/bathrooms/i)).toBeInTheDocument()
-    expect(screen.getByText(/price/i)).toBeInTheDocument()
-    expect(screen.getByText(/no reviews/i)).toBeInTheDocument()
-    expect(screen.getByText(/3/i)).toBeInTheDocument()
-    expect(screen.getByText(/1/i)).toBeInTheDocument()
-    expect(screen.getByText(/\$1000.00/i)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /edit/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /delete/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /go live/i })).toBeInTheDocument();
-    expect(screen.getByRole('img')).toBeInTheDocument();
+  it('can click on + button', async () => {
+    const title = 'Single';
+    const num = 1;
+    render(<BasicFeatures title={title} feature={num} setFeature={setSingle} minSize={0} upHandler={up} downHandler={down}/>)
+    userEvent.click(screen.getByRole('button', { name: /\+/i }))
+    expect(up).toHaveBeenCalledTimes(1);
   })
 
-  it('calls edit with the listing id', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={unlistedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    userEvent.click(screen.getByRole('button', { name: /edit/i }))
-    expect(mockEdit).toHaveBeenCalledTimes(1);
-    expect(mockEdit).toHaveBeenCalledWith(id);
+  it('can click on - button', () => {
+    const title = 'Single';
+    const num = 2;
+    render(<BasicFeatures title={title} feature={num} setFeature={setSingle} minSize={0} upHandler={up} downHandler={down}/>)
+    userEvent.click(screen.getByRole('button', { name: /-/i }))
+    expect(down).toHaveBeenCalledTimes(1);
   })
 
-  it('calls reservation with the listing id', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={listedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    userEvent.click(screen.getByRole('button', { name: /view reservations/i }))
-    expect(mockReservation).toHaveBeenCalledTimes(1);
-    expect(mockReservation).toHaveBeenCalledWith(id);
+  it('- button is disabled at minimum', () => {
+    const num = 0;
+    const wrapper = shallow(<Buttons feature={num} setFeature={setSingle} minSize={0} upHandler={up} downHandler={down}/>)
+    expect(wrapper.find(RoundButton)).toHaveLength(2)
+    expect(wrapper.find(RoundButton).get(0).props.disabled).toBe(true)
   })
 
-  it('calls delete with the listing id and navigate', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={listedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    userEvent.click(screen.getByRole('button', { name: /delete/i }))
-    expect(mockDelete).toHaveBeenCalledTimes(1);
-    expect(mockDelete).toHaveBeenCalledWith(id, mockedUsedNavigate);
-  })
-
-  it('calls unpublish with the listing id', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={listedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    userEvent.click(screen.getByRole('button', { name: /unpublish/i }))
-    expect(mockGoLive).toHaveBeenCalledTimes(1);
-    expect(mockGoLive).toHaveBeenCalledWith(id, mockedUsedNavigate);
-  })
-
-  it('calls go live modal - no function calls', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={unlistedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    userEvent.click(screen.getByRole('button', { name: /go live/i }))
-    expect(mockGoLive).toHaveBeenCalledTimes(0);
-  })
-
-  it('correctly renders readonly ratings', () => {
-    const id = 12345;
-    render(<ListingCard id={id} data={ratedHome} editHandler={mockEdit} reservationHandler={mockReservation} deleteHandler={mockDelete} unpublishHandler={mockGoLive}/>)
-    expect(screen.getByText(/2 reviews/i)).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /8 stars/i })).toHaveAttribute('aria-readonly', 'true');
+  it('- button is not disabled above minimum', () => {
+    const num = 1;
+    const wrapper = shallow(<Buttons feature={num} setFeature={setSingle} minSize={0} upHandler={up} downHandler={down}/>)
+    expect(wrapper.find(RoundButton)).toHaveLength(2)
+    expect(wrapper.find(RoundButton).get(0).props.disabled).toBe(false)
   })
 })
