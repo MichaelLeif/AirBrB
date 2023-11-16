@@ -48,7 +48,7 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
   const MakeListing = () => {
     return (
       <>
-        <Card variant="outlined" sx={{ width: 300 }}>
+        <Card key={props.id} ariant="outlined" sx={{ width: 300 }}>
           <CardOverflow>
             <AspectRatio ratio="2">
               <img
@@ -109,9 +109,9 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
   }
 
   return (
-    <Box key={props.id} sx={item}>
+    <Box key={props.id} name={props.title} sx={item}>
       {console.log('rerender')}
-      <Link to={linkPath} key={props.id} style={{ textDecoration: 'none', color: 'black', width: '332px' }}>
+      <Link to={linkPath} key={props.title} style={{ textDecoration: 'none', color: 'black', width: '332px' }}>
         <MakeListing />
       </Link>
     </Box>
