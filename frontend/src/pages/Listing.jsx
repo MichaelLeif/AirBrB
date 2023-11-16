@@ -46,7 +46,7 @@ export const Listing = () => {
 
   const wrapper = {
     display: 'flex',
-    padding: '0 10%',
+    padding: '30px 10%',
     justifyContent: 'center',
     alignItems: 'center',
     opacity: review ? '0.2' : '1'
@@ -118,13 +118,6 @@ export const Listing = () => {
     justifyContent: 'space-between',
     rowGap: '30px',
     marginTop: '20px',
-  }
-
-  const reviewBox = {
-    width: '40%',
-    height: 'auto',
-    display: 'flex',
-    flexDirection: 'column'
   }
 
   React.useEffect(async () => {
@@ -243,25 +236,6 @@ export const Listing = () => {
     }
   }
 
-  const createReviewBox = (prop) => {
-    return (
-      <Box sx={reviewBox}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography level='h4'>{prop.name}</Typography>
-          <Rating
-            name="read-only"
-            defaultValue={prop.rating}
-            precision={0.5}
-            size="small"
-            readOnly
-            sx={{ marginTop: '7px', ...mobileResponsive && { marginLeft: '30px' } }}
-          />
-        </Box>
-        <Typography level='body-sm'>{prop.description}</Typography>
-      </Box>
-    )
-  }
-
   const Svg = (feature) => {
     console.log(feature);
     if (feature === 'Wifi') {
@@ -285,7 +259,7 @@ export const Listing = () => {
     }
   }
 
-  const Amenities = () => {
+  const Amenities = ({ props }) => {
     if (!listing.metadata.amenities) {
       return (
         <Typography>
@@ -335,7 +309,7 @@ export const Listing = () => {
     return order.join(', ');
   }
 
-  const Rooms = () => {
+  const Rooms = ({ props }) => {
     if (!listing.metadata.amenities) {
       return (
         <Typography>
@@ -361,6 +335,36 @@ export const Listing = () => {
     )
   }
 
+  const BookingPopUp = ({ booked }) => {
+    if (booked) {
+      return (
+        <Box sx={{ position: 'fixed', top: '0', width: '100%' }}>
+          <Alert
+          startDecorator={<CheckCircleIcon />}
+          variant="soft"
+          color='success'
+          endDecorator={
+            <IconButton variant="soft" color='success'>
+              <CloseRoundedIcon onClick={(e) => setBooked(false)} />
+            </IconButton>
+          }
+          >
+            <Box>
+              <Box>Booking Confirmation</Box>
+              <Typography level="body-sm" color='success'>
+                Your booking was successful!
+              </Typography>
+            </Box>
+          </Alert>
+        </Box>
+      )
+    } else {
+      return (
+        <></>
+      )
+    }
+  }
+
   return (
     <>
       <Box sx={wrapper}>
@@ -380,14 +384,14 @@ export const Listing = () => {
                 <Box sx={infoDiv}>
                   <Box sx={infoContainer}>
                     <Typography level='h1'>Rooms</Typography>
-                    <Rooms />
+                    <Rooms props={listing}/>
                   </Box>
                 </Box>
                 <Divider orientation={mobileResponsive ? 'horizontal' : 'vertical'} />
                 <Box sx={infoDiv}>
                   <Box sx={infoContainer}>
                     <Typography level='h1'>Amenities</Typography>
-                    <Amenities />
+                    <Amenities props={listing}/>
                   </Box>
                 </Box>
                 <Divider orientation={mobileResponsive ? 'horizontal' : 'vertical'} />
@@ -451,113 +455,143 @@ export const Listing = () => {
             <Box sx={reviewWrapper}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography level='h1'>Reviews</Typography>
-                <Button
-                  startDecorator={<Add />}
-                  color='danger'
-                  sx={{ ...mobileResponsive && { width: '100px' } }}
-                  onClick={(e) => {
-                    setReview(true);
-                  }}>Write a review</Button>
+                <CreateReviewButton
+                  onClick={(e) => setReview(true)}
+                  mobileResponsive={mobileResponsive}
+                />
               </Box>
               <Box sx={reviewContainer}>
-                {
-                  listing.reviews
-                    ? listing.reviews.map((prop) => {
-                      return createReviewBox(prop);
-                    })
-                    : <Typography> There are currently no reviews</Typography>
-                }
+                <ReviewBox
+                  Populate={() => {
+                    return listing.reviews.length !== 0
+                      ? listing.reviews.map((prop) => {
+                        return (
+                          <CreateReviewBox key={listing.id} prop={prop} mobileResponsive={mobileResponsive} />
+                        )
+                      })
+                      : <Typography> There are currently no reviews</Typography>
+                  }}
+                />
               </Box>
             </Box>
           </Box>
         </Box>
       </Box>
-      { booked &&
-        <Box sx={{ position: 'fixed', top: '0', width: '100%' }}>
-          <Alert
-          startDecorator={<CheckCircleIcon />}
-          variant="soft"
-          color='success'
-          endDecorator={
-            <IconButton variant="soft" color='success'>
-              <CloseRoundedIcon onClick={(e) => setBooked(false)} />
-            </IconButton>
-          }
-          >
-            <Box>
-              <Box>Booking Confirmation</Box>
-              <Typography level="body-sm" color='success'>
-                Your booking was successful!
-              </Typography>
-            </Box>
-          </Alert>
-        </Box>
-      }
-      {
-        review &&
-          <Modal
-          aria-labelledby="modal-title"
-          aria-describedby="modal-desc"
-          open={open}
-          onClose={() => setReview(false)}
-          sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-          size='lg'
-        >
-          <Sheet
-            variant="outlined"
-            sx={{
-              maxWidth: 500,
-              borderRadius: 'md',
-              p: 3,
-              boxShadow: 'lg',
-            }}
-          >
-            <ModalClose variant="plain" sx={{ m: 1 }} />
-            <Typography
-              component="h1"
-              id="modal-title"
-              level="h2"
-              textColor="inherit"
-              fontWeight="lg"
-              mb={1}
-            >
-              Write a review
-            </Typography>
-            <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '500px', height: '200px', rowGap: '20px' }} onSubmit={(e) => {
-              e.preventDefault();
-              handleReview(e);
-              setReview(false);
-            }}>
-              <Rating
-                name="half-rating"
-                defaultValue={0}
-                precision={0.5}
-                size="large"
-                onChange={(e) => {
-                  rating = e.target.value;
-                  console.log(rating);
-                }}
-              />
-              <Textarea
-                placeholder="Say something nice!"
-                style={{ width: '100%', height: '100%' }}
-                size='md'
-                minRows={2}
-                sx={{
-                  '&::before': {
-                    display: 'none',
-                  },
-                  '&:focus-within': {
-                    outline: '2px solid var(--Textarea-focusedHighlight)',
-                    outlineOffset: '2px',
-                  },
-                }}
-              />
-              <Button type='submit' color='danger' size='lg'>Submit</Button>
-            </form>
-          </Sheet>
-        </Modal>
-      }
+      <BookingPopUp booked={booked} />
+      <ReviewPopUp review={review}
+      onClose={() => setReview(false)}
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleReview(e);
+        setReview(false);
+      }}
+      onChange={(e) => {
+        rating = e.target.value;
+      }}
+      />
     </>
+  )
+}
+
+export const CreateReviewBox = ({ prop, mobileResponsive }) => {
+  const sx = {
+    width: '40%',
+    height: 'auto',
+    display: 'flex',
+    flexDirection: 'column'
+  }
+  return (
+    <Box sx={sx}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography level='h4'>{prop.name}</Typography>
+        <Rating
+          name="read-only"
+          defaultValue={prop.rating}
+          precision={0.5}
+          size="small"
+          readOnly
+          sx={{ marginTop: '7px', ...mobileResponsive && { marginLeft: '30px' } }}
+        />
+      </Box>
+      <Typography level='body-sm'>{prop.description}</Typography>
+    </Box>
+  )
+}
+
+export const ReviewBox = ({ Populate }) => {
+  return (
+    <Populate />
+  )
+}
+
+export const ReviewPopUp = ({ review, onClose, onSubmit, onChange }) => {
+  return (
+    <Modal
+        aria-labelledby="modal-title"
+        aria-describedby="modal-desc"
+        open={review}
+        onClose={onClose}
+        sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+        size='lg'
+    >
+      <Sheet
+        variant="outlined"
+        sx={{
+          maxWidth: 500,
+          borderRadius: 'md',
+          p: 3,
+          boxShadow: 'lg',
+        }}
+      >
+        <ModalClose role='close' variant="plain" sx={{ m: 1 }} />
+        <Typography
+          component="h1"
+          id="modal-title"
+          level="h2"
+          textColor="inherit"
+          fontWeight="lg"
+          mb={1}
+        >
+          Write a review
+        </Typography>
+        <form style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '500px', height: '200px', rowGap: '20px' }} onSubmit={onSubmit}>
+          <Rating
+            name="half-rating"
+            defaultValue={0}
+            precision={0.5}
+            size="large"
+            onChange={onChange}
+          />
+          <Textarea
+            placeholder="Say something nice!"
+            style={{ width: '100%', height: '100%' }}
+            size='md'
+            minRows={2}
+            sx={{
+              '&::before': {
+                display: 'none',
+              },
+              '&:focus-within': {
+                outline: '2px solid var(--Textarea-focusedHighlight)',
+                outlineOffset: '2px',
+              },
+            }}
+          />
+          <Button type='submit' color='danger' size='lg'>Submit</Button>
+        </form>
+      </Sheet>
+    </Modal>
+  )
+}
+
+export const CreateReviewButton = ({ onClick, mobileResponsive }) => {
+  return (
+    <Button
+      startDecorator={<Add />}
+      color='danger'
+      sx={{ ...mobileResponsive && { width: '100px' } }}
+      onClick={onClick}
+    >Write a review
+    </Button>
   )
 }

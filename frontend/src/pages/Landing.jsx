@@ -2,11 +2,10 @@ import React from 'react';
 import {
   path
 } from './Pages.jsx';
-import Listinfo from './Listinfo.jsx'
+import { Listinfo } from './Listinfo.jsx'
 import ButtonGroup from '@mui/joy/ButtonGroup';
 import IconButton from '@mui/joy/IconButton';
 import Settings from '@mui/icons-material/Settings';
-import '@fontsource/inter';
 import Typography from '@mui/joy/Typography';
 import Modal from '@mui/joy/Modal';
 import ModalClose from '@mui/joy/ModalClose';
@@ -228,7 +227,7 @@ export const Landing = () => {
         })
         setListings(filtered);
       } else {
-        if (bookings) {
+        if (books) {
           data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title));
           data.listings = data.listings.sort((a, b) => {
             for (const booking of books) {

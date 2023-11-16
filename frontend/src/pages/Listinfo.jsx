@@ -12,7 +12,7 @@ import Divider from '@mui/joy/Divider';
 import Chip from '@mui/joy/Chip';
 import { Box } from '@mui/material';
 
-function Listinfo (props, dateValue, bookingStatus) {
+export const Listinfo = (props, dateValue, bookingStatus) => {
   const item = {
     width: '332px',
     cursor: 'pointer',
