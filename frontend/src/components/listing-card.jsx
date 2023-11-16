@@ -10,15 +10,17 @@ const RatingInfo = ({ reviews }) => {
   if (reviews.length === 0 || reviews == null) {
     return (
       <>
+        <Typography level="body-xs" fontWeight="lg"> Reviews</Typography>
         <Typography fontWeight="lg"> No reviews </Typography>
       </>
     )
   }
-  const avgRating = reviews.reduce((x, y) => x + y.rating, 0).toFixed(2)
+  const avgRating = reviews.reduce((x, y) => parseInt(x) + parseInt(y.rating), 0).toFixed(2)
+  const review = numReviews === 1 ? 'review' : 'reviews'
   return (
-    <div className='rating'>
-      <Stars value={avgRating}/>
-      <Typography fontWeight="lg">{numReviews} reviews</Typography>
+    <div>
+      <Typography level="body-xs" fontWeight="lg"> {numReviews} {review} </Typography>
+      <Stars name="listing-rating" readOnly aria-readonly={true} className='rating' value={parseInt(avgRating)}/>
     </div>
   )
 }
@@ -87,9 +89,6 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
           <Typography fontWeight="lg">${twodpPrice(price)}</Typography>
         </div>
         <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Reviews
-          </Typography>
           <RatingInfo reviews={reviews}/>
         </div>
       </Sheet>

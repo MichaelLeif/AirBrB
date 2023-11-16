@@ -338,7 +338,7 @@ export const Address = ({ address, setAddress, badInputs, setBadInputs }) => {
   )
 }
 
-export const PhotoTitle = ({ photo, badInputs, setBadInputs }) => {
+export const PhotoTitle = ({ photo }) => {
   return (
     <FormControl required error={ photo !== undefined && photo.length === 0}>
       <FormLabel sx={{ fontSize: '1.1rem', margin: '30px 0px 10px 0px' }}> Upload photos of your listing </FormLabel>
