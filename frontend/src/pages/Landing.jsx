@@ -139,9 +139,12 @@ export const Landing = () => {
         }
       });
       const received = await response.json();
-      received.listing.id = place.id;
-      moreData.push(received.listing);
+      if (received.listing.published) {
+        received.listing.id = place.id;
+        moreData.push(received.listing);
+      }
     }
+    console.log(moreData);
     let books;
     if (localStorage.getItem('token')) {
       const response = await fetch(path + '/bookings', {
@@ -158,7 +161,7 @@ export const Landing = () => {
       alert(data.error);
     } else {
       if (filter === 'title') {
-        data.listings = await data.listings.filter(e => {
+        const filtered = await moreData.filter(e => {
           if (!e.title.toLowerCase().includes(filterValue[0].toLowerCase())) {
             if (e.address.city.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.city.toLowerCase().includes(filterValue[0].toLowerCase()) || e.address.city.toLowerCase().includes(filterValue[0].toLowerCase())) {
               return true;
@@ -169,7 +172,7 @@ export const Landing = () => {
             return true;
           }
         });
-        setListings(data.listings);
+        setListings(filtered);
       } else if (filter === 'bedroom') {
         const filtered = moreData.filter(e => {
           if (e.metadata.bedroom >= filterValue[0] && e.metadata.bedroom <= filterValue[1]) {
@@ -244,11 +247,11 @@ export const Landing = () => {
             }
             return 0;
           });
-          setListings(data.listings);
+          setListings(moreData);
           setBookings(books);
         } else {
-          data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title))
-          setListings(data.listings);
+          const filtered = moreData.sort((a, b) => a.title.localeCompare(b.title))
+          setListings(filtered);
         }
       }
       setLoading(false);
