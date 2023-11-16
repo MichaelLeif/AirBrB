@@ -26,7 +26,7 @@ export function GoLiveDialog ({ data, listing, navigate }) {
     return dates.sort((x, y) => x.key - y.key).map((i) => {
       console.log(i);
       return (
-        <DatePicker key={i.key} id={i.key}/>
+        <DatePicker key={i.key} id={i.key} canDelete={dates.length > 1}/>
       )
     })
   }
@@ -75,7 +75,15 @@ export function GoLiveDialog ({ data, listing, navigate }) {
     return foundDate;
   }
 
-  const DatePicker = ({ id }) => {
+  const DeleteButton = ({ handler }) => {
+    return (
+      <IconButton aria-label="delete" onClick={ handler }>
+        <DeleteIcon/>
+      </IconButton>
+    )
+  }
+
+  const DatePicker = ({ id, canDelete }) => {
     console.log('id', id);
     return (
       <div className='goLiveDate'>
@@ -87,9 +95,7 @@ export function GoLiveDialog ({ data, listing, navigate }) {
             <FormLabel>Finish</FormLabel>
             <Input fullWidth type='date' value={findDate(id).finish} onChange={(e) => dateHandler(id, e.target.value, false)} required/>
         </FormControl>
-        <IconButton aria-label="delete" onClick={() => deleteDateHandler(id)}>
-          <DeleteIcon/>
-        </IconButton>
+        {canDelete ? <DeleteButton handler={() => deleteDateHandler(id)}/> : null}
       </div>
     )
   }

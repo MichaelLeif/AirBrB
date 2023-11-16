@@ -8,7 +8,8 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useNavigate, Link } from 'react-router-dom';
-import { apiCall, getToken } from '../helpers/apicalls';
+import { apiCall } from '../helpers/apicalls';
+import { getToken } from '../helpers/auth';
 
 const AccountMenu = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);

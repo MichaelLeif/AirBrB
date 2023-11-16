@@ -1,10 +1,4 @@
-export const getToken = () => {
-  return localStorage.getItem('token');
-}
-
-export const getUser = () => {
-  return localStorage.getItem('user');
-}
+import { getToken } from './auth'
 
 export const apiCall = (type, path, body, authed = false) => {
   return new Promise((resolve, reject) => {

@@ -3,6 +3,7 @@ import { apiCall } from '../helpers/apicalls';
 import { Container, TextField, Alert, Button } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import { setToken, setUser } from '../helpers/auth';
 
 const Error = styled(Alert)({
   margin: '10px 0px;'
@@ -29,31 +30,35 @@ const RegisterButton = styled(Button)({
   },
 });
 
-export const Login = () => {
+const IDS = {
+  emailError: 'login-email-error',
+  passwordError: 'login-password-error',
+}
+
+export const login = async (email, password, setError) => {
+  try {
+    const data = await apiCall('POST', '/user/auth/login', { email, password }, true);
+    setToken(data.token);
+    setUser(email);
+    return true;
+  } catch (err) {
+    setError(err.error);
+    return false;
+  }
+}
+
+export const Login = ({ onSubmit }) => {
   // Use effect state
   const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
 
-  const setToken = (token) => {
-    localStorage.setItem('token', token);
-  }
-
-  const setUser = (user) => {
-    localStorage.setItem('user', user);
-  }
-
-  const login = async () => {
-    try {
-      const data = await apiCall('POST', '/user/auth/login', { email, password }, true);
-      setToken(data.token);
-      setUser(email);
-      return true;
-    } catch (err) {
-      console.log('Bad request');
-      setError(err.error);
-      return false;
+  const loginHandler = async (e) => {
+    const success = await onSubmit(email, password, setError);
+    if (success) {
+      console.log('DIRECT');
+      navigate('/');
     }
   }
 
@@ -71,15 +76,33 @@ export const Login = () => {
           <hr/>
           <h2> Welcome to AirBnb </h2>
           {error ? <ErrorMessage/> : null}
-          <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
-          <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-          <RegisterButton type="submit" variant="contained" disableElevation onClick={async () => {
-            const success = await login();
-            if (success) {
-              console.log('DIRECT');
-              navigate('/');
-            }
-          }}>
+          <TextField
+            required
+            aria-required="true"
+            aria-invalid={!email.length}
+            aria-describedby={!email.length ? 'login-email-error' : 'login-email-error'}
+            fullWidth
+            id="login-email"
+            label="Email"
+            type='text'
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            variant="outlined"
+            margin="normal"/> <br/>
+          <TextField
+            required
+            aria-required="true"
+            aria-invalid={!password.length}
+            aria-describedby={!password.length ? IDS.passwordError : IDS.emailError}
+            fullWidth
+            id="login-password"
+            label="Password"
+            type='password'
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            variant="outlined"
+            margin="normal"/> <br/>
+          <RegisterButton type="submit" variant="contained" disableElevation onClick={loginHandler}>
             Login
           </RegisterButton>
         </div>
