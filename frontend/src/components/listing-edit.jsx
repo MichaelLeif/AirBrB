@@ -1,25 +1,16 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
-import { RoundButton } from './listing-info-fragments';
 import { LoadPhoto } from '../helpers/image';
 import { ListingDataContext, useContext } from '../listingDataContext';
 import BreadCrumbs from './breadcrumbs'
 
 import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LocationOn, InfoOutlined } from '@mui/icons-material';
-import {
-  Input, Button, FormHelperText, FormControl, Card, Grid,
-  AccordionGroup, AccordionSummary, AccordionDetails, Accordion, Stack,
-  Select, Option, ButtonGroup, Link
-} from '@mui/joy'
-
-import {
-  houseSVG, apartmentSVG, boatSVG, treehouseSVG, ryokanSVG,
-  hotelSVG, bnbSVG, mansionSVG, tentSVG, wifiSVG, safeSVG, tvSVG, alarmSVG,
-  airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
-} from '../helpers/svg'
+import { InfoOutlined } from '@mui/icons-material';
+import { FormLabel, Button, FormHelperText, FormControl, Card, Typography } from '@mui/joy'
+import ScrollButton from './scroll-top';
+import { Title, Address, Location, Price, Amenities, Type, Features, BedroomLayout, Footer, SubmitButton } from './listing-info-fragments';
 
 export const ErrorInfo = ({ children }) => {
   return (
@@ -28,10 +19,6 @@ export const ErrorInfo = ({ children }) => {
       {children}
     </FormHelperText>
   );
-}
-
-const PriceError = () => {
-  return <ErrorInfo> Please provide your price to 2 dp. </ErrorInfo>
 }
 
 export const SelectCard = styled(Card)((theme) => ({
@@ -52,7 +39,6 @@ export const EditListing = ({ listingId }) => {
   const navigate = useNavigate();
   const { listingData, setListingData } = useContext(ListingDataContext);
   const data = listingData.find(x => x.id === listingId).data;
-  console.log(data.metadata.photos);
 
   const [title, setTitle] = React.useState(data.title);
   const [address, setAddress] = React.useState(data.address.address);
@@ -62,8 +48,16 @@ export const EditListing = ({ listingId }) => {
   const [type, setType] = React.useState(data.metadata.type);
   const [bedrooms, setBedrooms] = React.useState(data.metadata.bedrooms);
   const [baths, setBaths] = React.useState(data.metadata.baths);
-  const [photo, setPhoto] = React.useState(data.metadata.photos); // this is in data form
+  const [photo, setPhoto] = React.useState(data.metadata.photos);
   const [amenities, setAmenities] = React.useState(data.metadata.amenities);
+  const [badInputs, setBadInputs] = React.useState({
+    title: '',
+    address: '',
+    city: '',
+    price: '',
+    type: '',
+    photo: '',
+  })
   let sleepingArrangement = React.useState(data.metadata.sleepingArrangement)[0];
 
   const allData = () => {
@@ -155,220 +149,59 @@ export const EditListing = ({ listingId }) => {
       }, [single, double, queen, king, sofaBed]);
 
       return (
-        <div key={i}>
-          <AccordionGroup size="md" color="success" transition=
-          {{
-            initial: '0.3s ease-out',
-            expanded: '0.2s ease',
-          }}>
-            <Accordion>
-              <AccordionSummary>Bedroom {i}</AccordionSummary>
-              <AccordionDetails>
-                <BasicFeatures title='Single' feature={single} setFeature={setSingle} minSize={0}/>
-                <BasicFeatures title='Double' feature={double} setFeature={setDouble} minSize={0}/>
-                <BasicFeatures title='Queen' feature={queen} setFeature={setQueen} minSize={0}/>
-                <BasicFeatures title='King' feature={king} setFeature={setKing} minSize={0}/>
-                <BasicFeatures title='Sofa Bed' feature={sofaBed} setFeature={setSofaBed} minSize={0}/>
-              </AccordionDetails>
-            </Accordion>
-          </AccordionGroup>
-        </div>
+        <BedroomLayout key={i} num={i}
+        single={single} setSingle={setSingle}
+        double={double} setDouble={setDouble}
+        queen={queen} setQueen={setQueen}
+        king={king} setKing={setKing}
+        sofaBed={sofaBed} setSofaBed={setSofaBed} />
       )
     })
-  }
-
-  const SomethingWrongError = () => {
-    return (
-      <FormControl error>
-        <ErrorInfo>Something went wrong</ErrorInfo>
-      </FormControl>
-    )
-  }
-
-  const priceCheck = (price) => {
-    const check = price.match(/^[0-9]+\.[0-9]{2}$/) != null || price.match(/^[0-9]+$/) != null || price.length === 0;
-    return check;
-  }
-
-  const PlaceTypeCard = ({ svg, title }) => {
-    const selectColor = (title.localeCompare(type) === 0 ? '#ededed' : null)
-    return (
-      <Grid xs={4}>
-        <SelectCard
-          // color={shade}
-          sx={{ backgroundColor: selectColor }}
-        >
-          {svg}
-          <Link
-            overlay
-            underline="none"
-            onClick={() => {
-              setType(title);
-              console.log('clicked on', title);
-            }}
-            sx={{ color: 'text.tertiary' }}
-          >
-            {title}
-          </Link>
-        </SelectCard>
-      </Grid>
-    )
-  }
-
-  const AmenitiesCard = ({ svg, title }) => {
-    const selectColor = amenities.includes(title) ? '#ededed' : null;
-    return (
-      <Grid xs={4}>
-        <SelectCard
-          sx={{ backgroundColor: selectColor }}
-        >
-          {svg}
-          <Link
-            overlay
-            underline="none"
-            onClick={() => {
-              console.log('clicked on', title);
-              if (amenities.includes(title)) {
-                setAmenities(old => {
-                  old = old.filter(x => x.localeCompare(title) !== 0)
-                  console.log('remove', title);
-                  return old;
-                })
-              } else {
-                setAmenities(old => {
-                  return [title, ...old];
-                })
-              }
-            }}
-            sx={{ color: 'text.tertiary' }}
-          >
-            {title}
-          </Link>
-        </SelectCard>
-      </Grid>
-    )
-  }
-
-  const BasicFeatures = ({ title, feature, setFeature, minSize }) => {
-    return (
-      <div className='basicFeature'>
-          <p> {title} </p>
-          <div className='modifyFeature'>
-            <RoundButton variant='outlined' disabled = {feature <= minSize} onClick={(e) => setFeature(parseInt(feature) - 1)}> - </RoundButton>
-            <p> {feature} </p>
-            <RoundButton variant='outlined' onClick={(e) => setFeature(parseInt(feature) + 1)}> + </RoundButton>
-          </div>
-        </div>
-    )
   }
 
   return (
     <div id='my-listings'>
       <Container maxWidth="sm">
         <BreadCrumbs navigate={navigate}> Edit Listing </BreadCrumbs>
-        <h3> Give your listing a title. </h3>
-        <Input name='title' placeholder="Name of listing" value={title} size="lg" onChange={(e) => {
-          console.log('reset title to', e.target.value);
-          setTitle(e.target.value);
-        }}/>
-
-        <h3> Where is your listing located? </h3>
-        <Input
-          placeholder="Listing address"
-          size="lg"
-          fullWidth
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          sx = {{ marginBottom: '5px' }}
-          startDecorator={
-            <Button variant="soft" color="neutral" startDecorator={<LocationOn />}></Button>
-          }
-        />
-
-        <Stack
-            direction="row"
-            justifyContent="center"
-            alignItems="center"
-            spacing={0.5}
-        >
-          <Input
-            placeholder="City or suburb"
-            size="lg"
-            value={city}
-            sx = {{ width: '75%' }}
-            onChange={(e) => setCity(e.target.value)}
-          />
-          <Select sx = {{ width: '25%' }} size="lg" value={state} onChange={(e) => {
-            console.log('change to', e.target.innerText);
-            setState(e.target.innerText)
-          }}>
-            <Option value="NSW">NSW</Option>
-            <Option value="VIC">VIC</Option>
-            <Option value="QLD">QLD</Option>
-            <Option value="SA">SA</Option>
-            <Option value="WA">WA</Option>
-            <Option value="TAS">TAS</Option>
-            <Option value="NT">NT</Option>
-            <Option value="ACT">ACT</Option>
-          </Select>
-        </Stack>
-
-        <h3> How much is it to stay at your listing per night? </h3>
-        <FormControl error = {!priceCheck(price)}>
-          <Input
-          size="lg"
-          placeholder="Amount"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          startDecorator={'$'}
-          />
-          {!priceCheck(price) ? PriceError() : null}
+        <br/>
+        <Title title={title} setTitle={setTitle} badInputs={badInputs} setBadInputs={setBadInputs} />
+        <br/>
+        <Address address={address} setAddress={setAddress} badInputs={badInputs} setBadInputs={setBadInputs} />
+        <Location city={city} setCity={setCity} state={state} setState={setState} badInputs={badInputs} setBadInputs={setBadInputs} />
+        <br/>
+        <Price price={price} setPrice={setPrice} badInputs={badInputs} setBadInputs={setBadInputs} />
+        <br/>
+        <Type type={type} setType={setType} badInputs={badInputs} setBadInputs={setBadInputs} />
+        <br/>
+        <Features bedrooms={bedrooms} setBedrooms={setBedrooms} baths={baths} setBaths={setBaths} />
+        <br/>
+        <FormControl required>
+            <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Sleeping arrangments </FormLabel>
         </FormControl>
-
-        <h3> Which of these best describes your place? </h3>
-        <Grid container spacing={2}>
-          <PlaceTypeCard svg={houseSVG} title='House'/>
-          <PlaceTypeCard svg={apartmentSVG} title='Apartment' />
-          <PlaceTypeCard svg={bnbSVG} title='Bed & Breakfast' />
-          <PlaceTypeCard svg={hotelSVG} title='Hotel' />
-          <PlaceTypeCard svg={treehouseSVG} title='Treehouse' />
-          <PlaceTypeCard svg={mansionSVG} title='Mansion' />
-          <PlaceTypeCard svg={tentSVG} title='Tent' />
-          <PlaceTypeCard svg={ryokanSVG} title='Ryokan' />
-          <PlaceTypeCard svg={boatSVG} title='Boat' />
-        </Grid>
-
-        <h3> Share some basic details about the place </h3>
-        <BasicFeatures title='Bedrooms' feature={bedrooms} setFeature={setBedrooms} minSize={0}/>
-        <hr/>
-        <BasicFeatures title='Baths' feature={baths} setFeature={setBaths} minSize={1}/>
-
-        <h3> Sleeping arrangements </h3>
-        <SleepingArrangements/>
-
-        <h3> Select all the amenities at your listing </h3>
-        <Grid container spacing={2}>
-          <AmenitiesCard svg={wifiSVG} title='Wifi'/>
-          <AmenitiesCard svg={airconSVG} title='Air Conditioner'/>
-          <AmenitiesCard svg={fireplaceSVG} title='Fireplace'/>
-          <AmenitiesCard svg={parkingSVG} title='Parking'/>
-          <AmenitiesCard svg={tvSVG} title='TV'/>
-          <AmenitiesCard svg={kitchenSVG} title='Kitchen Essentials'/>
-          <AmenitiesCard svg={washingSVG} title='Washing Machine'/>
-          <AmenitiesCard svg={alarmSVG} title='Smoke Alarm'/>
-          <AmenitiesCard svg={safeSVG} title='Safe'/>
-        </Grid>
-
+        <SleepingArrangements bedrooms={bedrooms}/>
         <br/>
-        <LoadPhoto photo={photo} setPhoto={setPhoto}> Update photos of your listing </LoadPhoto> <br/>
+        <Amenities amenities={amenities} setAmenities={setAmenities}/>
         <br/>
-        <ButtonGroup spacing='10px'>
-          <Button variant='outlined' onClick={(e) => {
-            handlerSave();
-          }}>Save</Button>
-          <Button variant='solid' color='primary' onClick={(e) => { handlerUpdate() }}>Update listing</Button>
-        </ButtonGroup>
-        <SomethingWrongError />
+        <FormControl required>
+            <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Upload photos of your listing </FormLabel>
+            <FormHelperText>
+              Only accepting JPEG, JPG or PNG.
+            </FormHelperText>
+        </FormControl>
+        <br/>
+        <LoadPhoto photo={photo} setPhoto={setPhoto}>Upload</LoadPhoto> <br/>
+
+        <Footer>
+          <div>
+            <Button variant='outlined' onClick={(e) => handlerSave()}>Save</Button>
+            <Typography sx={{ display: 'inline', margin: '0px 5px' }}> or </Typography>
+            <SubmitButton onClick={(e) => handlerUpdate()}>Update listing</SubmitButton>
+          </div>
+          <ScrollButton />
+        </Footer>
+        {/* {errMsg.length !== 0 && <ErrorCallout> {errMsg.error} </ErrorCallout>}
+        {submitError && <ErrorCallout> Form has missing field(s) - please double check before submitting.</ErrorCallout>} */}
+
       </Container>
     </div>
   );

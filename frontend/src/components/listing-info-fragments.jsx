@@ -2,7 +2,7 @@ import React from 'react';
 import { styled } from '@mui/material/styles';
 import {
   Button, Grid, Card, Link, FormControl, FormLabel, FormHelperText, Input, Stack,
-  Select, Option
+  Select, Option, AccordionGroup, AccordionSummary, AccordionDetails, Accordion
 } from '@mui/joy'
 import { LocationOn, InfoOutlined } from '@mui/icons-material';
 import {
@@ -368,4 +368,26 @@ export const ErrorCallout = ({ children }) => {
       <br/>
     </div>
   )
+}
+
+export const BedroomLayout = ({ num, single, setSingle, double, setDouble, queen, setQueen, king, setKing, sofaBed, setSofaBed }) => {
+  return (
+  <div key={num}>
+    <AccordionGroup size="md" color="success" transition=
+    {{
+      initial: '0.3s ease-out',
+      expanded: '0.2s ease',
+    }}>
+      <Accordion>
+        <AccordionSummary>Bedroom {num}</AccordionSummary>
+        <AccordionDetails>
+          <BasicFeatures title='Single' feature={single} setFeature={setSingle} minSize={0}/>
+          <BasicFeatures title='Double' feature={double} setFeature={setDouble} minSize={0}/>
+          <BasicFeatures title='Queen' feature={queen} setFeature={setQueen} minSize={0}/>
+          <BasicFeatures title='King' feature={king} setFeature={setKing} minSize={0}/>
+          <BasicFeatures title='Sofa Bed' feature={sofaBed} setFeature={setSofaBed} minSize={0}/>
+        </AccordionDetails>
+      </Accordion>
+    </AccordionGroup>
+  </div>)
 }

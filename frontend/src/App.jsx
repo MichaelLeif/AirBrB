@@ -7,7 +7,7 @@ import { MyListings } from './components/my-listings'
 import { NewListing } from './components/new-listing'
 import { EditListingFetch } from './components/listing-edit-fetch';
 import { ListingDataContext } from './listingDataContext';
-import { BookingListingFetch } from './components/listing-booking-fetch';
+import { ListingReservations } from './components/listing-booking';
 import { Listing } from './pages/Listing'
 import { Landing } from './pages/Landing'
 
@@ -25,7 +25,7 @@ function App () {
             <Route path='/register' element={<Register />} />
             <Route path='/hosting' element={<Register />}/>
             <Route path='/listings/:id' element={<EditListingFetch />} />
-            <Route path='/listings/reservations/:id' element={<BookingListingFetch />}/>
+            <Route path='/listings/reservations/:id' element={<ListingReservations />}/>
             <Route path='/listings/my' element={<MyListings />}/>
             <Route path='/listings/new' element={<NewListing />}/>
             <Route path='/listing/:listid/:accepted/:checkin?/:checkout?/' element={<Listing />} />

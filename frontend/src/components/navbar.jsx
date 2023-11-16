@@ -10,6 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
 import { getToken } from '../helpers/auth';
+import { styled } from '@mui/material/styles';
 
 const AccountMenu = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -123,10 +124,16 @@ const AccountMenu = () => {
   );
 }
 
+const HoverableLogo = styled('img')(() => ({
+  '&:hover': {
+    cursor: 'pointer'
+  }
+}))
+
 const Logo = () => {
   const navigate = useNavigate();
   return (
-  <img id='logo' src={logo} onClick={() => navigate('/')} alt='airbnb logo and name'/>);
+  <HoverableLogo id='logo' src={logo} onClick={() => navigate('/')} alt='airbnb logo and name'/>);
 }
 
 export const NavBar = () => {

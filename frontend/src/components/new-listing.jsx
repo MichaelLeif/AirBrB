@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
 import { LoadPhoto } from '../helpers/image';
 import { Container } from '@mui/material';
-import { AccordionGroup, AccordionSummary, AccordionDetails, Accordion, FormControl, FormLabel, FormHelperText } from '@mui/joy'
+import { FormControl, FormLabel, FormHelperText } from '@mui/joy'
 import BreadCrumbs from './breadcrumbs';
-import { Amenities, Features, Type, Price, Location, SubmitButton, BasicFeatures, OrDivider, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
+import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, OrDivider, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
 import ScrollButton from './scroll-top';
 
 let sleepingArrangement = [];
@@ -101,25 +101,12 @@ export const NewListing = () => {
       useEffect(() => setSleepArr(bed), [single, double, queen, king, sofaBed]);
 
       return (
-        <div key={i}>
-
-          <AccordionGroup size="md" color="success" transition=
-          {{
-            initial: '0.3s ease-out',
-            expanded: '0.2s ease',
-          }}>
-            <Accordion>
-              <AccordionSummary>Bedroom {i}</AccordionSummary>
-              <AccordionDetails>
-                <BasicFeatures title='Single' feature={single} setFeature={setSingle} minSize={0}/>
-                <BasicFeatures title='Double' feature={double} setFeature={setDouble} minSize={0}/>
-                <BasicFeatures title='Queen' feature={queen} setFeature={setQueen} minSize={0}/>
-                <BasicFeatures title='King' feature={king} setFeature={setKing} minSize={0}/>
-                <BasicFeatures title='Sofa Bed' feature={sofaBed} setFeature={setSofaBed} minSize={0}/>
-              </AccordionDetails>
-            </Accordion>
-          </AccordionGroup>
-        </div>
+        <BedroomLayout key={i} num={i}
+        single={single} setSingle={setSingle}
+        double={double} setDouble={setDouble}
+        queen={queen} setQueen={setQueen}
+        king={king} setKing={setKing}
+        sofaBed={sofaBed} setSofaBed={setSofaBed} />
       )
     })
   }

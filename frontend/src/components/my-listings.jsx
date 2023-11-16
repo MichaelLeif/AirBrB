@@ -2,12 +2,11 @@ import React, { useEffect } from 'react';
 import { apiCall } from '../helpers/apicalls';
 import { getUser } from '../helpers/auth';
 import { Card, CardContent, Button } from '@mui/material';
-import { Button as JoyButton, Card as JoyCard, AspectRatio, CardContent as JoyCardContent, Sheet, Typography, Box } from '@mui/joy'
+import { Button as JoyButton } from '@mui/joy'
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
-import { star } from '../helpers/svg'
-import { GoLiveDialog } from './go-live'
+import { ListingCard } from './listing-card';
 import { Loading, LoadingButton } from '../helpers/generics';
 import Tabs from '@mui/joy/Tabs';
 import TabList from '@mui/joy/TabList';
@@ -52,121 +51,14 @@ export const twodpPrice = (price) => {
   return price
 }
 
-const Rating = ({ reviews }) => {
-  if (reviews.length === 0 || reviews == null) {
-    return (
-      <>
-        <Typography fontWeight="lg"> No reviews </Typography>
-      </>
-    )
-  }
-  return (
-    <div className='rating'>
-      <Typography fontWeight="lg">{5}</Typography>
-      {star}
-      <Typography fontWeight="lg">({reviews} reviews)</Typography>
-    </div>
-  )
-}
-
-const deleteHandler = (id, navigate) => {
+const deleteListing = (id, navigate) => {
   apiCall('DELETE', '/listings/' + id, {}, true);
   navigate('/listings/my');
 }
 
-const unpublishHandler = (id, navigate) => {
+const unpublishListing = (id, navigate) => {
   apiCall('PUT', '/listings/unpublish/' + id, {}, true);
   navigate('/listings/my');
-}
-
-const ListingCard = ({ id, data, navigate }) => {
-  const title = data.title;
-  const type = data.metadata.type;
-  const beds = data.metadata.beds;
-  const bathrooms = data.metadata.baths;
-  const thumbnail = data.thumbnail;
-  const price = data.price
-  const reviews = data.reviews;
-  const published = data.published;
-
-  return (
-    <JoyCard
-    orientation="horizontal"
-    sx={{
-      flexWrap: 'wrap',
-      overflow: 'auto',
-      margin: '10px 0px'
-    }}
-    >
-    <AspectRatio flex ratio="1" maxHeight={182} sx={{ minWidth: 182 }}>
-      <img
-        src={thumbnail}
-        loading="lazy"
-        alt="Photo of listing"
-      />
-    </AspectRatio>
-    <JoyCardContent>
-      <Typography fontSize="xl" fontWeight="lg">
-        {title}
-      </Typography>
-      <Typography level="body-sm" fontWeight="lg" textColor="text.tertiary">
-        {type}
-      </Typography>
-      <Sheet
-        sx={{
-          bgcolor: 'background.level1',
-          borderRadius: 'sm',
-          p: 1.5,
-          my: 1.5,
-          display: 'flex',
-          gap: 2,
-          '& > div': { flex: 1 },
-        }}
-      >
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Beds
-          </Typography>
-          <Typography fontWeight="lg">{beds}</Typography>
-        </div>
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Bathrooms
-          </Typography>
-          <Typography fontWeight="lg">{bathrooms}</Typography>
-        </div>
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Price
-          </Typography>
-          <Typography fontWeight="lg">${twodpPrice(price)}</Typography>
-        </div>
-        <div>
-          <Typography level="body-xs" fontWeight="lg">
-            Reviews
-          </Typography>
-          <Rating reviews={reviews}/>
-        </div>
-      </Sheet>
-      <Box sx={{ display: 'flex', gap: 1.5 }} >
-            <JoyButton sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={(e) => navigate('/listings/' + id)}>
-              Edit
-            </JoyButton>
-            { published
-              ? (<JoyButton sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={(e) => navigate('/listings/reservations/' + id)}>
-                  View reservations
-                </JoyButton>)
-              : null }
-            <JoyButton sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={(e) => deleteHandler(id, navigate)}>
-              Delete
-            </JoyButton>
-            { !published
-              ? <GoLiveDialog data={data} listing={id} navigate={navigate}/>
-              : <JoyButton sx ={{ flex: 0.5 }} color='warning' onClick={(e) => unpublishHandler(id, navigate)} > Unpublish </JoyButton> }
-      </Box>
-    </JoyCardContent>
-    </JoyCard>
-  )
 }
 
 export const MyListings = () => {
@@ -242,7 +134,9 @@ export const MyListings = () => {
         details.map((listing, i) => {
           const listingDets = listing.detail;
           return (
-            <ListingCard key={i} id={listing.id} data={listingDets} navigate={navigate}
+            <ListingCard key={i} id={listing.id} data={listingDets} editHandler={(id) => navigate('/listings/' + id)}
+            reservationHandler={(id) => navigate('/listings/reservations/' + id)} deleteHandler = {(id, navigate) => deleteListing(id, navigate)}
+            unpublishHandler = {(id, navigate) => unpublishListing(id, navigate)}
             />
           )
         })
@@ -277,10 +171,8 @@ export const MyListings = () => {
   const findIncome = async () => {
     const listing = await apiCall('GET', '/listings', {}, true)
     const myListings = listing.listings.filter(listing => listing.owner === getUser()).map(x => x.id);
-    console.log('mylisting', myListings);
     const booking = await apiCall('GET', '/bookings', {}, true);
     const bookingsAtListings = booking.bookings.filter(booking => checkAccepted(booking) && checkBeforeToday(booking) && myListings.some(x => x === parseInt(booking.listingId)));
-    console.log('bookingsatlisting', bookingsAtListings);
     const incomeArray = new Array(31).fill(0);
     console.log(incomeArray);
     bookingsAtListings.forEach((booking) => {

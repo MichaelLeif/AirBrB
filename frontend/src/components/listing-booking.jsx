@@ -67,7 +67,7 @@ export const ListingReservations = () => {
   } else {
     title = data.title;
     reservationData = data.data;
-    publishTime = data.publishTime;
+    publishTime = reservationData.postedOn;
     pendingData = reservationData.filter(checkPending);
     acceptedData = reservationData.filter(checkAccepted);
     declinedData = reservationData.filter(checkDeclined);
