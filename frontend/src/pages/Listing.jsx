@@ -364,6 +364,10 @@ export const Listing = () => {
           </Alert>
         </Box>
       )
+    } else {
+      return (
+        <></>
+      )
     }
   }
 
