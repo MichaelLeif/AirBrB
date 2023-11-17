@@ -4,6 +4,9 @@ import { Thumbnail } from '../components/thumbnail';
 import { Button, SvgIcon } from '@mui/joy';
 import { styled } from '@mui/material/styles';
 import { ErrorCallout } from '../components/listing-info-fragments';
+import { ListingPhotos } from './generics';
+// import { ListingPhotos } from './generics';
+// import { ListingPhotos } from './generics';
 export function fileToDataUrl (file) {
   console.log(file)
   const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg']
@@ -68,7 +71,7 @@ const OtherPhotos = ({ pic }) => {
     )
   })
   return (
-    <ImageList cols={2} rowHeight={164}>
+    <ImageList cols={2} rowHeight={200}>
       {pics}
     </ImageList>
   )
@@ -128,7 +131,7 @@ const loadPhotos = (photos, setPhoto) => {
   console.log(photos);
   return photos.map((photo, i) => {
     return (
-      <img key={i} className='listing-photos' height='200px' src={photo.photo} alt='listing photo uploaded'
+      <ListingPhotos key={i} src={photo.photo} alt='listing photo uploaded'
         onClick={(e) => setPhoto(old => {
           const before = [...old].slice(0, i)
           const after = [...old].slice(i + 1)

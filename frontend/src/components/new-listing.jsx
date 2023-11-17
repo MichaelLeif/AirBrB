@@ -7,6 +7,7 @@ import { FormControl, FormLabel, FormHelperText } from '@mui/joy'
 import BreadCrumbs from './breadcrumbs';
 import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, OrDivider, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
 import ScrollButton from './scroll-top';
+import { ListingInfoPage } from '../helpers/generics';
 
 let sleepingArrangement = [];
 export const errorMessage = {
@@ -126,10 +127,9 @@ export const NewListing = () => {
   }
 
   return (
-    <div id='my-listings'>
+    <ListingInfoPage>
       <Container maxWidth="sm">
         <BreadCrumbs navigate={navigate}> Create Listing </BreadCrumbs>
-
         <h3> Upload a JSON file of your listing. </h3>
         <br/>
         <OrDivider/>
@@ -173,6 +173,6 @@ export const NewListing = () => {
         {errMsg.length !== 0 && <ErrorCallout> {errMsg.error} </ErrorCallout>}
         {submitError && <ErrorCallout> Form has missing field(s) - please double check before submitting.</ErrorCallout>}
       </Container>
-    </div>
+    </ListingInfoPage>
   );
 }

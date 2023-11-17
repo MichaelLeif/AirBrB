@@ -4,13 +4,12 @@ import { apiCall } from '../helpers/apicalls';
 import { LoadPhoto } from '../helpers/image';
 import { ListingDataContext, useContext } from '../listingDataContext';
 import BreadCrumbs from './breadcrumbs'
-
-import { Container } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { InfoOutlined } from '@mui/icons-material';
 import { FormLabel, Button, FormHelperText, FormControl, Card, Typography } from '@mui/joy'
 import ScrollButton from './scroll-top';
 import { Title, Address, Location, Price, Amenities, Type, Features, BedroomLayout, Footer, SubmitButton } from './listing-info-fragments';
+import { ListingInfoPage } from '../helpers/generics';
 
 export const ErrorInfo = ({ children }) => {
   return (
@@ -39,7 +38,6 @@ export const EditListing = ({ listingId }) => {
   const navigate = useNavigate();
   const { listingData, setListingData } = useContext(ListingDataContext);
   const data = listingData.find(x => x.id === listingId).data;
-
   const [title, setTitle] = React.useState(data.title);
   const [address, setAddress] = React.useState(data.address.address);
   const [city, setCity] = React.useState(data.address.city);
@@ -160,49 +158,47 @@ export const EditListing = ({ listingId }) => {
   }
 
   return (
-    <div id='my-listings'>
-      <Container maxWidth="sm">
-        <BreadCrumbs navigate={navigate}> Edit Listing </BreadCrumbs>
-        <br/>
-        <Title title={title} setTitle={setTitle} badInputs={badInputs} setBadInputs={setBadInputs} />
-        <br/>
-        <Address address={address} setAddress={setAddress} badInputs={badInputs} setBadInputs={setBadInputs} />
-        <Location city={city} setCity={setCity} state={state} setState={setState} badInputs={badInputs} setBadInputs={setBadInputs} />
-        <br/>
-        <Price price={price} setPrice={setPrice} badInputs={badInputs} setBadInputs={setBadInputs} />
-        <br/>
-        <Type type={type} setType={setType} badInputs={badInputs} setBadInputs={setBadInputs} />
-        <br/>
-        <Features bedrooms={bedrooms} setBedrooms={setBedrooms} baths={baths} setBaths={setBaths} />
-        <br/>
-        <FormControl required>
-            <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Sleeping arrangments </FormLabel>
-        </FormControl>
-        <SleepingArrangements bedrooms={bedrooms}/>
-        <br/>
-        <Amenities amenities={amenities} setAmenities={setAmenities}/>
-        <br/>
-        <FormControl required>
-            <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Upload photos of your listing </FormLabel>
-            <FormHelperText>
-              Only accepting JPEG, JPG or PNG.
-            </FormHelperText>
-        </FormControl>
-        <br/>
-        <LoadPhoto photo={photo} setPhoto={setPhoto}>Upload</LoadPhoto> <br/>
+    <ListingInfoPage maxWidth="sm">
+      <BreadCrumbs navigate={navigate}> Edit Listing </BreadCrumbs>
+      <br/>
+      <Title title={title} setTitle={setTitle} badInputs={badInputs} setBadInputs={setBadInputs} />
+      <br/>
+      <Address address={address} setAddress={setAddress} badInputs={badInputs} setBadInputs={setBadInputs} />
+      <Location city={city} setCity={setCity} state={state} setState={setState} badInputs={badInputs} setBadInputs={setBadInputs} />
+      <br/>
+      <Price price={price} setPrice={setPrice} badInputs={badInputs} setBadInputs={setBadInputs} />
+      <br/>
+      <Type type={type} setType={setType} badInputs={badInputs} setBadInputs={setBadInputs} />
+      <br/>
+      <Features bedrooms={bedrooms} setBedrooms={setBedrooms} baths={baths} setBaths={setBaths} />
+      <br/>
+      <FormControl required>
+          <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Sleeping arrangments </FormLabel>
+      </FormControl>
+      <SleepingArrangements bedrooms={bedrooms}/>
+      <br/>
+      <Amenities amenities={amenities} setAmenities={setAmenities}/>
+      <br/>
+      <FormControl required>
+          <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Upload photos of your listing </FormLabel>
+          <FormHelperText>
+            Only accepting JPEG, JPG or PNG.
+          </FormHelperText>
+      </FormControl>
+      <br/>
+      <LoadPhoto photo={photo} setPhoto={setPhoto}>Upload</LoadPhoto> <br/>
 
-        <Footer>
-          <div>
-            <Button variant='outlined' onClick={(e) => handlerSave()}>Save</Button>
-            <Typography sx={{ display: 'inline', margin: '0px 5px' }}> or </Typography>
-            <SubmitButton onClick={(e) => handlerUpdate()}>Update listing</SubmitButton>
-          </div>
-          <ScrollButton />
-        </Footer>
-        {/* {errMsg.length !== 0 && <ErrorCallout> {errMsg.error} </ErrorCallout>}
-        {submitError && <ErrorCallout> Form has missing field(s) - please double check before submitting.</ErrorCallout>} */}
+      <Footer>
+        <div>
+          <Button variant='outlined' onClick={(e) => handlerSave()}>Save</Button>
+          <Typography sx={{ display: 'inline', margin: '0px 5px' }}> or </Typography>
+          <SubmitButton onClick={(e) => handlerUpdate()}>Update listing</SubmitButton>
+        </div>
+        <ScrollButton />
+      </Footer>
+      {/* {errMsg.length !== 0 && <ErrorCallout> {errMsg.error} </ErrorCallout>}
+      {submitError && <ErrorCallout> Form has missing field(s) - please double check before submitting.</ErrorCallout>} */}
 
-      </Container>
-    </div>
+    </ListingInfoPage>
   );
 }

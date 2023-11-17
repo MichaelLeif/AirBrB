@@ -7,7 +7,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { Add } from '@mui/icons-material';
 import { ListingCard } from './listing-card';
-import { Loading, LoadingButton } from '../helpers/generics';
+import { CenteredDiv, Loading, LoadingButton } from '../helpers/generics';
 import Tabs from '@mui/joy/Tabs';
 import TabList from '@mui/joy/TabList';
 import Tab from '@mui/joy/Tab';
@@ -19,7 +19,16 @@ const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
   border: 'none',
   borderRadius: '8px',
-  padding: '0px 20px'
+  padding: '0px 20px',
+  '& h2, & p': {
+    margin: '10px 0px',
+  },
+  '& svg': {
+    marginTop: '30px',
+  },
+  '& button': {
+    marginBottom: '10px',
+  }
 })
 
 const CreateListingButton = styled(Button)({
@@ -66,9 +75,9 @@ export const MyListings = () => {
 
   const FirstListing = () => {
     return (
-      <CreateNewListingCard id='newListingCard' variant="outlined">
+      <CreateNewListingCard variant="outlined">
         <CardContent>
-          <svg id='houseIcon' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19.0001H18V9.15757L12 3.70302L6 9.15757V19.0001ZM19 21.0001H5C4.44772 21.0001 4 20.5524 4 20.0001V11.0001L1 11.0001L11.3273 1.61162C11.7087 1.26488 12.2913 1.26488 12.6727 1.61162L23 11.0001L20 11.0001V20.0001C20 20.5524 19.5523 21.0001 19 21.0001ZM7.5 13.0001H9.5C9.5 14.3808 10.6193 15.5001 12 15.5001C13.3807 15.5001 14.5 14.3808 14.5 13.0001H16.5C16.5 15.4854 14.4853 17.5001 12 17.5001C9.51472 17.5001 7.5 15.4854 7.5 13.0001Z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19.0001H18V9.15757L12 3.70302L6 9.15757V19.0001ZM19 21.0001H5C4.44772 21.0001 4 20.5524 4 20.0001V11.0001L1 11.0001L11.3273 1.61162C11.7087 1.26488 12.2913 1.26488 12.6727 1.61162L23 11.0001L20 11.0001V20.0001C20 20.5524 19.5523 21.0001 19 21.0001ZM7.5 13.0001H9.5C9.5 14.3808 10.6193 15.5001 12 15.5001C13.3807 15.5001 14.5 14.3808 14.5 13.0001H16.5C16.5 15.4854 14.4853 17.5001 12 17.5001C9.51472 17.5001 7.5 15.4854 7.5 13.0001Z"></path></svg>
           <h2> Create a new listing </h2>
           <p> You don&apos;t have any listings on Airbnb right now. Create a new listing to start getting bookings.</p>
           <CreateListingButton variant="outlined" onClick={(e) => (navigate('/listings/new'))}>Create listing</CreateListingButton>
@@ -113,10 +122,10 @@ export const MyListings = () => {
     const listingElem = (listing === 1) ? listing + ' listing' : listing + ' listings';
     const ListingTitle = () => {
       return (
-        <div id='listing-title'>
+        <CenteredDiv>
           <h2> {listingElem} </h2>
           {listing !== 0 ? <JoyButton startDecorator={<Add/>} variant="outlined" onClick={(e) => (navigate('/listings/new'))}> Create listing</JoyButton> : null}
-        </div>
+        </CenteredDiv>
       )
     }
 
@@ -225,7 +234,7 @@ export const MyListings = () => {
   }
 
   return (
-    <Tabs aria-label="Basic tabs" defaultValue={0} id='my-listings'>
+    <Tabs sx={{ padding: '30px 80px', backgroundColor: 'white' }} aria-label="Listing and performance tabs" defaultValue={0} id="my-listings">
         <TabList>
           <Tab>My Listings</Tab>
           <Tab>Performance</Tab>

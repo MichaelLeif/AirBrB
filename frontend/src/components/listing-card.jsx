@@ -9,10 +9,10 @@ const RatingInfo = ({ reviews }) => {
   const numReviews = reviews.length;
   if (reviews.length === 0 || reviews == null) {
     return (
-      <>
-        <Typography level="body-xs" fontWeight="lg"> Reviews</Typography>
+      <div>
+        <Typography level="body-xs" fontWeight="lg">Reviews</Typography>
         <Typography fontWeight="lg"> No reviews </Typography>
-      </>
+      </div>
     )
   }
   const avgRating = reviews.reduce((x, y) => parseInt(x) + parseInt(y.rating), 0).toFixed(2)
@@ -20,7 +20,7 @@ const RatingInfo = ({ reviews }) => {
   return (
     <div>
       <Typography level="body-xs" fontWeight="lg"> {numReviews} {review} </Typography>
-      <Stars name="listing-rating" readOnly aria-readonly={true} className='rating' value={parseInt(avgRating)}/>
+      <Stars sx={{ display: 'flex' }}name="listing-rating" readOnly aria-readonly={true} value={parseInt(avgRating)}/>
     </div>
   )
 }

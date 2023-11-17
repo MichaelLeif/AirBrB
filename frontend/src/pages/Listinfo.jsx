@@ -88,7 +88,7 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
                   : props.reviews.reduce((r, a) => {
                     return r + a.rating
                   }, 0) / props.reviews.length).toFixed(2)
-              }/5</Typography>
+              }/5.00</Typography>
               <BookingStatus />
             </CardContent>
           </CardOverflow>

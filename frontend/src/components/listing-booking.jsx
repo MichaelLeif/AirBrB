@@ -208,9 +208,9 @@ export const ListingReservations = () => {
         <Sheet sx={{ borderRadius: '8px', minHeight: '90%' }}>
           <Typography level='h3'>{title}</Typography>
           <br/>
-          <Typography className='listing-info' level='body-md'><b>Active since</b><br/>{activeSince}</Typography>
-          <Typography className='listing-info' level='body-md'> <b>Yearly earnings</b><br/> {dollarFormat(yearlyEarnings)}</Typography>
-          <Typography className='listing-info' level='body-md'><b>Days booked in {thisYear}</b><br/>{daysBooked}</Typography>
+          <Typography sx={{ paddingBottom: '25px' }} level='body-md'><b>Active since</b><br/>{activeSince}</Typography>
+          <Typography sx={{ paddingBottom: '25px' }} className='listing-info' level='body-md'> <b>Yearly earnings</b><br/> {dollarFormat(yearlyEarnings)}</Typography>
+          <Typography sx={{ paddingBottom: '25px' }} className='listing-info' level='body-md'><b>Days booked in {thisYear}</b><br/>{daysBooked}</Typography>
         </Sheet>
       </Grid>
       <Grid xs={9}>

@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { apiCall } from '../helpers/apicalls';
-import { Container, TextField, Alert, Button } from '@mui/material';
+import { TextField, Alert, Button } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import { LoginContext } from '../loginContext';
+import { AuthBox, AuthTitle, Line } from '../helpers/generics';
 
 const RegisterButton = styled(Button)({
   textTransform: 'none',
@@ -32,11 +34,13 @@ const Error = styled(Alert)({
 export const Register = () => {
   // Use effect state
   const navigate = useNavigate();
+  const { userLoggedIn, setUserLoggedIn } = useContext(LoginContext)
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [error, setError] = React.useState('');
+  console.log(userLoggedIn);
 
   const setToken = (token) => {
     localStorage.setItem('token', token);
@@ -55,13 +59,11 @@ export const Register = () => {
       .then((data) => {
         setToken(data.token);
         setUser(email);
+        setUserLoggedIn(true);
         navigate('/');
-        console.log('ok');
       })
       .catch((err) => {
-        console.log('Bad request');
         setError(err.error);
-        console.log(err.error);
       })
   }
 
@@ -78,13 +80,12 @@ export const Register = () => {
   }
 
   return (
-    <>
-    <Container maxWidth="sm" className='login-box'>
+    <AuthBox maxWidth="sm">
       <div>
-        <div className='login-title'>
+        <AuthTitle>
           <h3> Register </h3>
-        </div>
-        <hr/>
+        </AuthTitle>
+        <Line/>
         <h2> Welcome to AirBnb </h2>
         {error ? <ErrorMessage/> : null}
         <TextField fullWidth id="login-name" label="Name" type='text' value={name} onChange={e => setName(e.target.value)} variant="outlined" margin="normal"/> <br/>
@@ -95,7 +96,6 @@ export const Register = () => {
           Register
         </RegisterButton>
       </div>
-    </Container>
-    </>
+    </AuthBox>
   )
 }

@@ -13,6 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { apiCall } from '../helpers/apicalls'
 import { useNavigate } from 'react-router-dom';
+import { GoLiveDate } from '../helpers/generics';
 
 export function GoLiveDialog ({ listing }) {
   const navigate = useNavigate();
@@ -88,7 +89,7 @@ export function GoLiveDialog ({ listing }) {
   const DatePicker = ({ id, canDelete }) => {
     console.log('id', id);
     return (
-      <div className='goLiveDate'>
+      <GoLiveDate>
         <FormControl>
             <FormLabel>Start</FormLabel>
             <Input fullWidth type='date' value={findDate(id).start} onChange={(e) => dateHandler(id, e.target.value, true)} required/>
@@ -98,7 +99,7 @@ export function GoLiveDialog ({ listing }) {
             <Input fullWidth type='date' value={findDate(id).finish} onChange={(e) => dateHandler(id, e.target.value, false)} required/>
         </FormControl>
         {canDelete ? <DeleteButton handler={() => deleteDateHandler(id)}/> : null}
-      </div>
+      </GoLiveDate>
     )
   }
 

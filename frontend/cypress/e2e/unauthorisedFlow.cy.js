@@ -28,6 +28,8 @@ describe('unauthorisedToAuthorised - happy path', () => {
       .click();
   })
   it('creates a listing', () => {
+    cy.get('svg')
+      .click();
     cy.get('a').contains('Your listings')
       .click();
     cy.url().should('include', 'http://localhost:3000/listings/my');

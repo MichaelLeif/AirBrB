@@ -7,7 +7,7 @@ import Link from '@mui/joy/Link';
 
 export const Thumbnail = ({ pic, setPic }) => {
   return (
-    <Card sx={{ minHeight: '280px', marginBottom: '10px' }}>
+    <Card id='thumbnail' sx={{ minHeight: '280px', marginBottom: '10px' }}>
       <CardCover>
         {pic}
       </CardCover>
@@ -25,10 +25,8 @@ export const Thumbnail = ({ pic, setPic }) => {
             overlay
             underline="none"
             onClick={() => {
-              console.log('clicked on thumbnail');
               setPic(old => {
                 old = [...old].slice(1)
-                console.log('new pics', old);
                 return old;
               })
             }}

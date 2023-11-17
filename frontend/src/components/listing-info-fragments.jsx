@@ -15,6 +15,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import Box from '@mui/joy/Box';
 import Alert from '@mui/joy/Alert';
 import Typography from '@mui/joy/Typography';
+import { ModifyFeature, IconDecorator, Line, CenteredDiv } from '../helpers/generics';
 
 export const ErrorInfo = ({ children }) => {
   return (
@@ -62,9 +63,9 @@ const OrDividerGrid = styled(Grid)(() => ({
 export const OrDivider = () => {
   return (
     <OrDividerGrid container spacing={2}>
-      <hr/>
+      <Line/>
       <span>or</span>
-      <hr/>
+      <Line/>
     </OrDividerGrid>
   )
 }
@@ -126,18 +127,18 @@ export const Amenities = ({ amenities, setAmenities }) => {
 
 export const BasicFeatures = ({ title, feature, setFeature, minSize, upHandler, downHandler }) => {
   return (
-    <div className='basicFeature'>
-        <p> {title} </p>
-        <div className='modifyFeature'>
+    <CenteredDiv>
+      <p> {title} </p>
+      <ModifyFeature>
         <Buttons feature={feature} setFeature={setFeature} minSize={minSize} upHandler={upHandler} downHandler={downHandler}/>
-        </div>
-      </div>
+      </ModifyFeature>
+    </CenteredDiv>
   )
 }
 
 export const Buttons = ({ feature, setFeature, minSize, upHandler, downHandler }) => {
   return (
-    <div className='modifyFeature'>
+    <ModifyFeature>
       <RoundButton variant='outlined' disabled = {feature <= minSize} onClick={(e) => {
         setFeature(prev => parseInt(prev) - 1)
         console.log(upHandler);
@@ -152,7 +153,7 @@ export const Buttons = ({ feature, setFeature, minSize, upHandler, downHandler }
           upHandler();
         }
       }}> + </RoundButton>
-    </div>
+    </ModifyFeature>
   )
 }
 
@@ -163,7 +164,7 @@ export const Features = ({ bedrooms, setBedrooms, baths, setBaths }) => {
         <FormLabel sx={{ fontSize: '1.1rem', margin: '20px 0px 0px 0px' }}> Share some basic details about the place. </FormLabel>
       </FormControl>
       <BasicFeatures title='Bedrooms' feature={bedrooms} setFeature={setBedrooms} minSize={1}/>
-      <hr/>
+      <Line/>
       <BasicFeatures title='Bathrooms' feature={baths} setFeature={setBaths} minSize={1}/>
     </div>
   )
@@ -346,7 +347,7 @@ export const Address = ({ address, setAddress, badInputs, setBadInputs }) => {
           onChange={(e) => changeHandler(e, 'address', setAddress, setBadInputs)}
           sx = {{ marginBottom: '5px' }}
           startDecorator={
-            <Button variant="soft" color="neutral" startDecorator={<LocationOn />}></Button>
+            <IconDecorator variant="soft" color="neutral" startDecorator={<LocationOn />}/>
           }
         />
         {badInputs.address && <FormHelperText>

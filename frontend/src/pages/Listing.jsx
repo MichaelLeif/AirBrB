@@ -445,14 +445,14 @@ export const Listing = () => {
                       <Box sx={{ display: 'flex', width: '100%' }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
                           <FormLabel>CHECK-IN</FormLabel>
-                          <Input style={{ width: '100%' }}type='date' placeholder="Placeholder" defaultValue={checkin} onChange={(e) => {
+                          <Input name="check-in" style={{ width: '100%' }}type='date' placeholder="Placeholder" defaultValue={checkin} onChange={(e) => {
                             setCheckin(e.target.value)
                           }}
                           />
                         </Box>
                         <Box sx={{ display: 'flex', flexDirection: 'column', width: '50%' }}>
                           <FormLabel>CHECK-OUT</FormLabel>
-                          <Input style={{ width: '100%' }} type='date' defaultValue={checkout} onChange={(e) => {
+                          <Input name="check-out" style={{ width: '100%' }} type='date' defaultValue={checkout} onChange={(e) => {
                             setCheckout(e.target.value);
                           }} />
                         </Box>

@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { apiCall } from '../helpers/apicalls';
-import { Container, TextField, Alert, Button } from '@mui/material';
+import { TextField, Alert, Button } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { setToken, setUser } from '../helpers/auth';
+import { LoginContext } from '../loginContext';
+import { AuthBox, AuthTitle, Line } from '../helpers/generics';
 
 const Error = styled(Alert)({
   margin: '10px 0px;'
@@ -50,6 +52,7 @@ export const login = async (email, password, setError) => {
 export const Login = ({ onSubmit }) => {
   // Use effect state
   const navigate = useNavigate();
+  const { userLoggedIn, setUserLoggedIn } = useContext(LoginContext)
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
@@ -57,7 +60,8 @@ export const Login = ({ onSubmit }) => {
   const loginHandler = async (e) => {
     const success = await onSubmit(email, password, setError);
     if (success) {
-      console.log('DIRECT');
+      setUserLoggedIn(true);
+      console.log(userLoggedIn)
       navigate('/');
     }
   }
@@ -68,12 +72,12 @@ export const Login = ({ onSubmit }) => {
 
   return (
     <>
-      <Container maxWidth="sm" className='login-box'>
+      <AuthBox maxWidth="sm">
         <div>
-          <div className='login-title'>
+          <AuthTitle>
             <h3> Login </h3>
-          </div>
-          <hr/>
+          </AuthTitle>
+          <Line/>
           <h2> Welcome to AirBnb </h2>
           {error ? <ErrorMessage/> : null}
           <TextField
@@ -106,7 +110,7 @@ export const Login = ({ onSubmit }) => {
             Login
           </RegisterButton>
         </div>
-      </Container>
+      </AuthBox>
     </>
   )
 }

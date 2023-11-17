@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import Avatar from '@mui/material/Avatar';
 import logo from '../assets/airbnb-logo.png';
 import Box from '@mui/material/Box';
@@ -9,10 +9,11 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { useNavigate, Link } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
-import { getToken } from '../helpers/auth';
 import { styled } from '@mui/material/styles';
+import { LoginContext } from '../loginContext';
 
 const AccountMenu = () => {
+  const { userLoggedIn, setUserLoggedIn } = useContext(LoginContext)
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -23,17 +24,16 @@ const AccountMenu = () => {
   };
 
   const logout = () => {
-    apiCall('POST', '/user/auth/logout', {}, true)
-      .then(() => {
-        localStorage.removeItem('token');
-      })
+    apiCall('POST', '/user/auth/logout', {}, true);
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUserLoggedIn(false);
   }
 
-  const userValid = getToken();
   const LogoutButton = () => {
     return (
     <MenuItem
-      component={Link} to='/login' onClick={() => logout()}>
+      component={Link} to='/login' id="logout-tab" onClick={() => logout()}>
         Logout
     </MenuItem>)
   }
@@ -41,10 +41,10 @@ const AccountMenu = () => {
   const RegisterOrLogin = () => {
     return (
       <div>
-        <MenuItem component={Link} to='/register'>
+        <MenuItem id="register-tab" component={Link} to='/register'>
           Sign up
         </MenuItem>
-        <MenuItem component={Link} to='/login'>
+        <MenuItem id="login-tab" component={Link} to='/login'>
           Login
         </MenuItem>
       </div>
@@ -54,10 +54,10 @@ const AccountMenu = () => {
   const ShowListings = () => {
     return (
       <div>
-        <MenuItem component={Link} to='/'>
+        <MenuItem id="all-listings-tab" component={Link} to='/'>
           All listings
         </MenuItem>
-        <MenuItem component={Link} to='/listings/my'>
+        <MenuItem id="my-listings-tab"component={Link} to='/listings/my'>
           Your listings
         </MenuItem>
         <Divider />
@@ -87,38 +87,12 @@ const AccountMenu = () => {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
-        PaperProps={{
-          elevation: 0,
-          sx: {
-            overflow: 'visible',
-            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-            mt: 1.5,
-            '& .MuiAvatar-root': {
-              width: 32,
-              height: 32,
-              ml: -0.5,
-              mr: 1,
-            },
-            '&:before': {
-              content: '""',
-              display: 'block',
-              position: 'absolute',
-              top: 0,
-              right: 14,
-              width: 10,
-              height: 10,
-              bgcolor: 'background.paper',
-              transform: 'translateY(-50%) rotate(45deg)',
-              zIndex: 0,
-            },
-          },
-        }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        {!userValid ? <RegisterOrLogin/> : null}
-        {userValid ? <ShowListings/> : null}
-        {userValid ? <LogoutButton/> : null}
+        {!userLoggedIn ? <RegisterOrLogin/> : null}
+        {userLoggedIn ? <ShowListings/> : null}
+        {userLoggedIn ? <LogoutButton/> : null}
       </Menu>
     </React.Fragment>
   );
@@ -127,7 +101,8 @@ const AccountMenu = () => {
 const HoverableLogo = styled('img')(() => ({
   '&:hover': {
     cursor: 'pointer'
-  }
+  },
+  height: '40px',
 }))
 
 const Logo = () => {
@@ -136,13 +111,23 @@ const Logo = () => {
   <HoverableLogo id='logo' src={logo} onClick={() => navigate('/')} alt='airbnb logo and name'/>);
 }
 
+const NavBarDisplay = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  boxSizing: 'content-box',
+  height: '80px',
+  padding: '10px 80px',
+  borderBottom: '1px solid rgb(233, 233, 233)',
+})
+
 export const NavBar = () => {
   return (
     <>
-      <div id='nav-bar'>
+      <NavBarDisplay>
         <Logo />
         <AccountMenu />
-      </div>
+      </NavBarDisplay>
     </>
   )
 }
