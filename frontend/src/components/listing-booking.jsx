@@ -182,7 +182,7 @@ export const ListingReservations = () => {
 
   const ReservationTable = () => {
     return (
-      <Tabs aria-label="Basic tabs" defaultValue={0}>
+      <Tabs aria-label="Reservations table tabs" defaultValue={0}>
         <TabList>
           <Tab>Pending</Tab>
           <Tab>Accepted</Tab>

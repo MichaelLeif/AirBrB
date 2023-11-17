@@ -70,6 +70,12 @@ export const Login = ({ onSubmit }) => {
     return <Error severity="error">{error}</Error>;
   }
 
+  document.querySelector('submit-button').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      login(email, password, setError);
+    }
+  })
+
   return (
     <>
       <AuthBox maxWidth="sm">
@@ -106,7 +112,7 @@ export const Login = ({ onSubmit }) => {
             onChange={e => setPassword(e.target.value)}
             variant="outlined"
             margin="normal"/> <br/>
-          <RegisterButton type="submit" variant="contained" disableElevation onClick={loginHandler}>
+          <RegisterButton id="submit-button" type="submit" variant="contained" disableElevation onClick={loginHandler}>
             Login
           </RegisterButton>
         </div>
