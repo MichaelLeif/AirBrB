@@ -5,7 +5,7 @@ import { LoadPhoto } from '../helpers/image';
 import { Container } from '@mui/material';
 import { FormControl, FormLabel, FormHelperText } from '@mui/joy'
 import { BreadCrumbsViaMyListing } from './breadcrumbs';
-import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
+import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, Title, Address, ErrorCallout, Footer, priceCheck } from './listing-info-fragments';
 import ScrollButton from './scroll-top';
 import { ListingInfoPage } from '../helpers/generics';
 
@@ -113,7 +113,9 @@ export const NewListing = () => {
   }
 
   const allGoodInputs = () => {
-    return [title, address, state, city, price, type, bedrooms, baths, photo].every(x => x !== null && x !== undefined && x.length !== 0)
+    const noNull = [title, address, state, city, price, type, bedrooms, baths, photo].every(x => x !== null && x !== undefined && x.length !== 0)
+    const priceOk = priceCheck(price)
+    return noNull && priceOk;
   }
 
   if (!submitClicked) {

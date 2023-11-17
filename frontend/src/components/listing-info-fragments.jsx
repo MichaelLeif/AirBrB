@@ -219,7 +219,7 @@ export const Type = ({ type, setType, badInputs, setBadInputs }) => {
   )
 }
 
-const priceCheck = (price) => {
+export const priceCheck = (price) => {
   const check = price.match(/^[0-9]+\.[0-9]{2}$/) != null || price.match(/^[0-9]+$/) != null || price.length === 0;
   return check;
 }
