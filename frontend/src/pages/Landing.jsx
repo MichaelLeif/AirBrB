@@ -192,6 +192,19 @@ export const Landing = () => {
       } else if (filter === 'rating') {
         if (filterValue[0] === 'highest') {
           const filtered = moreData.sort((a, b) => {
+            for (const booking of books) {
+              if (a.id === parseInt(booking.listingId)) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return -1;
+                }
+              } else if (b.id === parseInt(booking.listingId)) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return 1;
+                }
+              } else {
+                return 0;
+              }
+            }
             if (a.reviews.length === 0) {
               return 1;
             } else if (b.reviews.length === 0) {
@@ -206,6 +219,19 @@ export const Landing = () => {
           setListings(filtered);
         } else if (filterValue[0] === 'lowest') {
           const filtered = moreData.sort((a, b) => {
+            for (const booking of books) {
+              if (a.id === parseInt(booking.listingId)) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return -1;
+                }
+              } else if (b.id === parseInt(booking.listingId)) {
+                if (localStorage.getItem('user') === booking.owner) {
+                  return 1;
+                }
+              } else {
+                return 0;
+              }
+            }
             if (a.reviews.length === 0) {
               return -1;
             } else if (b.reviews.length === 0) {
@@ -231,11 +257,10 @@ export const Landing = () => {
         setListings(filtered);
       } else {
         if (books) {
-          data.listings = data.listings.sort((a, b) => a.title.localeCompare(b.title));
-          data.listings = data.listings.sort((a, b) => {
+          let filtered = moreData.sort((a, b) => a.title.localeCompare(b.title));
+          filtered = filtered.sort((a, b) => {
             for (const booking of books) {
               if (a.id === parseInt(booking.listingId)) {
-                console.log(a);
                 if (localStorage.getItem('user') === booking.owner) {
                   return -1;
                 }
@@ -243,11 +268,13 @@ export const Landing = () => {
                 if (localStorage.getItem('user') === booking.owner) {
                   return 1;
                 }
+              } else {
+                return 0;
               }
             }
             return 0;
           });
-          setListings(moreData);
+          setListings(filtered);
           setBookings(books);
         } else {
           const filtered = moreData.sort((a, b) => a.title.localeCompare(b.title))

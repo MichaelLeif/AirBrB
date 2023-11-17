@@ -42,6 +42,7 @@ export const Listing = () => {
   const [review, setReview] = React.useState(false);
   const [booked, setBooked] = React.useState(false);
   const [reviewError, setReviewError] = React.useState(false);
+  const [bookingError, setBookingError] = React.useState(false);
   const navigate = useNavigate();
   let nights = 0;
   let rating = 0;
@@ -157,6 +158,20 @@ export const Listing = () => {
     console.log('make booking');
     e.preventDefault();
     if (localStorage.getItem('token')) {
+      let isAvailable = false;
+      for (const available of listing.availability) {
+        if (new Date(checkInState) >= new Date(available.start) && new Date(checkOutState) <= new Date(available.end)) {
+          isAvailable = true;
+          break;
+        }
+      }
+      if (!isAvailable) {
+        setBookingError(true);
+        setTimeout(() => {
+          setBookingError(false);
+        }, 5000);
+        return;
+      }
       const body = {
         dateRange: {
           start: checkInState,
@@ -180,7 +195,6 @@ export const Listing = () => {
       } else {
         setBooked(true);
         setTimeout(() => {
-          console.log('heyyy');
           setBooked(false);
         }, 4000);
       }
@@ -371,6 +385,36 @@ export const Listing = () => {
     }
   }
 
+  const BookingErrorPopUp = ({ bookingError }) => {
+    if (bookingError) {
+      return (
+        <Box sx={{ position: 'fixed', top: '0', width: '100%' }}>
+          <Alert
+          startDecorator={<WarningIcon />}
+          variant="soft"
+          color='danger'
+          endDecorator={
+            <IconButton variant="soft" color='danger'>
+              <CloseRoundedIcon onClick={(e) => setBookingError(false)} />
+            </IconButton>
+          }
+          >
+            <Box>
+              <Box>Booking Error</Box>
+              <Typography level="body-sm" color='success'>
+                Your booking is out of the availability range. Please book within the range or use the search filter to see available listings.
+              </Typography>
+            </Box>
+          </Alert>
+        </Box>
+      )
+    } else {
+      return (
+        <></>
+      )
+    }
+  }
+
   const BookingPopUp = ({ booked }) => {
     if (booked) {
       return (
@@ -457,9 +501,15 @@ export const Listing = () => {
                           }} />
                         </Box>
                       </Box>
-                      <Button type='submit' style={{ width: '100%' }} color='danger'>
-                          RESERVE
-                      </Button>
+                      {
+                        localStorage.getItem('user') === listing.owner
+                          ? <Button type='submit' style={{ width: '100%' }} color='danger' disabled='true'>
+                              RESERVE
+                          </Button>
+                          : <Button type='submit' style={{ width: '100%' }} color='danger' >
+                            RESERVE
+                          </Button>
+                      }
                     </form>
                   </Box>
                   <Typography level='h1'>Ratings</Typography>
@@ -500,9 +550,9 @@ export const Listing = () => {
                 <ReviewBox
                   Populate={() => {
                     return listing.reviews.length !== 0
-                      ? listing.reviews.map((prop) => {
+                      ? listing.reviews.map((prop, index) => {
                         return (
-                          <CreateReviewBox key={listing.id} prop={prop} mobileResponsive={mobileResponsive} />
+                          <CreateReviewBox key={index} prop={prop} mobileResponsive={mobileResponsive} />
                         )
                       })
                       : <Typography> There are currently no reviews</Typography>
@@ -513,7 +563,8 @@ export const Listing = () => {
           </Box>
         </Box>
       </Box>
-      <ReviewErrorPopUp reviewError={reviewError}/>
+      <BookingErrorPopUp bookingError={bookingError} />
+      <ReviewErrorPopUp reviewError={reviewError} />
       <BookingPopUp booked={booked} />
       <ReviewPopUp review={review}
       onClose={() => setReview(false)}
