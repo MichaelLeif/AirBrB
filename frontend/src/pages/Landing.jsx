@@ -377,11 +377,11 @@ export const Landing = () => {
                 </form>
                 : <Button
                   color='danger'
-                  sx={{ marginTop: '150px', zIndex: '-10000', ...mobileSearch && { display: 'none' } }}
+                  sx={{ marginTop: '18px', zIndex: '-10000', ...mobileSearch && { display: 'none' } }}
                   onClick={(e) => {
                     setMobileSearch(true);
                   }}
-                >Search</Button>
+                >Filter and search</Button>
             }
           </Box>
         </Box>

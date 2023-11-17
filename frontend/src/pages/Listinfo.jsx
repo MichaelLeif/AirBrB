@@ -11,6 +11,7 @@ import CardOverflow from '@mui/joy/CardOverflow';
 import Divider from '@mui/joy/Divider';
 import Chip from '@mui/joy/Chip';
 import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles'
 
 export const Listinfo = (props, dateValue, bookingStatus) => {
   const item = {
@@ -44,6 +45,11 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
       )
     }
   }
+  const ListingTitle = styled('div')({
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  })
 
   const MakeListing = () => {
     return (
@@ -58,16 +64,21 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
             </AspectRatio>
           </CardOverflow>
           <CardContent>
-            <Typography level="title-md">
-              {props.title}
-            </Typography>
-            <Typography level="body-sm">
-              {props.address.address}, {props.address.city}, {props.address.state}
-            </Typography>
+            <ListingTitle>
+              <div>
+                <Typography level="title-md">
+                  {props.title}
+                </Typography>
+                <Typography level="body-sm">
+                  {props.address.address}, {props.address.city}, {props.address.state}
+                </Typography>
+              </div>
+              <BookingStatus />
+            </ListingTitle>
           </CardContent>
           <CardOverflow variant="soft">
             <Divider inset="context" />
-            <CardContent orientation="horizontal">
+            <CardContent orientation='horizontal' sx={{ display: 'flex', justifyContent: 'space-evenly' }} >
               <Typography level="body-xs" sx={{ marginTop: '5px' }}>${props.price * nights}</Typography>
               <Divider orientation="vertical" />
               <Rating
@@ -89,7 +100,6 @@ export const Listinfo = (props, dateValue, bookingStatus) => {
                     return r + a.rating
                   }, 0) / props.reviews.length).toFixed(2)
               }/5.00</Typography>
-              <BookingStatus />
             </CardContent>
           </CardOverflow>
         </Card>
