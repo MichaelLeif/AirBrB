@@ -14,6 +14,7 @@ import Tab from '@mui/joy/Tab';
 import TabPanel from '@mui/joy/TabPanel';
 import { LineChart } from '@mui/x-charts';
 import { checkAccepted } from './listing-booking';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const CreateNewListingCard = styled(Card)({
   backgroundColor: '#f4f4f4',
@@ -72,6 +73,8 @@ const unpublishListing = (id, navigate) => {
 
 export const MyListings = () => {
   const navigate = useNavigate();
+  const tablet = useMediaQuery('only screen and (min-width: 600px) and (max-width: 900px');
+  const mobile = useMediaQuery('only screen and (max-width: 600px');
 
   const FirstListing = () => {
     return (
@@ -119,6 +122,7 @@ export const MyListings = () => {
         <LoadingButton loading variant="plain">Loading</LoadingButton>
       )
     }
+
     const listingElem = (listing === 1) ? listing + ' listing' : listing + ' listings';
     const ListingTitle = () => {
       return (
@@ -138,14 +142,14 @@ export const MyListings = () => {
       )
     }
 
-    const ListingDetails = ({ navigate }) => {
+    const ListingDetails = () => {
       return (
         details.map((listing, i) => {
           const listingDets = listing.detail;
           return (
             <ListingCard key={i} id={listing.id} data={listingDets} editHandler={(id) => navigate('/listings/' + id)}
             reservationHandler={(id) => navigate('/listings/reservations/' + id)} deleteHandler = {(id, navigate) => deleteListing(id, navigate)}
-            unpublishHandler = {(id, navigate) => unpublishListing(id, navigate)}
+            unpublishHandler = {(id, navigate) => unpublishListing(id, navigate)} mobile={mobile} tablet={tablet}
             />
           )
         })
@@ -154,7 +158,7 @@ export const MyListings = () => {
     return (
       <div>
         <ListingTitle />
-        <ListingDetails navigate={navigate}/>
+        <ListingDetails/>
       </div>
     )
   }
@@ -233,8 +237,9 @@ export const MyListings = () => {
       />)
   }
 
+  const paddingSides = mobile ? '10px' : '80px'
   return (
-    <Tabs sx={{ padding: '30px 80px', backgroundColor: 'white' }} aria-label="Listing and performance tabs" defaultValue={0} id="my-listings">
+    <Tabs sx={{ paddingTop: '30px', paddingBottom: '30px', paddingRight: paddingSides, paddingLeft: paddingSides, backgroundColor: 'white' }} aria-label="Listing and performance tabs" defaultValue={0} id="my-listings">
         <TabList>
           <Tab>My Listings</Tab>
           <Tab>Performance</Tab>

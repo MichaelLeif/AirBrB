@@ -1,9 +1,10 @@
 import React from 'react'
 import { Rating as Stars } from '@mui/material';
-import { AspectRatio, CardContent, Typography, Sheet, Box, Card, Button } from '@mui/joy';
+import { AspectRatio, CardContent, Typography, Box, Card, Button, Sheet } from '@mui/joy';
 import { GoLiveDialog } from './go-live'
 import { twodpPrice } from './my-listings';
 import { useNavigate } from 'react-router-dom';
+import Grid from '@mui/material/Unstable_Grid2';
 
 const RatingInfo = ({ reviews }) => {
   const numReviews = reviews.length;
@@ -36,8 +37,9 @@ const FeatureInfo = ({ title, num }) => {
   )
 }
 
-export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteHandler, unpublishHandler }) => {
+export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteHandler, unpublishHandler, mobile, tablet }) => {
   const navigate = useNavigate();
+  const laptop = !mobile && !tablet;
   const title = data.title;
   const type = data.metadata.type;
   const beds = data.metadata.beds;
@@ -46,10 +48,55 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
   const price = '$' + twodpPrice(data.price).toString();
   const reviews = data.reviews;
   const published = data.published;
+  const infoGridLength = mobile ? 12 : (tablet ? 6 : 3)
+  const ButtonsOneRow = () => {
+    return (
+      <Box sx={{ display: 'flex', gap: 0.5 }} >
+              <Button sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={() => editHandler(id)}>
+                Edit
+              </Button>
+              { published
+                ? (<Button sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={() => reservationHandler(id)}>
+                    View reservations
+                  </Button>)
+                : null }
+              <Button sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={() => deleteHandler(id, navigate)}>
+                Delete
+              </Button>
+              { !published
+                ? <GoLiveDialog data={data} listing={id}/>
+                : <Button sx ={{ flex: 0.5 }} color='warning' onClick={() => unpublishHandler(id, navigate)} > Unpublish </Button> }
+        </Box>
+    )
+  }
 
+  const ButtonsTwoRow = () => {
+    return (
+      <section>
+        <Box sx={{ display: 'flex', gap: 0.5, minHeight: '50px' }} >
+          <Button sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={() => editHandler(id)}>
+            Edit
+          </Button>
+          { published
+            ? (<Button sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={() => reservationHandler(id)}>
+                View reservations
+              </Button>)
+            : null }
+        </Box>
+        <Box sx={{ display: 'flex', gap: 0.5, minHeight: '50px' }} >
+          <Button sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={() => deleteHandler(id, navigate)}>
+            Delete
+          </Button>
+          { !published
+            ? <GoLiveDialog data={data} listing={id}/>
+            : <Button sx ={{ flex: 0.5 }} color='warning' onClick={() => unpublishHandler(id, navigate)} > Unpublish </Button> }
+        </Box>
+      </section>
+    )
+  }
   return (
     <Card
-    orientation="horizontal"
+    orientation= { !laptop ? 'vertical' : 'horizontal' }
     sx={{
       flexWrap: 'wrap',
       overflow: 'auto',
@@ -63,6 +110,7 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
         alt="Photo of listing"
       />
     </AspectRatio>
+
     <CardContent>
       <Typography fontSize="xl" fontWeight="lg">
         {title}
@@ -81,27 +129,22 @@ export const ListingCard = ({ id, data, editHandler, reservationHandler, deleteH
           '& > div': { flex: 1 },
         }}
       >
-        <FeatureInfo title='Beds' num={beds} />
-        <FeatureInfo title='Bathrooms' num={bathrooms} />
-        <FeatureInfo title='Price' num={price} />
-        <RatingInfo reviews={reviews}/>
+        <Grid container spacing={2}>
+          <Grid xs={infoGridLength}>
+            <FeatureInfo title='Beds' num={beds} />
+          </Grid>
+          <Grid xs={infoGridLength}>
+          <FeatureInfo title='Bathrooms' num={bathrooms} />
+          </Grid>
+          <Grid xs={infoGridLength}>
+          <FeatureInfo title='Price' num={price} />
+          </Grid>
+          <Grid xs={infoGridLength}>
+          <RatingInfo reviews={reviews}/>
+          </Grid>
+        </Grid>
       </Sheet>
-      <Box sx={{ display: 'flex', gap: 1.5 }} >
-            <Button sx={{ flex: 0.5 }} variant="outlined" color="primary" onClick={() => editHandler(id)}>
-              Edit
-            </Button>
-            { published
-              ? (<Button sx={{ flex: 0.5 }} variant="solid" color="primary" onClick={() => reservationHandler(id)}>
-                  View reservations
-                </Button>)
-              : null }
-            <Button sx={{ flex: 0.5 }} variant="solid" color="danger" onClick={() => deleteHandler(id, navigate)}>
-              Delete
-            </Button>
-            { !published
-              ? <GoLiveDialog data={data} listing={id}/>
-              : <Button sx ={{ flex: 0.5 }} color='warning' onClick={() => unpublishHandler(id, navigate)} > Unpublish </Button> }
-      </Box>
+      { !mobile ? <ButtonsOneRow/> : <ButtonsTwoRow/> }
     </CardContent>
     </Card>
   )

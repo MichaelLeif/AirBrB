@@ -9,6 +9,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { setBookingListingData } from './listing-booking-fetch';
 import { twodpPrice } from './my-listings';
 import { Loading } from '../helpers/generics';
+import { useMediaQuery } from '@mui/material';
+//
 const dayjs = require('dayjs');
 const relativeTime = require('dayjs/plugin/relativeTime');
 
@@ -46,6 +48,9 @@ export const ListingReservations = () => {
   const params = useParams();
   const listingId = parseInt(params.id);
   const [data, setData] = React.useState(null);
+  const mobile = useMediaQuery('only screen and (max-width: 1050px');
+  const tablet = useMediaQuery('only screen and (max-width: 750px');
+  const infoLength = mobile ? 12 : 3;
 
   let title = null;
   let reservationData = null;
@@ -114,70 +119,77 @@ export const ListingReservations = () => {
     );
   }
 
-  const ReservationTablePending = ({ data }) => {
+  const MobileTable = ({ data, isPending }) => {
     return (
       <Table
-          sx={{ '& thead th:nth-of-type(1)': { width: '25%' } }}
           borderAxis="xBetween"
           size="md"
           stickyFooter={false}
-          stickyHeader
-          variant="plain">
-            <thead>
-              <tr>
-                <th>Reservation by</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Price</th>
-                <th width='160px' >Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows(data).map((row, i) => (
-                <tr key={i}>
-                  <td>{row.user}</td>
-                  <td>{row.startDate}</td>
-                  <td>{row.endDate}</td>
-                  <td>{row.price}</td>
-                  <td> <AcceptDelete bookingId={row.bookingId} navigate={navigate}/> </td>
+            stickyHeader={true}
+            overflow='auto'
+            hoverRow
+            variant="plain">
+              <thead>
+                <tr>
+                  <th>Reservation</th>
+                  <th style={{ textAlign: 'center' }}>{isPending ? 'Action' : 'Status'}</th>
                 </tr>
-              ))}
-            </tbody>
+              </thead>
+              <tbody>
+                {rows(data).map((row, i) => {
+                  return (
+                  <tr key={i}>
+                    <td>
+                      <span> <b> {row.user} </b> </span> <br/>
+                      <span> {row.startDate} to {row.endDate}  </span> <br/>
+                      <span> {row.price} </span>
+                    </td>
+                    {isPending && <td style={{ textAlign: 'center' }}> <AcceptDelete bookingId={row.bookingId} navigate={navigate}/> </td>}
+                    {!isPending && <td style={{ textAlign: 'center' }}> <StatusChip status={row.status}/> </td>}
+                  </tr>
+                  )
+                })}
+              </tbody>
           </Table>
-    );
+    )
   }
 
-  const ReservationTableStatus = ({ data }) => {
-    return (
-      <Table
-          sx={{ '& thead th:nth-of-type(1)': { width: '25%' } }}
-          borderAxis="xBetween"
-          size="md"
-          stickyFooter={false}
-          stickyHeader
-          variant="plain">
-            <thead>
-              <tr>
-                <th>Reservation by</th>
-                <th>Start</th>
-                <th>End</th>
-                <th>Price</th>
-                <th width='150px'>Status</th>
+  const ExpandedTable = ({ data, isPending }) => {
+    return (<Table
+      sx={{ '& thead th:nth-of-type(1)': { width: '25%' } }}
+      borderAxis="xBetween"
+      size="md"
+      stickyFooter={false}
+        stickyHeader={true}
+        overflow='auto'
+        hoverRow
+        variant="plain">
+          <thead>
+            <tr>
+              <th>Reservation by</th>
+              <th style={{ textAlign: 'center' }}>Start</th>
+              <th style={{ textAlign: 'center' }}>End</th>
+              <th style={{ textAlign: 'center' }}>Price</th>
+              <th style={{ textAlign: 'center' }} width='150px' >Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows(data).map((row, i) => (
+              <tr key={i}>
+                <td>{row.user}</td>
+                <td style={{ textAlign: 'center' }}>{row.startDate}</td>
+                <td style={{ textAlign: 'center' }}>{row.endDate}</td>
+                <td style={{ textAlign: 'center' }}>{row.price}</td>
+                {isPending && <td> <AcceptDelete bookingId={row.bookingId} navigate={navigate}/> </td>}
+                {!isPending && <td> <StatusChip status={row.status}/> </td>}
               </tr>
-            </thead>
-            <tbody>
-              {rows(data).map((row, i) => (
-                <tr key={i}>
-                  <td>{row.user}</td>
-                  <td>{row.startDate}</td>
-                  <td>{row.endDate}</td>
-                  <td>{row.price}</td>
-                  <td> <StatusChip status={row.status}/> </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-    );
+            ))}
+          </tbody>
+      </Table>);
+  }
+
+  const ReservationTableFull = ({ data, isPending }) => {
+    return (tablet ? <MobileTable data={data} isPending={isPending}/> : <ExpandedTable data={data} isPending={isPending}/>);
   }
 
   const ReservationTable = () => {
@@ -189,22 +201,23 @@ export const ListingReservations = () => {
           <Tab>Declined</Tab>
         </TabList>
         <TabPanel value={0}>
-          { pendingData.length === 0 ? <Typography> No pending bookings. </Typography> : <ReservationTablePending data={pendingData}/> }
+          { pendingData.length === 0 ? <Typography> No pending bookings. </Typography> : <ReservationTableFull data={pendingData} isPending={true}/> }
         </TabPanel>
         <TabPanel value={1}>
-          { acceptedData.length === 0 ? <Typography> No accepted bookings yet. </Typography> : <ReservationTableStatus data={acceptedData}/> }
+          { acceptedData.length === 0 ? <Typography> No accepted bookings yet. </Typography> : <ReservationTableFull data={acceptedData} isPending={false}/> }
         </TabPanel>
         <TabPanel value={2}>
-        { declinedData.length === 0 ? <Typography> No declined bookings yet. </Typography> : <ReservationTableStatus data={declinedData}/> }
+        { declinedData.length === 0 ? <Typography> No declined bookings yet. </Typography> : <ReservationTableFull data={declinedData} isPending={false}/> }
         </TabPanel>
       </Tabs>
     )
   }
 
   const Booking = () => {
+    const padding = mobile ? '50px 20px' : '50px 80px'
     return (
-    <Grid container spacing={2} sx={{ flexGrow: 1, padding: '50px 80px' }}>
-      <Grid xs={3}>
+    <Grid container spacing={2} sx={{ flexGrow: 1, padding }}>
+      <Grid xs={infoLength}>
         <Sheet sx={{ borderRadius: '8px', minHeight: '90%' }}>
           <Typography level='h3'>{title}</Typography>
           <br/>
@@ -213,7 +226,7 @@ export const ListingReservations = () => {
           <Typography sx={{ paddingBottom: '25px' }} className='listing-info' level='body-md'><b>Days booked in {thisYear}</b><br/>{daysBooked}</Typography>
         </Sheet>
       </Grid>
-      <Grid xs={9}>
+      <Grid xs={12 - infoLength ? 12 - infoLength : 12}>
       <Typography level='h3' sx={{ marginBottom: '15px' }}>Reservations</Typography>
       <ReservationTable/>
       </Grid>

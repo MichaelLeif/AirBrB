@@ -44,6 +44,11 @@ export const ListingInfoPage = styled(Container)({
   backgroundColor: 'white'
 })
 
+export const ListingInfoPageMobile = styled(Container)({
+  padding: '30px 20px',
+  backgroundColor: 'white'
+})
+
 export const IconDecorator = styled(Button)({
   '& span.MuiButton-startDecorator': {
     margin: 0,

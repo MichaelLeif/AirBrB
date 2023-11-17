@@ -70,8 +70,8 @@ export const Login = ({ onSubmit }) => {
     return <Error severity="error">{error}</Error>;
   }
 
-  document.querySelector('submit-button').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
+  document.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter' && window.location.href.match('http://localhost:3000/login')) {
       login(email, password, setError);
     }
   })

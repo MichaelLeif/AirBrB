@@ -5,7 +5,7 @@ import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { LoginContext } from '../loginContext';
 import { AuthBox, AuthTitle, Line } from '../helpers/generics';
-
+import { setToken, setUser } from '../helpers/auth';
 const RegisterButton = styled(Button)({
   textTransform: 'none',
   padding: '10px 0px',
@@ -42,15 +42,13 @@ export const Register = () => {
   const [error, setError] = React.useState('');
   console.log(userLoggedIn);
 
-  const setToken = (token) => {
-    localStorage.setItem('token', token);
-  }
+  document.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && window.location.href.match('http://localhost:3000/register')) {
+      register(name, email, password, confirmPassword);
+    }
+  })
 
-  const setUser = (user) => {
-    localStorage.setItem('user', user);
-  }
-
-  const register = () => {
+  const register = (name, email, password, confirmPassword) => {
     console.log(register)
     if (!passwordsMatch(password, confirmPassword)) {
       return;
@@ -92,7 +90,7 @@ export const Register = () => {
         <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
         <TextField fullWidth id="login-confirm-password" label="Confirm your password" type='password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <RegisterButton variant="contained" disableElevation onClick={() => register()}>
+        <RegisterButton variant="contained" disableElevation onClick={() => register(name, email, password, confirmPassword)}>
           Register
         </RegisterButton>
       </div>
