@@ -85,3 +85,25 @@ export const ListingPhotos = styled('img')({
     opacity: 0.5
   },
 })
+
+export const RegisterButton = styled(Button)({
+  textTransform: 'none',
+  padding: '10px 0px',
+  borderRadius: '5px',
+  backgroundColor: '#e00c64',
+  color: '#fff',
+  fontSize: '1rem',
+  marginTop: '10px',
+  marginBottom: '10px',
+  width: '100%',
+  '&:hover': {
+    backgroundColor: '#e00c64',
+    borderColor: '#e00c64',
+    boxShadow: 'none',
+  },
+  '&:active': {
+    boxShadow: 'none',
+    backgroundColor: '#e00c64',
+    borderColor: '#e00c64',
+  },
+})

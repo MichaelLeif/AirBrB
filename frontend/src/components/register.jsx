@@ -1,32 +1,12 @@
 import React, { useContext } from 'react'
 import { apiCall } from '../helpers/apicalls';
-import { TextField, Alert, Button } from '@mui/material';
+import { TextField, Alert } from '@mui/material';
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { LoginContext } from '../loginContext';
-import { AuthBox, AuthTitle, Line } from '../helpers/generics';
+import { AuthBox, AuthTitle, Line, RegisterButton } from '../helpers/generics';
 import { setToken, setUser } from '../helpers/auth';
 import { Link } from '@mui/joy';
-const RegisterButton = styled(Button)({
-  textTransform: 'none',
-  padding: '10px 0px',
-  borderRadius: '5px',
-  backgroundColor: '#e00c64',
-  fontSize: '1rem',
-  marginTop: '10px',
-  marginBottom: '10px',
-  width: '100%',
-  '&:hover': {
-    backgroundColor: '#e00c64',
-    borderColor: '#e00c64',
-    boxShadow: 'none',
-  },
-  '&:active': {
-    boxShadow: 'none',
-    backgroundColor: '#e00c64',
-    borderColor: '#e00c64',
-  },
-});
 
 const Error = styled(Alert)({
   margin: '10px 0px;'
