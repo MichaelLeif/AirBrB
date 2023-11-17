@@ -4,8 +4,8 @@ import { apiCall } from '../helpers/apicalls';
 import { LoadPhoto } from '../helpers/image';
 import { Container } from '@mui/material';
 import { FormControl, FormLabel, FormHelperText } from '@mui/joy'
-import BreadCrumbs from './breadcrumbs';
-import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, OrDivider, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
+import { BreadCrumbsViaMyListing } from './breadcrumbs';
+import { Amenities, Features, Type, Price, Location, SubmitButton, BedroomLayout, Title, Address, ErrorCallout, Footer } from './listing-info-fragments';
 import ScrollButton from './scroll-top';
 import { ListingInfoPage } from '../helpers/generics';
 
@@ -129,10 +129,7 @@ export const NewListing = () => {
   return (
     <ListingInfoPage>
       <Container maxWidth="sm">
-        <BreadCrumbs navigate={navigate}> Create Listing </BreadCrumbs>
-        <h3> Upload a JSON file of your listing. </h3>
-        <br/>
-        <OrDivider/>
+        <BreadCrumbsViaMyListing navigate={navigate}> Create Listing </BreadCrumbsViaMyListing>
         <br/>
         <Title title={title} setTitle={setTitle} badInputs={badInputs} setBadInputs={setBadInputs} />
         <br/>
@@ -155,7 +152,7 @@ export const NewListing = () => {
         <FormControl required>
             <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Upload photos of your listing </FormLabel>
             <FormHelperText>
-              Only accepting JPEG, JPG or PNG.
+              Only accepting JPEG, JPG or PNG. Click photo to delete.
             </FormHelperText>
         </FormControl>
         <br/>

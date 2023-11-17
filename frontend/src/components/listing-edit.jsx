@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { apiCall } from '../helpers/apicalls';
 import { LoadPhoto } from '../helpers/image';
 import { ListingDataContext, useContext } from '../listingDataContext';
-import BreadCrumbs from './breadcrumbs'
+import { BreadCrumbsViaMyListing } from './breadcrumbs'
 import { styled } from '@mui/material/styles';
 import { InfoOutlined } from '@mui/icons-material';
 import { FormLabel, Button, FormHelperText, FormControl, Card, Typography } from '@mui/joy'
@@ -159,7 +159,7 @@ export const EditListing = ({ listingId }) => {
 
   return (
     <ListingInfoPage maxWidth="sm">
-      <BreadCrumbs navigate={navigate}> Edit Listing </BreadCrumbs>
+      <BreadCrumbsViaMyListing navigate={navigate}> Edit Listing </BreadCrumbsViaMyListing>
       <br/>
       <Title title={title} setTitle={setTitle} badInputs={badInputs} setBadInputs={setBadInputs} />
       <br/>
@@ -182,7 +182,7 @@ export const EditListing = ({ listingId }) => {
       <FormControl required>
           <FormLabel sx={{ fontSize: '1.1rem', margin: '10px 0px' }}> Upload photos of your listing </FormLabel>
           <FormHelperText>
-            Only accepting JPEG, JPG or PNG.
+            Only accepting JPEG, JPG or PNG. Click photo to delete.
           </FormHelperText>
       </FormControl>
       <br/>

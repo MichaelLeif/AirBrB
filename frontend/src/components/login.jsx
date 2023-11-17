@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { setToken, setUser } from '../helpers/auth';
 import { LoginContext } from '../loginContext';
 import { AuthBox, AuthTitle, Line } from '../helpers/generics';
+import { Link } from '@mui/joy';
 
 const Error = styled(Alert)({
   margin: '10px 0px;'
@@ -18,7 +19,7 @@ const RegisterButton = styled(Button)({
   backgroundColor: '#e00c64',
   fontSize: '1rem',
   marginTop: '10px',
-  marginBottom: '30px',
+  marginBottom: '10px',
   width: '100%',
   '&:hover': {
     backgroundColor: '#e00c64',
@@ -31,11 +32,6 @@ const RegisterButton = styled(Button)({
     borderColor: '#e00c64',
   },
 });
-
-const IDS = {
-  emailError: 'login-email-error',
-  passwordError: 'login-password-error',
-}
 
 export const login = async (email, password, setError) => {
   try {
@@ -90,7 +86,7 @@ export const Login = ({ onSubmit }) => {
             required
             aria-required="true"
             aria-invalid={!email.length}
-            aria-describedby={!email.length ? 'login-email-error' : 'login-email-error'}
+            aria-describedby={!email.length ? 'login-email-error' : 'login-email'}
             fullWidth
             id="login-email"
             label="Email"
@@ -103,7 +99,7 @@ export const Login = ({ onSubmit }) => {
             required
             aria-required="true"
             aria-invalid={!password.length}
-            aria-describedby={!password.length ? IDS.passwordError : IDS.emailError}
+            aria-describedby={!password.length ? 'login-password-error' : 'login-password'}
             fullWidth
             id="login-password"
             label="Password"
@@ -115,6 +111,12 @@ export const Login = ({ onSubmit }) => {
           <RegisterButton id="submit-button" type="submit" variant="contained" disableElevation onClick={loginHandler}>
             Login
           </RegisterButton>
+          <p>
+            <b>Don&apos;t have an account? </b>
+            <Link onClick={() => navigate('/register')} >
+              Click here
+            </Link>
+        </p>
         </div>
       </AuthBox>
     </>

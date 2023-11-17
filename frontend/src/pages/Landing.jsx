@@ -19,16 +19,7 @@ import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import Input from '@mui/joy/Input';
 import useMediaQuery from '@mui/material/useMediaQuery';
-
-const contentContainer = {
-  height: 'auto',
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr)',
-  gridTemplateRows: 'auto auto',
-  columnGap: '24px',
-  rowGap: '50px',
-  overflow: 'auto',
-}
+import { Loading } from '../helpers/generics.jsx';
 
 const searchContainer = {
   position: 'absolute',
@@ -287,11 +278,7 @@ export const Landing = () => {
 
   if (loading) {
     return (
-      <>
-        <Box sx={contentContainer}>
-          LOADING
-        </Box>
-      </>
+      <Loading/>
     )
   }
 

@@ -27,10 +27,13 @@ import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
 import {
   wifiSVG, safeSVG, tvSVG, alarmSVG,
-  airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG
+  airconSVG, kitchenSVG, fireplaceSVG, parkingSVG, washingSVG, bedSVG
 } from '../helpers/svg';
 import AspectRatio from '@mui/joy/AspectRatio';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { Loading } from '../helpers/generics.jsx';
+import { Container } from '@mui/joy';
+import { BreadCrumbsViaHome } from '../components/breadcrumbs.jsx';
 
 export const Listing = () => {
   const mobileResponsive = useMediaQuery('only screen and (min-width: 400px) and (max-width: 1000px');
@@ -73,7 +76,8 @@ export const Listing = () => {
 
   const thumbnail = {
     width: '100%',
-    height: '100%',
+    height: '500px',
+    objectFit: 'cover'
   }
 
   const infoDiv = {
@@ -148,9 +152,7 @@ export const Listing = () => {
 
   if (isLoading) {
     return (
-      <Box>
-        LOADING...
-      </Box>
+      <Loading/>
     )
   }
 
@@ -344,6 +346,7 @@ export const Listing = () => {
             return (
               <Card key={bedroom.i} variant="soft" color="neutral" sx={{ width: '37%', height: 'auto' }}>
                 <CardContent sx={{ width: '100%' }}>
+                  {bedSVG}
                   <Typography level="title-md">Bedroom {bedroom.i}</Typography>
                   <Typography level='body-sm'>{SleepingArrangement(bedroom)}</Typography>
                 </CardContent>
@@ -447,8 +450,10 @@ export const Listing = () => {
 
   return (
     <>
+    <Container size="sm">
       <Box sx={wrapper}>
         <Box sx={firstContainer}>
+          <BreadCrumbsViaHome navigate={navigate}> {listing.title} </BreadCrumbsViaHome>
           <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <Typography level="h1">{listing.title}{listing.metadata.type && `, ${listing.metadata.type}`}</Typography>
             <Typography level="h2" fontSize="xl" sx={{ mb: 0.5 }}>
@@ -577,6 +582,7 @@ export const Listing = () => {
         rating = e.target.value;
       }}
       />
+    </Container>
     </>
   )
 }

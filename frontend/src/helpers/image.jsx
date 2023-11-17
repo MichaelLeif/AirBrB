@@ -5,8 +5,7 @@ import { Button, SvgIcon } from '@mui/joy';
 import { styled } from '@mui/material/styles';
 import { ErrorCallout } from '../components/listing-info-fragments';
 import { ListingPhotos } from './generics';
-// import { ListingPhotos } from './generics';
-// import { ListingPhotos } from './generics';
+
 export function fileToDataUrl (file) {
   console.log(file)
   const validFileTypes = ['image/jpeg', 'image/png', 'image/jpg']

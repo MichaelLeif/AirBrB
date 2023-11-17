@@ -81,6 +81,7 @@ export const ListingPhotos = styled('img')({
   height: '100%',
   objectFit: 'cover',
   '&:hover': {
+    cursor: 'pointer',
     opacity: 0.5
-  }
+  },
 })

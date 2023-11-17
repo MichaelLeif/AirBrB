@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { LoginContext } from '../loginContext';
 import { AuthBox, AuthTitle, Line } from '../helpers/generics';
 import { setToken, setUser } from '../helpers/auth';
+import { Link } from '@mui/joy';
 const RegisterButton = styled(Button)({
   textTransform: 'none',
   padding: '10px 0px',
@@ -13,7 +14,7 @@ const RegisterButton = styled(Button)({
   backgroundColor: '#e00c64',
   fontSize: '1rem',
   marginTop: '10px',
-  marginBottom: '30px',
+  marginBottom: '10px',
   width: '100%',
   '&:hover': {
     backgroundColor: '#e00c64',
@@ -86,13 +87,67 @@ export const Register = () => {
         <Line/>
         <h2> Welcome to AirBnb </h2>
         {error ? <ErrorMessage/> : null}
-        <TextField fullWidth id="login-name" label="Name" type='text' value={name} onChange={e => setName(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <TextField fullWidth id="login-email" label="Email" type='text' value={email} onChange={e => setEmail(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <TextField fullWidth id="login-password" label="Password" type='password' value={password} onChange={e => setPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
-        <TextField fullWidth id="login-confirm-password" label="Confirm your password" type='password' value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} variant="outlined" margin="normal"/> <br/>
+        <TextField
+          required
+          aria-required="true"
+          aria-invalid={!name.length}
+          aria-describedby={!name.length ? 'register-name-error' : 'register-name'}
+          fullWidth
+          id="register-name"
+          label="Name"
+          type='text'
+          value={name}
+          onChange={e => setName(e.target.value)}
+          variant="outlined"
+          margin="normal"/> <br/>
+        <TextField
+          required
+          aria-required="true"
+          aria-invalid={!email.length}
+          aria-describedby={!email.length ? 'register-email-error' : 'register-email'}
+          fullWidth
+          id="register-email"
+          label="Email"
+          type='text'
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          variant="outlined"
+          margin="normal"/> <br/>
+        <TextField
+          required
+          aria-required="true"
+          aria-invalid={!password.length}
+          aria-describedby={!password.length ? 'register-password-error' : 'register-password'}
+          fullWidth
+          id="register-password"
+          label="Password"
+          type='password'
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          variant="outlined"
+          margin="normal"/> <br/>
+        <TextField
+          required
+          aria-required="true"
+          aria-invalid={!confirmPassword.length}
+          aria-describedby={!confirmPassword.length ? 'register-confirmPassword-error' : 'register-confirmPassword'}
+          fullWidth
+          id="login-confirm-password"
+          label="Confirm your password"
+          type='password'
+          value={confirmPassword}
+          onChange={e => setConfirmPassword(e.target.value)}
+          variant="outlined"
+          margin="normal"/> <br/>
         <RegisterButton variant="contained" disableElevation onClick={() => register(name, email, password, confirmPassword)}>
           Register
         </RegisterButton>
+        <p>
+          <b>Already have an account? </b>
+          <Link onClick={() => navigate('/login')} >
+            Click here
+          </Link>
+        </p>
       </div>
     </AuthBox>
   )
